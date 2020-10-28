@@ -1,0 +1,35 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "Mixed Reality Graphics Tools Examples",
+	"Description": "Examples for the Mixed Reality Graphics Tools plugin.",
+	"Category": "Other",
+	"CreatedBy": "Microsoft",
+	"CreatedByURL": "http://www.microsoft.com",
+	"DocsURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"SupportedTargetPlatforms": [
+		"Win64",
+		"HoloLens",
+		"Android"
+	],
+	"Modules": [
+		{
+			"Name": "GraphicsToolsExamples",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "GraphicsTools",
+			"Enabled": true
+		}
+	]
+}

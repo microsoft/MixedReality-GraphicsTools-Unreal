@@ -1,0 +1,44 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "Mixed Reality Graphics Tools",
+	"Description": "Graphics tools and components for developing Mixed Reality applications.",
+	"Category": "Other",
+	"CreatedBy": "Microsoft",
+	"CreatedByURL": "http://www.microsoft.com",
+	"DocsURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"SupportedTargetPlatforms": [
+		"Win64",
+		"HoloLens",
+		"Android"
+	],
+	"Modules": [
+		{
+			"Name": "GraphicsTools",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"HoloLens",
+				"Android"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "WindowsMixedReality",
+			"Enabled": true,
+			"WhitelistPlatforms": [
+				"Win64",
+				"HoloLens"
+			]
+		}
+	]
+}
