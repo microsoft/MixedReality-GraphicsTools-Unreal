@@ -1,0 +1,9 @@
+#ifndef GT_LIGHTING
+#define GT_LIGHTING
+
+float3 Test()
+{
+	return float3(1, 0, 0);
+}
+
+#endif // GT_LIGHTING

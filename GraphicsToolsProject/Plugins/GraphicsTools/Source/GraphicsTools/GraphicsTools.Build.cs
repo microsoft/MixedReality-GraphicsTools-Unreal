@@ -39,10 +39,11 @@ public class GraphicsTools : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"Projects",
+				"RenderCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-
 
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]

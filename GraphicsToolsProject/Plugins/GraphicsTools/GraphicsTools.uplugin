@@ -23,7 +23,7 @@
 		{
 			"Name": "GraphicsTools",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
+			"LoadingPhase": "PostConfigInit",
 			"WhitelistPlatforms": [
 				"Win64",
 				"HoloLens",
