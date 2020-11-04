@@ -7,6 +7,8 @@
 
 #include "Modules/ModuleManager.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(GraphicsTools, All, All)
+
 /**
  * TODO
  */

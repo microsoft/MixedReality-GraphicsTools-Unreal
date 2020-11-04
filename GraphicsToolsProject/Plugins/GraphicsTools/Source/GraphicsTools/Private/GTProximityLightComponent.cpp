@@ -3,6 +3,20 @@
 
 #include "GTProximityLightComponent.h"
 
+#include "GraphicsTools.h"
+
+#include "Materials/MaterialParameterCollection.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
+
+UGTProximityLightComponent::UGTProximityLightComponent()
+{
+	bWantsOnUpdateTransform = true;
+
+	static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> Finder(TEXT("/GraphicsTools/Materials/MPC_GTSettings"));
+	check(Finder.Object);
+	ParameterCollection = Finder.Object;
+}
+
 void UGTProximityLightComponent::SetNearRaidus(float Radius)
 {
 	NearRadius = FMath::Clamp(Radius, 1.0f, 500.0f);
@@ -31,6 +45,26 @@ void UGTProximityLightComponent::SetNearDistance(float Distance)
 void UGTProximityLightComponent::SetMinNearSizePercentage(float Percentage)
 {
 	Percentage = FMath::Clamp(Percentage, 0.0f, 1.0f);
+}
+
+void UGTProximityLightComponent::OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport)
+{
+	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
+
+	if (ParameterCollection)
+	{
+		UMaterialParameterCollectionInstance* ParameterCollectionInstance = GetWorld()->GetParameterCollectionInstance(ParameterCollection);
+		static FName ParameterNames[] = {"ProximityLightLocation0", "ProximityLightLocation1"};
+		FName ParameterName = true ? ParameterNames[0] : ParameterNames[1];
+		const bool bFoundParameter = ParameterCollectionInstance->SetVectorParameterValue(ParameterName, GetComponentLocation());
+
+		if (!bFoundParameter)
+		{
+			UE_LOG(
+				GraphicsTools, Warning, TEXT("Unable to find %s parameter in material parameter collection %s."), *ParameterName.ToString(),
+				*ParameterCollection->GetPathName());
+		}
+	}
 }
 
 #if WITH_EDITOR

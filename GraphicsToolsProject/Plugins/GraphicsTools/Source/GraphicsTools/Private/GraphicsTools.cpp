@@ -8,6 +8,8 @@
 #include "Features/IModularFeatures.h"
 #include "Interfaces/IPluginManager.h"
 
+DEFINE_LOG_CATEGORY(GraphicsTools)
+
 #define LOCTEXT_NAMESPACE "FGraphicsToolsModule"
 
 void FGraphicsToolsModule::StartupModule()

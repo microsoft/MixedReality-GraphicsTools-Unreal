@@ -8,6 +8,8 @@
 
 #include "GTProximityLightComponent.generated.h"
 
+class UMaterialParameterCollection;
+
 /**
  * TODO
  */
@@ -17,6 +19,8 @@ class GRAPHICSTOOLS_API UGTProximityLightComponent : public UGTLightComponent
 	GENERATED_BODY()
 
 public:
+	UGTProximityLightComponent();
+
 	/** Accessor to the light's near radius. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
 	float GetNearRaidus() const { return NearRadius; }
@@ -74,6 +78,12 @@ public:
 	void SetOuterColor(FColor Color) { OuterColor = Color; }
 
 protected:
+	//
+	// USceneComponent interface
+
+	/** Notifies systems of the ProximityLight's new location. */
+	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
+
 #if WITH_EDITOR
 	/** Ensures near and far radii remain less than or greater than each other. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -115,4 +125,8 @@ private:
 	/** The color of the ProximityLight gradient at the outer edge (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOuterColor", BlueprintSetter = "SetOuterColor", Category = "Light")
 	FColor OuterColor = FColor(246, 93, 255, 255);
+
+	/** The MaterialParameterCollection this ProximityLight will write to. */
+	UPROPERTY(Transient)
+	UMaterialParameterCollection* ParameterCollection = nullptr;
 };
