@@ -29,6 +29,14 @@
 				"HoloLens",
 				"Android"
 			]
+		},
+		{
+			"Name": "GraphicsToolsEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
 		}
 	],
 	"Plugins": [

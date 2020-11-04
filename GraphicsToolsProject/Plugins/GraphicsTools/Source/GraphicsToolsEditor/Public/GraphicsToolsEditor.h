@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-
+#include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"
 
-/**
- * TODO
- */
-class FGraphicsToolsModule : public IModuleInterface
+DECLARE_LOG_CATEGORY_EXTERN(GraphicsToolsEditor, All, All)
+
+class FGraphicsToolsEditorModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override;
