@@ -2,13 +2,17 @@
 // Licensed under the MIT License.
 
 #include "GTLightComponent.h"
+
 #include "Components/BillboardComponent.h"
+#include "Materials/MaterialParameterCollection.h"
 
 UGTLightComponent::UGTLightComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
+
+	static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> Finder(TEXT("/GraphicsTools/Materials/MPC_GTSettings"));
+	check(Finder.Object);
+	ParameterCollection = Finder.Object;
 
 #if WITH_EDITORONLY_DATA
 	bVisualizeComponent = true;
@@ -23,14 +27,6 @@ UGTLightComponent::UGTLightComponent()
 #endif
 }
 
-// Called when the game starts
-void UGTLightComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-}
-
 void UGTLightComponent::OnRegister()
 {
 	Super::OnRegister();
@@ -40,11 +36,4 @@ void UGTLightComponent::OnRegister()
 		SpriteComponent->SetSprite(EditorTexture);
 		SpriteComponent->SetRelativeScale3D(FVector(EditorTextureScale));
 	}
-}
-
-void UGTLightComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }

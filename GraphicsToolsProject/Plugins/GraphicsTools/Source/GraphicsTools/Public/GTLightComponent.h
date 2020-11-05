@@ -9,6 +9,8 @@
 
 #include "GTLightComponent.generated.h"
 
+class UMaterialParameterCollection;
+
 /**
  * TODO
  */
@@ -21,15 +23,17 @@ public:
 	UGTLightComponent();
 
 protected:
-	virtual void BeginPlay() override;
-
 #if WITH_EDITOR
-	/** UActorComponent Interface */
+	//
+	// UActorComponent interface
+
+	/** TODO */
 	virtual void OnRegister() override;
 #endif
 
-public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	/** The MaterialParameterCollection this light will write to. */
+	UPROPERTY(Transient)
+	UMaterialParameterCollection* ParameterCollection = nullptr;
 
 #if WITH_EDITORONLY_DATA
 	/** Sprite for the light in the editor. */

@@ -8,8 +8,6 @@
 
 #include "GTProximityLightComponent.generated.h"
 
-class UMaterialParameterCollection;
-
 /**
  * TODO
  */
@@ -79,6 +77,18 @@ public:
 
 protected:
 	//
+	// UActorComponent interface
+
+	/** TODO */
+	virtual void OnRegister() override;
+
+	/** TODO */
+	virtual void OnUnregister() override;
+
+	/** TODO */
+	virtual void OnVisibilityChanged() override;
+
+	//
 	// USceneComponent interface
 
 	/** Notifies systems of the ProximityLight's new location. */
@@ -88,6 +98,15 @@ protected:
 	/** Ensures near and far radii remain less than or greater than each other. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
+
+	/** TODO */
+	void AddLight();
+
+	/** TODO */
+	void RemoveLight();
+
+	/** TODO */
+	void UpdateParameterCollection(bool LocationDirty, bool SettingsDirty);
 
 private:
 	/** Specifies the radius of the ProximityLight effect when near to a surface. */
@@ -126,7 +145,5 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOuterColor", BlueprintSetter = "SetOuterColor", Category = "Light")
 	FColor OuterColor = FColor(246, 93, 255, 255);
 
-	/** The MaterialParameterCollection this ProximityLight will write to. */
-	UPROPERTY(Transient)
-	UMaterialParameterCollection* ParameterCollection = nullptr;
+	static TArray<UGTProximityLightComponent*> ProximityLights;
 };
