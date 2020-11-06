@@ -22,6 +22,12 @@ class GRAPHICSTOOLS_API UGTLightComponent : public USceneComponent
 public:
 	UGTLightComponent();
 
+	/** TODO */
+	UMaterialParameterCollection* GetParameterCollection() { return ParameterCollection; }
+
+	/** TODO */
+	const UMaterialParameterCollection* GetParameterCollection() const { return ParameterCollection; }
+
 protected:
 #if WITH_EDITOR
 	//
@@ -30,10 +36,6 @@ protected:
 	/** TODO */
 	virtual void OnRegister() override;
 #endif
-
-	/** The MaterialParameterCollection this light will write to. */
-	UPROPERTY(Transient)
-	UMaterialParameterCollection* ParameterCollection = nullptr;
 
 #if WITH_EDITORONLY_DATA
 	/** Sprite for the light in the editor. */
@@ -44,4 +46,9 @@ protected:
 	UPROPERTY(transient)
 	float EditorTextureScale;
 #endif
+
+private:
+	/** The MaterialParameterCollection this light will write to. */
+	UPROPERTY(Transient)
+	UMaterialParameterCollection* ParameterCollection = nullptr;
 };

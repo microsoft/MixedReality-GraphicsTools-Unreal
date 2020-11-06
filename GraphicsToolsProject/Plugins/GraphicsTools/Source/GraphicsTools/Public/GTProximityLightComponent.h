@@ -57,7 +57,7 @@ public:
 
 	/** Sets the light's center color. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetCenterColor(FColor Color) { CenterColor = Color; }
+	void SetCenterColor(FColor Color);
 
 	/** Accessor to the light's middle color. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
@@ -65,7 +65,7 @@ public:
 
 	/** Sets the light's middle color. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetMiddleColor(FColor Color) { MiddleColor = Color; }
+	void SetMiddleColor(FColor Color);
 
 	/** Accessor to the light's outer color. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
@@ -73,7 +73,7 @@ public:
 
 	/** Sets the light's outer color. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetOuterColor(FColor Color) { OuterColor = Color; }
+	void SetOuterColor(FColor Color);
 
 protected:
 	//
@@ -98,15 +98,6 @@ protected:
 	/** Ensures near and far radii remain less than or greater than each other. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
-
-	/** TODO */
-	void AddLight();
-
-	/** TODO */
-	void RemoveLight();
-
-	/** TODO */
-	void UpdateParameterCollection(bool LocationDirty, bool SettingsDirty);
 
 private:
 	/** Specifies the radius of the ProximityLight effect when near to a surface. */
@@ -144,6 +135,4 @@ private:
 	/** The color of the ProximityLight gradient at the outer edge (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOuterColor", BlueprintSetter = "SetOuterColor", Category = "Light")
 	FColor OuterColor = FColor(246, 93, 255, 255);
-
-	static TArray<UGTProximityLightComponent*> ProximityLights;
 };

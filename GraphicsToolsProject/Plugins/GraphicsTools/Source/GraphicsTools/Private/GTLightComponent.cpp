@@ -27,6 +27,7 @@ UGTLightComponent::UGTLightComponent()
 #endif
 }
 
+#if WITH_EDITOR
 void UGTLightComponent::OnRegister()
 {
 	Super::OnRegister();
@@ -37,3 +38,4 @@ void UGTLightComponent::OnRegister()
 		SpriteComponent->SetRelativeScale3D(FVector(EditorTextureScale));
 	}
 }
+#endif
