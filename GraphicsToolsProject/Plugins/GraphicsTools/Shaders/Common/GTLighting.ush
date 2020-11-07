@@ -4,4 +4,32 @@
 #ifndef GT_LIGHTING
 #define GT_LIGHTING
 
+#include "GTCommon.ush"
+
+Half3 ProximityLightColor(Half4 centerColor, Half4 middleColor, Half4 outerColor, Half t)
+{
+    Half3 color = lerp(centerColor.rgb, middleColor.rgb, smoothstep(centerColor.a, middleColor.a, t));
+    return lerp(color, outerColor.rgb, smoothstep(middleColor.a, outerColor.a, t));
+}
+
+Half3 ProximityLight(float3 worldPosition,
+                    float3 worldNormal,
+                    float4 lightPosition,
+                    float4 lightSettings,
+                    float4 lightPulseSettings,
+                    Half4 lightCenterColor,
+                    Half4 lightMiddleColor,
+                    Half4 lightOuterColor)
+{
+    float proximityLightDistance = dot(lightPosition.xyz - worldPosition, worldNormal);
+    float normalizedProximityLightDistance = saturate(proximityLightDistance * lightSettings.y);
+    float3 projectedProximityLight = lightPosition.xyz - (worldNormal * abs(proximityLightDistance));
+    float projectedProximityLightDistance = length(projectedProximityLight - worldPosition);
+    float attenuation = (1.0 - normalizedProximityLightDistance) * lightPosition.w;
+    float pulse = step(lightPulseSettings.x, projectedProximityLightDistance) * lightPulseSettings.y;
+    float intensity = smoothstep(1.0, 0.0, projectedProximityLightDistance / (lightSettings.x * max(pow(normalizedProximityLightDistance, 0.25), lightSettings.w))) * pulse * attenuation;
+
+    return ProximityLightColor(lightCenterColor, lightMiddleColor, lightOuterColor, saturate(projectedProximityLightDistance * lightSettings.z)) * intensity;
+}
+
 #endif // GT_LIGHTING

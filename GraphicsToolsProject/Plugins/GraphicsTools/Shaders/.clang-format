@@ -1,2 +1,2 @@
-DisableFormat: true
-SortIncludes: false
+BasedOnStyle: Microsoft
+ColumnLimit: 0

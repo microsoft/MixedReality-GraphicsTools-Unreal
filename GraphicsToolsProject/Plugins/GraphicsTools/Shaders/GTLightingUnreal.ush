@@ -6,34 +6,40 @@
 
 #include "Common/GTLighting.ush"
 
-float3 ProximityLightContribution(FMaterialPixelParameters Parameters, 
-	float4 ProximityLightLocation0, float4 ProximityLightSettings0, float4 ProximityLightPulseSettings0, float4 ProximityLightCenterColor0, float4 ProximityLightMiddleColor0, float4 ProximityLightOuterColor0, 
-	float4 ProximityLightLocation1, float4 ProximityLightSettings1, float4 ProximityLightPulseSettings1, float4 ProximityLightCenterColor1, float4 ProximityLightMiddleColor1, float4 ProximityLightOuterColor1, 
-	float4 ProximityLightLocation2, float4 ProximityLightSettings2, float4 ProximityLightPulseSettings2, float4 ProximityLightCenterColor2, float4 ProximityLightMiddleColor2, float4 ProximityLightOuterColor2)
+Half3 ProximityLightContribution(FMaterialPixelParameters Parameters,
+                                 float4 ProximityLightLocation0, float4 ProximityLightSettings0, float4 ProximityLightPulseSettings0, Half4 ProximityLightCenterColor0, Half4 ProximityLightMiddleColor0, Half4 ProximityLightOuterColor0,
+                                 float4 ProximityLightLocation1, float4 ProximityLightSettings1, float4 ProximityLightPulseSettings1, Half4 ProximityLightCenterColor1, Half4 ProximityLightMiddleColor1, Half4 ProximityLightOuterColor1,
+                                 float4 ProximityLightLocation2, float4 ProximityLightSettings2, float4 ProximityLightPulseSettings2, Half4 ProximityLightCenterColor2, Half4 ProximityLightMiddleColor2, Half4 ProximityLightOuterColor2)
 {
-	// Custom material expressions do not support array input, so we need to pack the array in the shader.
-	float4 ProximityLightLocations[MAX_PROXIMITY_LIGHTS] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2};
-	float4 ProximityLightSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2};
-	float4 ProximityLightPulseSettings[MAX_PROXIMITY_LIGHTS] = { ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2};
-	float4 ProximityLightCenterColors[MAX_PROXIMITY_LIGHTS] = { ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2};
-	float4 ProximityLightMiddleColors[MAX_PROXIMITY_LIGHTS] = { ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2};
-	float4 ProximityLightOuterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2};
+    // Custom material expressions do not support array input, so we need to pack the array in the shader.
+    float4 ProximityLightLocations[MAX_PROXIMITY_LIGHTS] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2};
+    float4 ProximityLightSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2};
+    float4 ProximityLightPulseSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2};
+    Half4 ProximityLightCenterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2};
+    Half4 ProximityLightMiddleColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2};
+    Half4 ProximityLightOuterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2};
 
-	float3 WorldLocation = GetWorldPosition(Parameters);
-	float3 WorldNormal = Parameters.WorldNormal;
+    float3 WorldLocation = GetWorldPosition(Parameters);
+    float3 WorldNormal = Parameters.WorldNormal;
 
-	float3 result = 0;
+    Half3 Contribution = 0;
 
-	for (int i = 0; i < MAX_PROXIMITY_LIGHTS; i++)
-	{
-		// Debug
-		if (ProximityLightLocations[i].w != 0)
-		{
-			result += float3(0, 1, 0) * (1 - (saturate(length(WorldLocation.xyz - ProximityLightLocations[i].xyz) - ProximityLightSettings[i].x)));
-		}
-	}
+    for (int i = 0; i < MAX_PROXIMITY_LIGHTS; i++)
+    {
+        if (ProximityLightLocations[i].w != 0)
+        {
+            Contribution += ProximityLight(WorldLocation,
+                                           WorldNormal,
+                                           ProximityLightLocations[i],
+                                           ProximityLightSettings[i],
+                                           ProximityLightPulseSettings[i],
+                                           ProximityLightCenterColors[i],
+                                           ProximityLightMiddleColors[i],
+                                           ProximityLightOuterColors[i]);
+        }
+    }
 
-	return result;
+    return Contribution;
 }
 
 #endif // GT_LIGHTING_UNREAL

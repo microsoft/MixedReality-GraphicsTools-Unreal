@@ -126,7 +126,7 @@ private:
 
 	/** The color of the ProximityLight gradient at the center (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetCenterColor", BlueprintSetter = "SetCenterColor", Category = "Light")
-	FColor CenterColor = FColor(54, 142, 250, 0);
+	FColor CenterColor = FColor(75, 148, 251, 0);
 
 	/** The color of the ProximityLight gradient in between the center and outer color (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetMiddleColor", BlueprintSetter = "SetMiddleColor", Category = "Light")
@@ -134,5 +134,5 @@ private:
 
 	/** The color of the ProximityLight gradient at the outer edge (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOuterColor", BlueprintSetter = "SetOuterColor", Category = "Light")
-	FColor OuterColor = FColor(246, 93, 255, 255);
+	FColor OuterColor = FColor(114, 55, 191, 255);
 };
