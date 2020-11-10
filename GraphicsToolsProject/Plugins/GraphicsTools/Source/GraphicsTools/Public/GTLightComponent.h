@@ -12,7 +12,7 @@
 class UMaterialParameterCollection;
 
 /**
- * TODO
+ * Abstract base class for all light actor components within Graphics Tools.
  */
 UCLASS(Abstract, ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
 class GRAPHICSTOOLS_API UGTLightComponent : public USceneComponent
@@ -22,10 +22,10 @@ class GRAPHICSTOOLS_API UGTLightComponent : public USceneComponent
 public:
 	UGTLightComponent();
 
-	/** TODO */
+	/** Accessor to the global Graphics Tools material parameter collection. */
 	UMaterialParameterCollection* GetParameterCollection() { return ParameterCollection; }
 
-	/** TODO */
+	/** Const accessor to the global Graphics Tools material parameter collection. */
 	const UMaterialParameterCollection* GetParameterCollection() const { return ParameterCollection; }
 
 protected:
@@ -33,7 +33,7 @@ protected:
 	//
 	// UActorComponent interface
 
-	/** TODO */
+	/** Applies editor sprite textures. */
 	virtual void OnRegister() override;
 #endif
 

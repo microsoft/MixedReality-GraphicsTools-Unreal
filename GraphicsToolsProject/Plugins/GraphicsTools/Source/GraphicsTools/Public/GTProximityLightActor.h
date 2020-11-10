@@ -9,7 +9,7 @@
 #include "GTProximityLightActor.generated.h"
 
 /**
- * TODO
+ * Utility actor which automatically adds a UGTProximityLightComponent.
  */
 UCLASS(ClassGroup = GraphicsTools)
 class GRAPHICSTOOLS_API AGTProximityLightActor : public AGTLightActor

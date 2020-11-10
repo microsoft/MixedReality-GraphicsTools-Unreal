@@ -9,15 +9,16 @@
 Half3 ProximityLightContribution(FMaterialPixelParameters Parameters,
                                  float4 ProximityLightLocation0, float4 ProximityLightSettings0, float4 ProximityLightPulseSettings0, Half4 ProximityLightCenterColor0, Half4 ProximityLightMiddleColor0, Half4 ProximityLightOuterColor0,
                                  float4 ProximityLightLocation1, float4 ProximityLightSettings1, float4 ProximityLightPulseSettings1, Half4 ProximityLightCenterColor1, Half4 ProximityLightMiddleColor1, Half4 ProximityLightOuterColor1,
-                                 float4 ProximityLightLocation2, float4 ProximityLightSettings2, float4 ProximityLightPulseSettings2, Half4 ProximityLightCenterColor2, Half4 ProximityLightMiddleColor2, Half4 ProximityLightOuterColor2)
+                                 float4 ProximityLightLocation2, float4 ProximityLightSettings2, float4 ProximityLightPulseSettings2, Half4 ProximityLightCenterColor2, Half4 ProximityLightMiddleColor2, Half4 ProximityLightOuterColor2,
+                                 float4 ProximityLightLocation3, float4 ProximityLightSettings3, float4 ProximityLightPulseSettings3, Half4 ProximityLightCenterColor3, Half4 ProximityLightMiddleColor3, Half4 ProximityLightOuterColor3)
 {
     // Custom material expressions do not support array input, so we need to pack the array in the shader.
-    float4 ProximityLightLocations[MAX_PROXIMITY_LIGHTS] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2};
-    float4 ProximityLightSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2};
-    float4 ProximityLightPulseSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2};
-    Half4 ProximityLightCenterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2};
-    Half4 ProximityLightMiddleColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2};
-    Half4 ProximityLightOuterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2};
+    float4 ProximityLightLocations[MAX_PROXIMITY_LIGHTS] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2, ProximityLightLocation3};
+    float4 ProximityLightSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2, ProximityLightSettings3};
+    float4 ProximityLightPulseSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2, ProximityLightPulseSettings3};
+    Half4 ProximityLightCenterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2, ProximityLightCenterColor3};
+    Half4 ProximityLightMiddleColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2, ProximityLightMiddleColor3};
+    Half4 ProximityLightOuterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2, ProximityLightOuterColor3};
 
     float3 WorldLocation = GetWorldPosition(Parameters);
     float3 WorldNormal = Parameters.WorldNormal;

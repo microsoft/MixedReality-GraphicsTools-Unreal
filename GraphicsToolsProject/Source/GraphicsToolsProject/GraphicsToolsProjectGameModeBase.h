@@ -10,7 +10,7 @@
 #include "GraphicsToolsProjectGameModeBase.generated.h"
 
 /**
- *
+ * Example base game mode for Graphics Tools.
  */
 UCLASS()
 class GRAPHICSTOOLSPROJECT_API AGraphicsToolsProjectGameModeBase : public AGameModeBase

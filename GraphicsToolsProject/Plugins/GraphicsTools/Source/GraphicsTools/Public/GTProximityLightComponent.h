@@ -8,8 +8,19 @@
 
 #include "GTProximityLightComponent.generated.h"
 
+enum class EPulseState : uint8
+{
+	Idle,
+	Animate,
+	FadeIn,
+	FadeOut
+};
+ENUM_CLASS_FLAGS(EPulseState);
+
 /**
- * TODO
+ * A proximity light is a Fluent Design System paradigm that acts as a surface projected gradient point light. For a material to be
+ * influenced by a proximity light the ProximityLightContribution material function must be used within the material's shader graph. A
+ * maximum of 4 proximity lights can be in a level at once, additional proximity lights will be ignored by the shader.
  */
 UCLASS(ClassGroup = (GraphicsTools))
 class GRAPHICSTOOLS_API UGTProximityLightComponent : public UGTLightComponent
@@ -75,17 +86,32 @@ public:
 	UFUNCTION(BlueprintSetter, Category = "Light")
 	void SetOuterColor(FColor Color);
 
+	/** Initiates a pulse, if one is not already occurring, which simulates a user touching a surface. */
+	UFUNCTION(BlueprintCallable, Category = "Light")
+	void Pulse(float Duration = 0.2f, float FadeOffset = 0.1f, float FadeDuration = 0.1f);
+
+	/** Calculates the normalized pulse animation time. */
+	UFUNCTION(BlueprintCallable, Category = "Light")
+	float GetPulseTime() const;
+
+	/** Calculates the normalized pulse fade animation time. */
+	UFUNCTION(BlueprintCallable, Category = "Light")
+	float GetPulseFadeTime() const;
+
 protected:
 	//
 	// UActorComponent interface
 
-	/** TODO */
+	/** Conditional tick method which occurs when a light needs to animate. */
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	/** Adds the ProximityLight to the global light list. */
 	virtual void OnRegister() override;
 
-	/** TODO */
+	/** Removes the ProximityLight to the global light list. */
 	virtual void OnUnregister() override;
 
-	/** TODO */
+	/** Adds or removes the ProximityLight to the global light list based on visibility. */
 	virtual void OnVisibilityChanged() override;
 
 	//
@@ -135,4 +161,13 @@ private:
 	/** The color of the ProximityLight gradient at the outer edge (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOuterColor", BlueprintSetter = "SetOuterColor", Category = "Light")
 	FColor OuterColor = FColor(114, 55, 191, 255);
+
+	EPulseState PulseTick(float DeltaTime);
+
+	EPulseState PulseState = EPulseState::Idle;
+	float PulseTimer = 0;
+	float PulseFadeTimer = 0;
+	float PulseDuration = 0;
+	float PulseFadeOffset = 0;
+	float PulseFadeDuration = 0;
 };
