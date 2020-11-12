@@ -6,6 +6,16 @@
 
 #include "GTCommon.ush"
 
+Half3 LambertLighting(float3 lightDirection,
+                      float3 worldNormal,
+                      Half3 lightColor,
+                      Half3 pixelColor)
+{
+    float diffuseAmount = saturate(dot(lightDirection, worldNormal));
+    Half3 diffuse = diffuseAmount * lightColor * pixelColor;
+    return diffuse;
+}
+
 Half3 ProximityLightColor(Half4 centerColor, Half4 middleColor, Half4 outerColor, Half t)
 {
     Half3 color = lerp(centerColor.rgb, middleColor.rgb, smoothstep(centerColor.a, middleColor.a, t));

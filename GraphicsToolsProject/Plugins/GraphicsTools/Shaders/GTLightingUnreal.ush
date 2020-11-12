@@ -1,46 +1,108 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// PBR Lighting modeled from: https://google.github.io/filament/Filament.html
+
 #ifndef GT_LIGHTING_UNREAL
 #define GT_LIGHTING_UNREAL
 
 #include "Common/GTLighting.ush"
 
-Half3 ProximityLightContribution(FMaterialPixelParameters Parameters,
-                                 float4 ProximityLightLocation0, float4 ProximityLightSettings0, float4 ProximityLightPulseSettings0, Half4 ProximityLightCenterColor0, Half4 ProximityLightMiddleColor0, Half4 ProximityLightOuterColor0,
-                                 float4 ProximityLightLocation1, float4 ProximityLightSettings1, float4 ProximityLightPulseSettings1, Half4 ProximityLightCenterColor1, Half4 ProximityLightMiddleColor1, Half4 ProximityLightOuterColor1,
-                                 float4 ProximityLightLocation2, float4 ProximityLightSettings2, float4 ProximityLightPulseSettings2, Half4 ProximityLightCenterColor2, Half4 ProximityLightMiddleColor2, Half4 ProximityLightOuterColor2,
-                                 float4 ProximityLightLocation3, float4 ProximityLightSettings3, float4 ProximityLightPulseSettings3, Half4 ProximityLightCenterColor3, Half4 ProximityLightMiddleColor3, Half4 ProximityLightOuterColor3)
+#define PI 3.14159265359
+#define MEDIUMP_FLT_MAX 65504.0
+
+#define MIN_N_DOT_V 1e-4
+
+Half clampNoV(Half NoV)
 {
-    // Custom material expressions do not support array input, so we need to pack the array in the shader.
-    float4 ProximityLightLocations[MAX_PROXIMITY_LIGHTS] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2, ProximityLightLocation3};
-    float4 ProximityLightSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2, ProximityLightSettings3};
-    float4 ProximityLightPulseSettings[MAX_PROXIMITY_LIGHTS] = {ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2, ProximityLightPulseSettings3};
-    Half4 ProximityLightCenterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2, ProximityLightCenterColor3};
-    Half4 ProximityLightMiddleColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2, ProximityLightMiddleColor3};
-    Half4 ProximityLightOuterColors[MAX_PROXIMITY_LIGHTS] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2, ProximityLightOuterColor3};
+    // Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
+    return max(NoV, MIN_N_DOT_V);
+}
 
-    float3 WorldLocation = GetWorldPosition(Parameters);
-    float3 WorldNormal = Parameters.WorldNormal;
+Half D_GGX2(Half roughness, Half NoH, Half3 NxH)
+{
+    Half oneMinusNoHSquared = dot(NxH, NxH);
 
-    Half3 Contribution = 0;
+    Half a = NoH * roughness;
+    Half k = roughness / (oneMinusNoHSquared + a * a);
+    Half d = k * k * (1.0 / PI);
+    return min(d, MEDIUMP_FLT_MAX);
+}
 
-    for (int i = 0; i < MAX_PROXIMITY_LIGHTS; i++)
-    {
-        if (ProximityLightLocations[i].w != 0)
-        {
-            Contribution += ProximityLight(WorldLocation,
-                                           WorldNormal,
-                                           ProximityLightLocations[i],
-                                           ProximityLightSettings[i],
-                                           ProximityLightPulseSettings[i],
-                                           ProximityLightCenterColors[i],
-                                           ProximityLightMiddleColors[i],
-                                           ProximityLightOuterColors[i]);
-        }
-    }
+Half distribution(Half roughness, Half NoH, Half3 NxH)
+{
+    return D_GGX2(roughness, NoH, NxH);
+}
 
-    return Contribution;
+Half V_SmithGGXCorrelated_Fast(Half roughness, Half NoV, Half NoL)
+{
+    // Hammon 2017, "PBR Diffuse Lighting for GGX+Smith Microsurfaces"
+    Half v = 0.5 / lerp(2.0 * NoL * NoV, NoL + NoV, roughness);
+    return v;
+}
+
+Half visibility(Half roughness, Half NoV, Half NoL)
+{
+    return V_SmithGGXCorrelated_Fast(roughness, NoV, NoL);
+}
+
+Half3 F_Schlick(const Half3 f0, Half LoH)
+{
+    Half f = pow(1.0 - LoH, 5.0);
+    return f + f0 * (1.0 - f);
+}
+
+Half3 fresnel(const Half3 f0, Half LoH)
+{
+    return F_Schlick(f0, LoH); // f90 = 1.0
+}
+
+Half3 specularLobe(Half roughness, Half NoV, Half NoL, Half NoH, Half LoH, Half3 NxH, Half3 f0)
+{
+    Half D = distribution(roughness, NoH, NxH);
+    Half V = visibility(roughness, NoV, NoL);
+    Half3 F = fresnel(f0, LoH);
+
+    return (D * V) * F;
+}
+
+Half Fd_Lambert()
+{
+    return 1.0 / PI;
+}
+
+Half3 diffuseLobe(Half3 diffuseColor)
+{
+    return diffuseColor * Fd_Lambert();
+}
+
+Half3 LightContribution(FMaterialPixelParameters Parameters, Half3 BaseColor, Half Metallic, Half Roughness, Half Specular)
+{
+    Half3 LightDirection = Half3(-0.73, 0.0, 0.68); //MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz
+    Half3 WorldNormal = normalize(Parameters.WorldNormal);
+    Half3 LightColor = Half3(1, 1, 1); //MobileDirectionalLight.DirectionalLightColor.rgb
+
+    //return LambertLighting(LightDirection, WorldNormal, LightColor, BaseColor);
+
+    Half3 CameraVector = Parameters.CameraVector;
+
+	Metallic = saturate(Metallic);
+    Roughness = clamp(Roughness * Roughness, MIN_N_DOT_V, 1.0);
+
+    Half3 h = normalize(CameraVector + LightDirection);
+    Half NoV = clampNoV(dot(WorldNormal, CameraVector));
+    Half NoL = saturate(dot(WorldNormal, LightDirection));
+    Half NoH = saturate(dot(WorldNormal, h));
+    Half LoH = saturate(dot(LightDirection, h));
+    Half3 NxH = cross(WorldNormal, h);
+    Half3 f0 = 0.16 * Specular * Specular * (1.0 - Metallic) + BaseColor * Metallic;
+
+    Half3 Fr = specularLobe(Roughness, NoV, NoL, NoH, LoH, NxH, f0);
+    Half3 Fd = diffuseLobe(BaseColor);
+
+    Half3 color = Fd + Fr;
+
+    return (color * LightColor) * NoL;
 }
 
 #endif // GT_LIGHTING_UNREAL
