@@ -13,96 +13,117 @@
 
 #define MIN_N_DOT_V 1e-4
 
-Half clampNoV(Half NoV)
+float clampNoV(float NoV)
 {
     // Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
     return max(NoV, MIN_N_DOT_V);
 }
 
-Half D_GGX2(Half roughness, Half NoH, Half3 NxH)
+float D_GGX2(float roughness, float NoH, float3 NxH)
 {
-    Half oneMinusNoHSquared = dot(NxH, NxH);
+    float oneMinusNoHSquared = dot(NxH, NxH);
 
-    Half a = NoH * roughness;
-    Half k = roughness / (oneMinusNoHSquared + a * a);
-    Half d = k * k * (1.0 / PI);
+    float a = NoH * roughness;
+    float k = roughness / (oneMinusNoHSquared + a * a);
+    float d = k * k * (1.0 / PI);
     return min(d, MEDIUMP_FLT_MAX);
 }
 
-Half distribution(Half roughness, Half NoH, Half3 NxH)
+float distribution(float roughness, float NoH, float3 NxH)
 {
     return D_GGX2(roughness, NoH, NxH);
 }
 
-Half V_SmithGGXCorrelated_Fast(Half roughness, Half NoV, Half NoL)
+float V_SmithGGXCorrelated_Fast(float roughness, float NoV, float NoL)
 {
     // Hammon 2017, "PBR Diffuse Lighting for GGX+Smith Microsurfaces"
-    Half v = 0.5 / lerp(2.0 * NoL * NoV, NoL + NoV, roughness);
+    float v = 0.5 / lerp(2.0 * NoL * NoV, NoL + NoV, roughness);
     return v;
 }
 
-Half visibility(Half roughness, Half NoV, Half NoL)
+float visibility(float roughness, float NoV, float NoL)
 {
     return V_SmithGGXCorrelated_Fast(roughness, NoV, NoL);
 }
 
-Half3 F_Schlick(const Half3 f0, Half LoH)
+float3 F_SchlickGT(const float3 f0, float LoH)
 {
-    Half f = pow(1.0 - LoH, 5.0);
+    float f = pow(1.0 - LoH, 5.0);
     return f + f0 * (1.0 - f);
 }
 
-Half3 fresnel(const Half3 f0, Half LoH)
+float3 fresnel(const float3 f0, float LoH)
 {
-    return F_Schlick(f0, LoH); // f90 = 1.0
+    return F_SchlickGT(f0, LoH); // f90 = 1.0
 }
 
-Half3 specularLobe(Half roughness, Half NoV, Half NoL, Half NoH, Half LoH, Half3 NxH, Half3 f0)
+float3 specularLobe(float roughness, float NoV, float NoL, float NoH, float LoH, float3 NxH, float3 f0)
 {
-    Half D = distribution(roughness, NoH, NxH);
-    Half V = visibility(roughness, NoV, NoL);
-    Half3 F = fresnel(f0, LoH);
+    float D = distribution(roughness, NoH, NxH);
+    float V = visibility(roughness, NoV, NoL);
+    float3 F = fresnel(f0, LoH);
 
     return (D * V) * F;
 }
 
-Half Fd_Lambert()
+float Fd_Lambert()
 {
     return 1.0 / PI;
 }
 
-Half3 diffuseLobe(Half3 diffuseColor)
+float3 diffuseLobe(float3 diffuseColor)
 {
     return diffuseColor * Fd_Lambert();
 }
 
-Half3 LightContribution(FMaterialPixelParameters Parameters, Half3 BaseColor, Half Metallic, Half Roughness, Half Specular)
+float ComputeReflectionCaptureMipFromRoughnessGT(float Roughness, float CubemapMaxMip)
 {
-    Half3 LightDirection = Half3(-0.73, 0.0, 0.68); //MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz
-    Half3 WorldNormal = normalize(Parameters.WorldNormal);
-    Half3 LightColor = Half3(1, 1, 1); //MobileDirectionalLight.DirectionalLightColor.rgb
+    // Heuristic that maps roughness to mip level
+    // This is done in a way such that a certain mip level will always have the same roughness, regardless of how many mips are in the texture
+    // Using more mips in the cubemap just allows sharper reflections to be supported
+    float LevelFrom1x1 = 1 - 1.2 * log2(Roughness);
+    return CubemapMaxMip - 1 - LevelFrom1x1;
+}
+
+float3 LightContribution(FMaterialPixelParameters Parameters, float3 BaseColor, float Metallic, float Roughness, float Specular, TextureCube ReflectionCube, SamplerState ReflectionCubeSampler)
+{
+    float3 LightDirection = float3(-0.73, 0.0, 0.68); //MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz
+    float3 WorldNormal = normalize(Parameters.WorldNormal);
+    float3 LightColor = float3(1, 1, 1); //MobileDirectionalLight.DirectionalLightColor.rgb
 
     //return LambertLighting(LightDirection, WorldNormal, LightColor, BaseColor);
 
-    Half3 CameraVector = Parameters.CameraVector;
+    float3 CameraVector = Parameters.CameraVector;
 
-	Metallic = saturate(Metallic);
-    Roughness = clamp(Roughness * Roughness, MIN_N_DOT_V, 1.0);
+    Metallic = saturate(Metallic);
+    float Roughness2 = clamp(Roughness * Roughness, MIN_N_DOT_V, 1.0);
 
-    Half3 h = normalize(CameraVector + LightDirection);
-    Half NoV = clampNoV(dot(WorldNormal, CameraVector));
-    Half NoL = saturate(dot(WorldNormal, LightDirection));
-    Half NoH = saturate(dot(WorldNormal, h));
-    Half LoH = saturate(dot(LightDirection, h));
-    Half3 NxH = cross(WorldNormal, h);
-    Half3 f0 = 0.16 * Specular * Specular * (1.0 - Metallic) + BaseColor * Metallic;
+    float3 h = normalize(CameraVector + LightDirection);
+    float NoV = clampNoV(dot(WorldNormal, CameraVector));
+    float NoL = saturate(dot(WorldNormal, LightDirection));
+    float NoH = saturate(dot(WorldNormal, h));
+    float LoH = saturate(dot(LightDirection, h));
+    float3 NxH = cross(WorldNormal, h);
+    float3 f0 = 0.16 * Specular * Specular * (1.0 - Metallic) + BaseColor * Metallic;
 
-    Half3 Fr = specularLobe(Roughness, NoV, NoL, NoH, LoH, NxH, f0);
-    Half3 Fd = diffuseLobe(BaseColor);
+    float3 color = float3(0, 0, 0);
 
-    Half3 color = Fd + Fr;
+    // Indirect.
+    float3 ProjectedCaptureVector = Parameters.ReflectionVector;
+    float4 SpecularIBLSample = ReflectionCube.SampleLevel(ReflectionCubeSampler, ProjectedCaptureVector, ComputeReflectionCaptureMipFromRoughnessGT(Roughness2, 10));
+    float temp = ((SpecularIBLSample.r + SpecularIBLSample.g + SpecularIBLSample.b) * 0.33) * 0.8;
+    float3 SpecularIBL = SpecularIBLSample.rgb * temp;//(SpecularIBLSample.rgb * temp * 2);
 
-    return (color * LightColor) * NoL;
+    color += SpecularIBL * Metallic;
+    color += SpecularIBL * ((1.0 - Roughness) * 0.1);
+
+    // Direct
+    float3 Fr = specularLobe(Roughness2, NoV, NoL, NoH, LoH, NxH, f0);
+    float3 Fd = diffuseLobe(BaseColor) * (1 - Metallic);
+
+    color += ((Fd + Fr) * LightColor) * NoL;
+
+    return color;
 }
 
 #endif // GT_LIGHTING_UNREAL
