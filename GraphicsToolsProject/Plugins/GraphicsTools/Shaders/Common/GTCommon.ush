@@ -11,4 +11,9 @@
 #define Half3x3 min16float3x3
 #define Half3x4 min16float3x4
 
+Half3 GTLuminance(Half3 LinearColor)
+{
+    return dot(LinearColor, Half3(0.3, 0.59, 0.11));
+}
+
 #endif // GT_COMMON
