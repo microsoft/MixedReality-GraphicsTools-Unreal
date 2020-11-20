@@ -39,21 +39,20 @@ Half3 GTComputeMixingWeight(Half IndirectIrradiance,
     return lerp(Half3(1, 1, 1), MixingWeight, MixingAlpha);
 }
 
-float3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
-                                float3 BaseColor,
-                                float Metallic,
-                                float Roughness,
-                                float Specular,
-                                TextureCube ReflectionCube,
-                                SamplerState ReflectionCubeSampler)
+Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
+                               float BaseColor,
+                               float Metallic,
+                               float Roughness,
+                               float Specular,
+                               TextureCube ReflectionCube,
+                               SamplerState ReflectionCubeSampler,
+                               float4 DirectionalLightDirectionEnabled,
+                               float4 DirectionalLightColorIntensity)
 {
-    float3 LightDirection = float3(-0.73, 0.0, 0.68); //MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz
-    float3 LightColor = float3(1, 1, 1);              //MobileDirectionalLight.DirectionalLightColor.rgb
+    Half3 WorldNormal = normalize(Parameters.WorldNormal);
+    Half RoughnessSq = clamp(Roughness * Roughness, GT_MIN_N_DOT_V, 1.0);
 
-    float3 WorldNormal = normalize(Parameters.WorldNormal);
-    float RoughnessSq = clamp(Roughness * Roughness, GT_MIN_N_DOT_V, 1.0);
-
-    float3 Result = float3(0, 0, 0);
+    Half3 Result = Half3(0, 0, 0);
 #if !GT_FULLY_ROUGH
     // Indirect (spherical harmonics)
     Half3 SkySHDiffuse = GTGetSkySHDiffuse(WorldNormal);
@@ -62,7 +61,6 @@ float3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                Roughness,
                                SkySHDiffuse,
                                ResolvedView.SkyLightColor.rgb);
-
 
     // Indirect (reflection cube).
     Half3 MixingWeight = GTComputeMixingWeight(GTLuminance(SkySHDiffuse),
@@ -76,16 +74,19 @@ float3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
 
 #endif // GT_FULLY_ROUGH
 
-    // Direct (directional light).
-    Result += GTContributionDirectionalLight(BaseColor,
-                                             Metallic,
-                                             Roughness,
-                                             RoughnessSq,
-                                             Specular,
-                                             WorldNormal,
-                                             Parameters.CameraVector,
-                                             LightDirection,
-                                             LightColor);
+    if (DirectionalLightDirectionEnabled.w != 0)
+    {
+        // Direct (directional light).
+        Result += GTContributionDirectionalLight(BaseColor,
+                                                 Metallic,
+                                                 Roughness,
+                                                 RoughnessSq,
+                                                 Specular,
+                                                 WorldNormal,
+                                                 Parameters.CameraVector,
+                                                 DirectionalLightDirectionEnabled.xyz,
+                                                 DirectionalLightColorIntensity.rgb);
+    }
 
     return Result;
 }
