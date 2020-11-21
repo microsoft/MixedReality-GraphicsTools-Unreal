@@ -8,6 +8,8 @@
 
 #include "GTDirectionalLightComponent.generated.h"
 
+class UArrowComponent;
+
 /**
  * A light component that has parallel rays. Will provide a uniform lighting across any affected surface (eg. The Sun). Only 1
  * DirectionalLight will be considered in a scene at a time.
@@ -58,14 +60,25 @@ protected:
 #if WITH_EDITOR
 	/** Updates the material parameter collection. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
+#endif // WITH_EDITOR
+
+#if WITH_EDITORONLY_DATA
+public:
+	/** Returns ArrowComponent subobject **/
+	UArrowComponent* GetArrowComponent() const { return ArrowComponent; }
+
+private:
+	// Reference to editor visualization arrow
+	UPROPERTY()
+	UArrowComponent* ArrowComponent = nullptr;
+#endif // WITH_EDITORONLY_DATA
 
 private:
 	/** Total energy that the DirectionalLight emits. */
 	UPROPERTY(
 		EditAnywhere, BlueprintGetter = "GetLightIntensity", BlueprintSetter = "SetLightIntensity", Category = "Light",
 		meta = (DisplayName = "Intensity", UIMin = "0.0", UIMax = "20.0"))
-	float LightIntensity = 1;
+	float LightIntensity = 10;
 
 	/** The color of the DirectionalLight. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetLightColor", BlueprintSetter = "SetLightColor", Category = "Light")

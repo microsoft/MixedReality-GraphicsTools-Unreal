@@ -85,7 +85,7 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                                  WorldNormal,
                                                  Parameters.CameraVector,
                                                  DirectionalLightDirectionEnabled.xyz,
-                                                 DirectionalLightColorIntensity.rgb);
+                                                 DirectionalLightColorIntensity);
     }
 
     return Result;

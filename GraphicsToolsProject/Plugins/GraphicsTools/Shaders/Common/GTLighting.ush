@@ -81,7 +81,7 @@ Half3 GTContributionDirectionalLight(Half3 baseColor,
                                      Half3 worldNormal,
                                      Half3 cameraVector,
                                      Half3 lightDirection,
-                                     Half3 lightColor)
+                                     Half4 lightColorIntensity)
 {
     Half3 h = normalize(cameraVector + lightDirection);
     Half NoL = saturate(dot(worldNormal, lightDirection));
@@ -103,7 +103,7 @@ Half3 GTContributionDirectionalLight(Half3 baseColor,
 #endif // GT_FULLY_ROUGH
 
 	Half energyCompensation = 1 + (1 - (metallic * 1.5));
-    return ((Fd + Fr) * lightColor) * NoL * energyCompensation;
+    return ((Fd + Fr) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL * energyCompensation;
 }
 
 Half3 GTContributionSH(Half3 baseColor,

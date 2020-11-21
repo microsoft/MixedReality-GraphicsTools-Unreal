@@ -5,6 +5,7 @@
 
 #include "GraphicsTools.h"
 
+#include "Components/ArrowComponent.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 
@@ -108,11 +109,33 @@ UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 	if (!IsRunningCommandlet())
 	{
 		static ConstructorHelpers::FObjectFinder<UTexture2D> Texture(
-			TEXT("/Engine/EditorResources/LightIcons/S_LightDirectionalMove")); // TODO, show arrow, implement intensity.
+			TEXT("/Engine/EditorResources/LightIcons/S_LightDirectionalMove"));
 		check(Texture.Object);
 		EditorTexture = Texture.Object;
 	}
-#endif
+
+	// Structure to hold one-time initialization names.
+	struct FConstructorStatics
+	{
+		FName ID_Lighting;
+		FText NAME_Lighting;
+		FConstructorStatics() : ID_Lighting(TEXT("Lighting")), NAME_Lighting(NSLOCTEXT("SpriteCategory", "Lighting", "Lighting")) {}
+	};
+	static FConstructorStatics ConstructorStatics;
+
+	ArrowComponent = CreateEditorOnlyDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent0"));
+
+	if (ArrowComponent)
+	{
+		ArrowComponent->ArrowColor = FColor(255, 255, 255);
+		ArrowComponent->bTreatAsASprite = true;
+		ArrowComponent->SpriteInfo.Category = ConstructorStatics.ID_Lighting;
+		ArrowComponent->SpriteInfo.DisplayName = ConstructorStatics.NAME_Lighting;
+		ArrowComponent->SetupAttachment(this);
+		ArrowComponent->bLightAttachment = true;
+		ArrowComponent->bIsScreenSizeScaled = true;
+	}
+#endif // WITH_EDITORONLY_DATA
 }
 
 void UGTDirectionalLightComponent::SetLightIntensity(float Intensity)
@@ -143,6 +166,13 @@ void UGTDirectionalLightComponent::OnRegister()
 	{
 		GlobalDirectionalLights.AddLight(this);
 	}
+
+#if WITH_EDITORONLY_DATA
+	if (ArrowComponent != nullptr)
+	{
+		ArrowComponent->ArrowColor = GetLightColor();
+	}
+#endif // WITH_EDITORONLY_DATA
 }
 
 void UGTDirectionalLightComponent::OnUnregister()
@@ -178,6 +208,11 @@ void UGTDirectionalLightComponent::PostEditChangeProperty(FPropertyChangedEvent&
 {
 	GlobalDirectionalLights.UpdateParameterCollection(this);
 
+	if (ArrowComponent != nullptr)
+	{
+		ArrowComponent->ArrowColor = GetLightColor();
+	}
+
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
-#endif
+#endif // WITH_EDITOR

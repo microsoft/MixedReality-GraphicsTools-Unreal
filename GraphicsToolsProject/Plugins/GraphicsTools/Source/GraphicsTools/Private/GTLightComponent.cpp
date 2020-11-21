@@ -24,7 +24,7 @@ UGTLightComponent::UGTLightComponent()
 		EditorTexture = Texture.Object;
 		EditorTextureScale = 0.5f;
 	}
-#endif
+#endif // WITH_EDITORONLY_DATA
 }
 
 #if WITH_EDITOR
@@ -38,4 +38,4 @@ void UGTLightComponent::OnRegister()
 		SpriteComponent->SetRelativeScale3D(FVector(EditorTextureScale));
 	}
 }
-#endif
+#endif // WITH_EDITOR

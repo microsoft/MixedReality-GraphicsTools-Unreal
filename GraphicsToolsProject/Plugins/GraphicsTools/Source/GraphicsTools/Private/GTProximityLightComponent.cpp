@@ -348,7 +348,7 @@ void UGTProximityLightComponent::PostEditChangeProperty(FPropertyChangedEvent& P
 
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
-#endif
+#endif // WITH_EDITOR
 
 EPulseState UGTProximityLightComponent::PulseTick(float DeltaTime)
 {

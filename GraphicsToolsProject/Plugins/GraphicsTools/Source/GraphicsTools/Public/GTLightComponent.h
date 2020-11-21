@@ -35,7 +35,7 @@ protected:
 
 	/** Applies editor sprite textures. */
 	virtual void OnRegister() override;
-#endif
+#endif // WITH_EDITOR
 
 #if WITH_EDITORONLY_DATA
 	/** Sprite for the light in the editor. */
@@ -45,7 +45,7 @@ protected:
 	/** Sprite scaling for the light in the editor. */
 	UPROPERTY(transient)
 	float EditorTextureScale;
-#endif
+#endif // WITH_EDITORONLY_DATA
 
 private:
 	/** The MaterialParameterCollection this light will write to. */

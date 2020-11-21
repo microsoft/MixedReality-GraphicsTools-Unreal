@@ -123,7 +123,7 @@ protected:
 #if WITH_EDITOR
 	/** Ensures near and far radii remain less than or greater than each other. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
+#endif // WITH_EDITOR
 
 private:
 	/** Specifies the radius of the ProximityLight effect when near to a surface. */
