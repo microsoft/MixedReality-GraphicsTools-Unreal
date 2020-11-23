@@ -40,22 +40,23 @@ Half3 GTComputeMixingWeight(Half IndirectIrradiance,
 }
 
 Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
-                               float BaseColor,
+                               float3 BaseColor,
                                float Metallic,
-                               float Roughness,
                                float Specular,
+                               float Roughness,
+                               float3 Normal,
+                               float AmbientOcclusion,
                                TextureCube ReflectionCube,
                                SamplerState ReflectionCubeSampler,
                                float4 DirectionalLightDirectionEnabled,
                                float4 DirectionalLightColorIntensity)
 {
-    Half3 WorldNormal = normalize(Parameters.WorldNormal);
     Half RoughnessSq = clamp(Roughness * Roughness, GT_MIN_N_DOT_V, 1.0);
 
     Half3 Result = Half3(0, 0, 0);
 #if !GT_FULLY_ROUGH
     // Indirect (spherical harmonics)
-    Half3 SkySHDiffuse = GTGetSkySHDiffuse(WorldNormal);
+    Half3 SkySHDiffuse = GTGetSkySHDiffuse(Normal);
     Result += GTContributionSH(BaseColor,
                                Metallic,
                                Roughness,
@@ -63,7 +64,7 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                ResolvedView.SkyLightColor.rgb);
 
     // Indirect (reflection cube).
-    Half3 MixingWeight = GTComputeMixingWeight(GTLuminance(SkySHDiffuse),
+    Half3 MixingWeight = GTComputeMixingWeight(GTLuminance(SkySHDiffuse) * AmbientOcclusion,
                                                RoughnessSq);
     Result += GTContributionReflection(BaseColor,
                                        RoughnessSq,
@@ -82,13 +83,13 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                                  Roughness,
                                                  RoughnessSq,
                                                  Specular,
-                                                 WorldNormal,
+                                                 Normal,
                                                  Parameters.CameraVector,
                                                  DirectionalLightDirectionEnabled.xyz,
                                                  DirectionalLightColorIntensity);
     }
 
-    return Result;
+    return Result * AmbientOcclusion;
 }
 
 #endif // GT_LIGHTING_UNREAL
