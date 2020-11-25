@@ -16,7 +16,7 @@
 #define GT_MEDIUMP_FLT_MAX 65504.0
 #define GT_MIN_N_DOT_V 1e-4
 
-Half3 GTLuminance(Half3 linearColor)
+Half GTLuminance(Half3 linearColor)
 {
     return dot(linearColor, Half3(0.3, 0.59, 0.11));
 }

@@ -25,7 +25,7 @@ ENUM_CLASS_FLAGS(EParameterCollectionFlags);
 struct ProximityLights
 {
 public:
-	typedef TArray<UGTProximityLightComponent*> LightList;
+	typedef TArray<TWeakObjectPtr<UGTProximityLightComponent>> LightList;
 
 	LightList& GetLightList(bool bInGameWorld) { return bInGameWorld ? GameLights : EditorLights; }
 
@@ -48,13 +48,13 @@ public:
 		if (Index != INDEX_NONE)
 		{
 			// Disable the last active light.
-			UpdateParameterCollection(Lights[Lights.Num() - 1], EParameterCollectionFlags::NoneDirty);
+			UpdateParameterCollection(Lights[Lights.Num() - 1].Get(), EParameterCollectionFlags::NoneDirty);
 
 			Lights.RemoveAt(Index);
 
-			for (UGTProximityLightComponent* CurrentLight : Lights)
+			for (auto CurrentLight : Lights)
 			{
-				UpdateParameterCollection(CurrentLight, EParameterCollectionFlags::AllDirty);
+				UpdateParameterCollection(CurrentLight.Get(), EParameterCollectionFlags::AllDirty);
 			}
 		}
 	}
@@ -74,9 +74,7 @@ public:
 
 	void UpdateParameterCollection(UGTProximityLightComponent* Light, EParameterCollectionFlags DirtyFlags)
 	{
-		// Ensure the light's world isn't being destroyed. If a light is in a world being destroyed the ParameterCollectionInstance will be
-		// invalid.
-		if (Light->GetParameterCollection() == nullptr || Light->GetWorld()->HasAnyFlags(RF_BeginDestroyed))
+		if (Light == nullptr || Light->GetParameterCollection() == nullptr)
 		{
 			return;
 		}

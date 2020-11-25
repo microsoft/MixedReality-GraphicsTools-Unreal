@@ -48,12 +48,14 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                float AmbientOcclusion,
                                TextureCube ReflectionCube,
                                SamplerState ReflectionCubeSampler,
+                               float DirectLightIntensity,
                                float4 DirectionalLightDirectionEnabled,
                                float4 DirectionalLightColorIntensity)
 {
     Half RoughnessSq = clamp(Roughness * Roughness, GT_MIN_N_DOT_V, 1.0);
 
     Half3 Result = Half3(0, 0, 0);
+
 #if !GT_FULLY_ROUGH
     // Indirect (spherical harmonics)
     Half3 SkySHDiffuse = GTGetSkySHDiffuse(Normal);
@@ -70,7 +72,7 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                        RoughnessSq,
                                        ReflectionCube,
                                        ReflectionCubeSampler,
-                                       Parameters.ReflectionVector,
+                                       Parameters.ReflectionVector * Parameters.TwoSidedSign,
                                        MixingWeight);
 
 #endif // GT_FULLY_ROUGH
@@ -86,7 +88,7 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                                  Normal,
                                                  Parameters.CameraVector,
                                                  DirectionalLightDirectionEnabled.xyz,
-                                                 DirectionalLightColorIntensity);
+                                                 DirectionalLightColorIntensity) * DirectLightIntensity;
     }
 
     return Result * AmbientOcclusion;

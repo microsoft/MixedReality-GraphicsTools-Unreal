@@ -12,7 +12,7 @@
 struct DirectionalLights
 {
 public:
-	typedef TArray<UGTDirectionalLightComponent*> LightList;
+	typedef TArray<TWeakObjectPtr<UGTDirectionalLightComponent>> LightList;
 
 	LightList& GetLightList(bool bInGameWorld) { return bInGameWorld ? GameLights : EditorLights; }
 
@@ -41,7 +41,7 @@ public:
 			if (Index == 0)
 			{
 				bool bLightEnabled = Lights.Num() != 0;
-				UpdateParameterCollection(bLightEnabled ? Lights[0] : Light, bLightEnabled);
+				UpdateParameterCollection(bLightEnabled ? Lights[0].Get() : Light, bLightEnabled);
 			}
 		}
 	}
@@ -61,9 +61,7 @@ public:
 
 	void UpdateParameterCollection(UGTDirectionalLightComponent* Light, bool LightEnabled = true)
 	{
-		// Ensure the light's world isn't being destroyed. If a light is in a world being destroyed the ParameterCollectionInstance will be
-		// invalid.
-		if (Light->GetParameterCollection() == nullptr || Light->GetWorld()->HasAnyFlags(RF_BeginDestroyed))
+		if (Light == nullptr || Light->GetParameterCollection() == nullptr)
 		{
 			return;
 		}
@@ -108,8 +106,7 @@ UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 #if WITH_EDITORONLY_DATA
 	if (!IsRunningCommandlet())
 	{
-		static ConstructorHelpers::FObjectFinder<UTexture2D> Texture(
-			TEXT("/Engine/EditorResources/LightIcons/S_LightDirectionalMove"));
+		static ConstructorHelpers::FObjectFinder<UTexture2D> Texture(TEXT("/Engine/EditorResources/LightIcons/S_LightDirectionalMove"));
 		check(Texture.Object);
 		EditorTexture = Texture.Object;
 	}
