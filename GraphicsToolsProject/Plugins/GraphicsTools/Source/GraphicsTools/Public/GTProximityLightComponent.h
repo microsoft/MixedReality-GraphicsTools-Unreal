@@ -22,7 +22,7 @@ ENUM_CLASS_FLAGS(EPulseState);
  * influenced by a proximity light the ProximityLightContribution material function must be used within the material's shader graph. A
  * maximum of 4 proximity lights can be in a level at once, additional proximity lights will be ignored by the shader.
  */
-UCLASS(ClassGroup = (GraphicsTools))
+UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
 class GRAPHICSTOOLS_API UGTProximityLightComponent : public UGTLightComponent
 {
 	GENERATED_BODY()

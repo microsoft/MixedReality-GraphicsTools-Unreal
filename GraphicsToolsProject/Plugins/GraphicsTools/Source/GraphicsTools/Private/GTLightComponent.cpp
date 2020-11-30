@@ -27,6 +27,33 @@ UGTLightComponent::UGTLightComponent()
 #endif // WITH_EDITORONLY_DATA
 }
 
+UMaterialParameterCollection* UGTLightComponent::GetParameterCollection()
+{
+	// Avoid returning a collection which is being destroyed since any systems storing soft pointers may assert.
+	if (ParameterCollection != nullptr && ParameterCollection->HasAnyFlags(RF_BeginDestroyed))
+	{
+		return nullptr;
+	}
+
+	return ParameterCollection;
+}
+
+const UMaterialParameterCollection* UGTLightComponent::GetParameterCollection() const
+{
+	// Avoid returning a collection which is being destroyed since any systems storing soft pointers may assert.
+	if (ParameterCollection != nullptr && ParameterCollection->HasAnyFlags(RF_BeginDestroyed))
+	{
+		return nullptr;
+	}
+
+	return ParameterCollection;
+}
+
+bool UGTLightComponent::ValidLight(const UGTLightComponent* Light)
+{
+	return (Light != nullptr && Light->GetWorld() != nullptr && Light->GetParameterCollection() != nullptr);
+}
+
 #if WITH_EDITOR
 void UGTLightComponent::OnRegister()
 {

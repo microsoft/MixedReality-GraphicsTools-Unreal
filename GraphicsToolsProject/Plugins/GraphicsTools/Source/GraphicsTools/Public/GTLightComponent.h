@@ -23,10 +23,12 @@ public:
 	UGTLightComponent();
 
 	/** Accessor to the global Graphics Tools material parameter collection. */
-	UMaterialParameterCollection* GetParameterCollection() { return ParameterCollection; }
+	UMaterialParameterCollection* GetParameterCollection();
 
 	/** Const accessor to the global Graphics Tools material parameter collection. */
-	const UMaterialParameterCollection* GetParameterCollection() const { return ParameterCollection; }
+	const UMaterialParameterCollection* GetParameterCollection() const;
+
+	static bool ValidLight(const UGTLightComponent* Light);
 
 protected:
 #if WITH_EDITOR

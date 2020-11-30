@@ -14,7 +14,7 @@ class UArrowComponent;
  * A light component that has parallel rays. Will provide a uniform lighting across any affected surface (eg. The Sun). Only 1
  * DirectionalLight will be considered in a scene at a time.
  */
-UCLASS(ClassGroup = (GraphicsTools))
+UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
 class GRAPHICSTOOLS_API UGTDirectionalLightComponent : public UGTLightComponent
 {
 	GENERATED_BODY()

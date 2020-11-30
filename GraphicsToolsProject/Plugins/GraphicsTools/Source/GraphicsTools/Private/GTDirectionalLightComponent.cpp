@@ -18,6 +18,11 @@ public:
 
 	void AddLight(UGTDirectionalLightComponent* Light)
 	{
+		if (!UGTLightComponent::ValidLight(Light))
+		{
+			return;
+		}
+
 		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
 
 		if (Lights.Find(Light) == INDEX_NONE)
@@ -31,6 +36,11 @@ public:
 
 	void RemoveLight(UGTDirectionalLightComponent* Light)
 	{
+		if (!UGTLightComponent::ValidLight(Light))
+		{
+			return;
+		}
+
 		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
 		const int32 Index = Lights.Find(Light);
 
@@ -61,7 +71,7 @@ public:
 
 	void UpdateParameterCollection(UGTDirectionalLightComponent* Light, bool LightEnabled = true)
 	{
-		if (Light == nullptr || Light->GetParameterCollection() == nullptr)
+		if (!UGTLightComponent::ValidLight(Light))
 		{
 			return;
 		}

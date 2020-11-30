@@ -31,6 +31,11 @@ public:
 
 	void AddLight(UGTProximityLightComponent* Light)
 	{
+		if (!UGTLightComponent::ValidLight(Light))
+		{
+			return;
+		}
+
 		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
 
 		if (Lights.Find(Light) == INDEX_NONE)
@@ -42,6 +47,11 @@ public:
 
 	void RemoveLight(UGTProximityLightComponent* Light)
 	{
+		if (!UGTLightComponent::ValidLight(Light))
+		{
+			return;
+		}
+
 		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
 		const int32 Index = Lights.Find(Light);
 
@@ -74,7 +84,7 @@ public:
 
 	void UpdateParameterCollection(UGTProximityLightComponent* Light, EParameterCollectionFlags DirtyFlags)
 	{
-		if (Light == nullptr || Light->GetParameterCollection() == nullptr)
+		if (!UGTLightComponent::ValidLight(Light))
 		{
 			return;
 		}
