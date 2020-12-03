@@ -116,7 +116,7 @@ UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 #if WITH_EDITORONLY_DATA
 	if (!IsRunningCommandlet())
 	{
-		static ConstructorHelpers::FObjectFinder<UTexture2D> Texture(TEXT("/Engine/EditorResources/LightIcons/S_LightDirectionalMove"));
+		static ConstructorHelpers::FObjectFinder<UTexture2D> Texture(TEXT("/Engine/EditorResources/LightIcons/S_LightDirectional"));
 		check(Texture.Object);
 		EditorTexture = Texture.Object;
 	}

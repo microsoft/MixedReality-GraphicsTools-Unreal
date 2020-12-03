@@ -19,7 +19,7 @@ UGTLightComponent::UGTLightComponent()
 
 	if (!IsRunningCommandlet())
 	{
-		static ConstructorHelpers::FObjectFinder<UTexture2D> Texture(TEXT("/Engine/EditorResources/LightIcons/S_LightPointMove"));
+		static ConstructorHelpers::FObjectFinder<UTexture2D> Texture(TEXT("/Engine/EditorResources/LightIcons/S_LightPoint"));
 		check(Texture.Object);
 		EditorTexture = Texture.Object;
 		EditorTextureScale = 0.5f;
