@@ -46,24 +46,24 @@ Half3 GTContributionProximityLights(FMaterialPixelParameters Parameters,
     float3 WorldLocation = GetWorldPosition(Parameters);
     float3 WorldNormal = Parameters.WorldNormal;
 
-    Half3 Contribution = 0;
+    Half3 Result = 0;
 
     for (int i = 0; i < GT_MAX_PROXIMITY_LIGHTS; i++)
     {
         if (ProximityLightLocations[i].w != 0)
         {
-            Contribution += GTContributionProximityLight(WorldLocation,
-                                                         WorldNormal,
-                                                         ProximityLightLocations[i],
-                                                         ProximityLightSettings[i],
-                                                         ProximityLightPulseSettings[i],
-                                                         ProximityLightCenterColors[i],
-                                                         ProximityLightMiddleColors[i],
-                                                         ProximityLightOuterColors[i]);
+            Result += GTContributionProximityLight(WorldLocation,
+                                                   WorldNormal,
+                                                   ProximityLightLocations[i],
+                                                   ProximityLightSettings[i],
+                                                   ProximityLightPulseSettings[i],
+                                                   ProximityLightCenterColors[i],
+                                                   ProximityLightMiddleColors[i],
+                                                   ProximityLightOuterColors[i]);
         }
     }
 
-    return Contribution;
+    return Result;
 }
 
 #endif // GT_PROXIMITY_LIGHTING_UNREAL
