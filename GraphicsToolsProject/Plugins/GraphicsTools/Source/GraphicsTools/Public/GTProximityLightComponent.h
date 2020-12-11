@@ -19,8 +19,7 @@ ENUM_CLASS_FLAGS(EPulseState);
 
 /**
  * A proximity light is a Fluent Design System paradigm that acts as a surface projected gradient point light. For a material to be
- * influenced by a proximity light the ProximityLightContribution material function must be used within the material's shader graph. A
- * maximum of 4 proximity lights can be in a level at once, additional proximity lights will be ignored by the shader.
+ * influenced by a proximity light the ProximityLightContribution material function must be used within the material's shader graph.
  */
 UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
 class GRAPHICSTOOLS_API UGTProximityLightComponent : public UGTLightComponent

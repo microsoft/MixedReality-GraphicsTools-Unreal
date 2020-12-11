@@ -36,31 +36,29 @@ Half3 GTContributionProximityLights(FMaterialPixelParameters Parameters,
                                     Half4 ProximityLightOuterColor3)
 {
     // Custom material expressions do not support array input, so we need to pack the array in the shader.
-    float4 ProximityLightLocations[GT_MAX_PROXIMITY_LIGHTS] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2, ProximityLightLocation3};
-    float4 ProximityLightSettings[GT_MAX_PROXIMITY_LIGHTS] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2, ProximityLightSettings3};
-    float4 ProximityLightPulseSettings[GT_MAX_PROXIMITY_LIGHTS] = {ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2, ProximityLightPulseSettings3};
-    Half4 ProximityLightCenterColors[GT_MAX_PROXIMITY_LIGHTS] = {ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2, ProximityLightCenterColor3};
-    Half4 ProximityLightMiddleColors[GT_MAX_PROXIMITY_LIGHTS] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2, ProximityLightMiddleColor3};
-    Half4 ProximityLightOuterColors[GT_MAX_PROXIMITY_LIGHTS] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2, ProximityLightOuterColor3};
+    float4 ProximityLightLocations[] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2, ProximityLightLocation3};
+    float4 ProximityLightSettings[] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2, ProximityLightSettings3};
+    float4 ProximityLightPulseSettings[] = {ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2, ProximityLightPulseSettings3};
+    Half4 ProximityLightCenterColors[] = {ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2, ProximityLightCenterColor3};
+    Half4 ProximityLightMiddleColors[] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2, ProximityLightMiddleColor3};
+    Half4 ProximityLightOuterColors[] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2, ProximityLightOuterColor3};
 
     float3 WorldLocation = GetWorldPosition(Parameters);
     float3 WorldNormal = Parameters.WorldNormal;
 
     Half3 Result = 0;
 
-    for (int i = 0; i < GT_MAX_PROXIMITY_LIGHTS; i++)
+	[unroll]
+    for (int i = 0; i < GT_MAX_PROXIMITY_LIGHTS; ++i)
     {
-        if (ProximityLightLocations[i].w != 0)
-        {
-            Result += GTContributionProximityLight(WorldLocation,
-                                                   WorldNormal,
-                                                   ProximityLightLocations[i],
-                                                   ProximityLightSettings[i],
-                                                   ProximityLightPulseSettings[i],
-                                                   ProximityLightCenterColors[i],
-                                                   ProximityLightMiddleColors[i],
-                                                   ProximityLightOuterColors[i]);
-        }
+        Result += GTContributionProximityLight(WorldLocation,
+                                               WorldNormal,
+                                               ProximityLightLocations[i],
+                                               ProximityLightSettings[i],
+                                               ProximityLightPulseSettings[i],
+                                               ProximityLightCenterColors[i],
+                                               ProximityLightMiddleColors[i],
+                                               ProximityLightOuterColors[i]);
     }
 
     return Result;

@@ -134,7 +134,7 @@ Half3 GTProximityLightColor(Half4 centerColor,
                             Half4 outerColor,
                             Half t)
 {
-    Half3 color = lerp(centerColor.rgb, middleColor.rgb, smoothstep(centerColor.a, middleColor.a, t));
+    Half3 color = lerp(centerColor.rgb, middleColor.rgb, lerp(centerColor.a, middleColor.a, t));
     return lerp(color, outerColor.rgb, lerp(middleColor.a, outerColor.a, t));
 }
 
