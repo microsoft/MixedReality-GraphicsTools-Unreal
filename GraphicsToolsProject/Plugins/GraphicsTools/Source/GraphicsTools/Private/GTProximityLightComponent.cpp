@@ -8,7 +8,7 @@
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 
-#define MAX_PROXIMITY_LIGHT_INPUTS 4
+#define GT_MAX_PROXIMITY_LIGHTS 4
 
 enum class EParameterCollectionFlags : uint8
 {
@@ -94,14 +94,14 @@ public:
 		const LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
 		const int32 LightIndex = Lights.Find(Light);
 
-		if (LightIndex != INDEX_NONE && LightIndex < MAX_PROXIMITY_LIGHT_INPUTS)
+		if (LightIndex != INDEX_NONE && LightIndex < GT_MAX_PROXIMITY_LIGHTS)
 		{
 			UMaterialParameterCollectionInstance* ParameterCollectionInstance =
 				Light->GetWorld()->GetParameterCollectionInstance(Light->GetParameterCollection());
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::LocationDirty) || DirtyFlags == EParameterCollectionFlags::NoneDirty)
 			{
-				static FName ParameterNames[MAX_PROXIMITY_LIGHT_INPUTS] = {
+				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightLocation0", "ProximityLightLocation1", "ProximityLightLocation2", "ProximityLightLocation3"};
 				FLinearColor Location(Light->GetComponentLocation());
 				Location.A = DirtyFlags == EParameterCollectionFlags::NoneDirty ? 0.0f : 1.0f;
@@ -110,7 +110,7 @@ public:
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::SettingsDirty))
 			{
-				static FName ParameterNames[MAX_PROXIMITY_LIGHT_INPUTS] = {
+				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightSettings0", "ProximityLightSettings1", "ProximityLightSettings2", "ProximityLightSettings3"};
 				const float PulseScaler = 1.0f + Light->GetPulseTime();
 				SetVectorParameterValue(
@@ -122,7 +122,7 @@ public:
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::PulseSettingsDirty))
 			{
-				static FName ParameterNames[MAX_PROXIMITY_LIGHT_INPUTS] = {
+				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightPulseSettings0", "ProximityLightPulseSettings1", "ProximityLightPulseSettings2",
 					"ProximityLightPulseSettings3"};
 				SetVectorParameterValue(
@@ -132,21 +132,21 @@ public:
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::CenterColorDirty))
 			{
-				static FName ParameterNames[MAX_PROXIMITY_LIGHT_INPUTS] = {
+				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightCenterColor0", "ProximityLightCenterColor1", "ProximityLightCenterColor2", "ProximityLightCenterColor3"};
 				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetCenterColor());
 			}
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::MiddleColorDirty))
 			{
-				static FName ParameterNames[MAX_PROXIMITY_LIGHT_INPUTS] = {
+				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightMiddleColor0", "ProximityLightMiddleColor1", "ProximityLightMiddleColor2", "ProximityLightMiddleColor3"};
 				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetMiddleColor());
 			}
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::OuterColorDirty))
 			{
-				static FName ParameterNames[MAX_PROXIMITY_LIGHT_INPUTS] = {
+				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightOuterColor0", "ProximityLightOuterColor1", "ProximityLightOuterColor2", "ProximityLightOuterColor3"};
 				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetOuterColor());
 			}

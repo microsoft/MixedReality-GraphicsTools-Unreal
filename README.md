@@ -20,27 +20,19 @@ If you're new to MRTK or Mixed Reality development in Unreal, **we recommend sta
 
 If you're already familiar with Mixed Reality development in Unreal, you can find the installation instructions for the Graphics Tools plugin [here](Docs/Installation.md).
 
-# Required software
+# Required Software
 
  | [![Utilities](Docs/Images/Windows-Logo.png)](https://developer.microsoft.com/windows/downloads/windows-10-sdk) <br> [Windows SDK 18362+](https://developer.microsoft.com/windows/downloads/windows-10-sdk)| [![Unreal](Docs/Images/Unreal-Logo.png)](https://www.unrealengine.com/get-now) <br> [Unreal 4.26.0+](https://www.unrealengine.com/get-now)| [![Visual Studio 2019](Docs/Images/VS-Logo.png)](http://dev.windows.com/downloads) <br> [Visual Studio 2019](http://dev.windows.com/downloads)|
 | :--- | :--- | :--- |
 | To build apps with MRTK-Unreal and Graphics Tools, you need the Windows 10 May 2019 Update SDK | The Unreal Engine provides support for building Mixed Reality projects in Windows 10 | Visual Studio is used for code editing |
 
-# Graphics building blocks (TODO)
+# Graphics Building Blocks
 
-| [![Input Simulation](Docs/Images/FeatureCards/InputSimulation.png)](Docs/InputSimulation.md) [Input Simulation](Docs/InputSimulation.md) | [![Hand Interaction](Docs/Images/FeatureCards/HandInteraction.png)](Docs/HandInteraction.md) [Hand Interaction](Docs/HandInteraction.md) | [![Button](Docs/Images/FeatureCards/PressableButton.png)](Docs/PressableButton.md) [Button](Docs/PressableButton.md) |
+| [![Lighting](Docs/Images/FeatureCards/Lighting.png)](Docs/Lighting.md) [Lighting](Docs/Lighting.md) | [![Proximity Lights](Docs/Images/FeatureCards/ProximityLights.png)](Docs/ProximityLights.md) [Proximity Lights](Docs/ProximityLights.md) | [![Effects](Docs/Images/FeatureCards/Effects.png)](Docs/Effects.md) [Effects](Docs/Effects.md) |
 |:--- | :--- | :--- |
-| In-editor simulation of articulated hands and headset pose | Support for far and near hand interactions with Unreal's primitives | A 3d button specifically designed for hand interactions |
-| [![Slider](Docs/Images/FeatureCards/PinchSlider.png)](Docs/PinchSlider.md) [Slider](Docs/PinchSlider.md)| [![Bounds Control](Docs/Images/FeatureCards/BoundsControl.png)](Docs/BoundsControl.md) [Bounds Control](Docs/BoundsControl.md)| [![Manipulators](Docs/Images/FeatureCards/Manipulator.png)](Docs/Manipulator.md) [Manipulators](Docs/Manipulator.md)|
-| A 3d slider specifically designed for hand interactions | A component that allows the user to transform an actor via affordances | A component that allows an actor to be picked up by a user and then moved, rotated or scaled |
-| [![Hand Menu](Docs/Images/FeatureCards/HandMenu.png)](Docs/HandMenu.md) [Hand Menu](Docs/HandMenu.md) | [![Near Menu](Docs/Images/FeatureCards/NearMenu.png)](Docs/NearMenu.md) [Near Menu](Docs/NearMenu.md) | [![UMG support](Docs/Images/FeatureCards/UMG.png)](Docs/WidgetComponent.md) [UMG support](Docs/WidgetComponent.md) |
-| Hand-attached UI great for frequently used functions | Floating menu UI for near interactions | A component that allows hand-driven interactions with Unreal's UMG widgets |
-| [![Tap to Place](Docs/Images/FeatureCards/TapToPlace.png)](Docs/TapToPlaceComponent.md) [Tap to Place](Docs/TapToPlaceComponent.md) | [![Follow Behavior](Docs/Images/FeatureCards/FollowComponent.png)](Docs/FollowComponent.md) [Follow Behavior](Docs/FollowComponent.md) | [![Surface Magnetism](Docs/Images/FeatureCards/SurfaceMagnetism.png)](Docs/SurfaceMagnetism.md) [Surface Magnetism](Docs/SurfaceMagnetism.md) |
-| A component that can be used to easily place primitive components against surfaces | A component used to keep objects "following" the user by applying a set of constraints on the component's owner | A component that allows an actor to stick to a surface |
-| [![UI Element](Docs/Images/FeatureCards/UIElement.png)](Docs/UIElements.md) [UI Element](Docs/UIElements.md) |
-| A component that allows an actor's visibility to be controlled by its parent actor, allowing for easy construction of hierarchical UIs |
+| Physically based lighting technique optimized for Mixed Reality | A custom light type used to demonstrate distance to surface | Common graphics effects utilized in Mixed Reality |
 
-# Example levels
+# Example Levels
 
 If you want to explore the different Graphics Tools features or want a reference for how to use them, we recommend having a look at the example levels contained in the _Graphics Tools Examples_ plugin (/GraphicsToolsProject/Plugins/GraphicsToolsExamples). You can copy the examples plugin (along with the GraphicsTools plugin) into 'Plugins' subfolder of your own project or you can simply try out the _Graphics Tools Project_ (/GraphicsToolsProject) in this repository. For that you should:
 
@@ -59,7 +51,7 @@ We also provide the _Graphics Tools Project_ (/GraphicsToolsProject) pre-package
 1. Obtain the packaged game from the latest release page (e.g. _GTProject-HoloLens.0.10.0.zip_) and unzip it to a local directory.
 1. Install it in the device via the [Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal#install-sideload-an-app).
 
-# Feedback and contributions
+# Feedback and Contributions
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
