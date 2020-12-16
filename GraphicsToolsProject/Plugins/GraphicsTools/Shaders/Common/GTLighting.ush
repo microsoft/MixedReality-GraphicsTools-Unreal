@@ -59,11 +59,11 @@ Half3 GTSpecularLobe(Half roughness,
                      Half NoH,
                      Half LoH,
                      Half3 NxH,
-                     Half3 f0)
+                     Half3 fresnel)
 {
     Half D = GTDistribution(roughness, NoH, NxH);
     float V = GTVisibility(roughness, NoV, NoL);
-    Half3 F = GTFresnel(f0, LoH);
+    Half3 F = GTFresnel(fresnel, LoH);
 
     return (D * V) * F;
 }
@@ -87,8 +87,8 @@ Half3 GTContributionDirectionalLight(Half3 baseColor,
     Half NoL = saturate(dot(worldNormal, lightDirection));
 
 #if GT_FULLY_ROUGH
-    Half3 Fr = Half3(0, 0, 0);
-    Half3 Fd = GTDiffuseLobe(baseColor);
+    Half3 specularLobe = Half3(0, 0, 0);
+    Half3 diffuseLobe = GTDiffuseLobe(baseColor);
 #else
     // Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
     Half NoV = max(dot(worldNormal, cameraVector), GT_MIN_N_DOT_V);
@@ -96,14 +96,14 @@ Half3 GTContributionDirectionalLight(Half3 baseColor,
     Half LoH = saturate(dot(lightDirection, h));
     Half dielectric = 1 - metallic;
     Half3 NxH = cross(worldNormal, h);
-    Half3 f0 = 0.16 * specular * specular * dielectric + baseColor * metallic;
+    Half3 fresnel = 0.16 * specular * specular * dielectric + baseColor * metallic;
 
-    Half3 Fr = GTSpecularLobe(roughnessSq, NoV, NoL, NoH, LoH, NxH, f0);
-    Half3 Fd = GTDiffuseLobe(baseColor) * max(dielectric, roughness);
+    Half3 specularLobe = GTSpecularLobe(roughnessSq, NoV, NoL, NoH, LoH, NxH, fresnel);
+    Half3 diffuseLobe = GTDiffuseLobe(baseColor) * max(dielectric, roughness);
 #endif // GT_FULLY_ROUGH
 
-	Half energyCompensation = 1 + (1 - (metallic * 1.5));
-    return ((Fd + Fr) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL * energyCompensation;
+    Half energyCompensation = 1 + (1 - (metallic * 1.5));
+    return ((diffuseLobe + specularLobe) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL * energyCompensation;
 }
 
 Half3 GTContributionSH(Half3 baseColor,
