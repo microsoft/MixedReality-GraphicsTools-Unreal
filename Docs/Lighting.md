@@ -81,7 +81,7 @@ To aide in understanding some of the inputs to the `MF_GTDefaultLit` material fu
 6. Let's skip past a few `MF_GTDefaultLit` input properties (we will look at the ones we skip later) and look at `Roughness`. This property controls the perceived roughness (1.0) or smoothness (0.0) of a surface. Smooth surfaces exhibit sharp reflections.
     * Double click on `M_GTLit` to open the material editor again.
     * Right click on the material graph and add a `ScalarParameter` node. Name this node "Roughness." (1) We are adding a parameter node so that we can adjust the value and real time without having to recompile the shader. In practice if the value was constant it should be a `Constant` node.
-    * Set the "Roughness" node's default value to 0.5, slider min to 0.0 and slider max to 1.0.
+    * Set the "Roughness" node's default value to 0.5, slider min to 0.0, and slider max to 1.0.
     * With the material editor and level viewport side by side try adjusting the "Roughness" node's default value between 0 and 1. Note roughness values near 0 have small specular highlights and reflect the environment while values near 1 have large (or invisible) specular highlights and don't reflect very little of the environment.
 
     ![Material Base Roughness](Images/Lighting/LightingMaterialRoughness.png)
