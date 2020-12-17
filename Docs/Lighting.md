@@ -10,7 +10,7 @@ keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, devel
 
 # Lighting
 
-By default Unreal uses the [mobile lighting](https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/Lighting/index.html) rendering path for Mixed Reality (specifically HoloLens 2). This lighting path is well suited for mobile phones, handhelds, etc. but may be too costly for devices like HoloLens 2 which needs to render to a stereo display at [60 frames per second](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/understanding-performance-for-mixed-reality). To ensure developers have access to a lighting path that is performant on HoloLens, Graphics Tools incudes simplified physically based lighting system accessible via the the `MF_GTDefaultLit` [material function](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/Functions/index.html).
+By default Unreal uses the [mobile lighting](https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/Lighting/index.html) rendering path for Mixed Reality (specifically HoloLens 2). This lighting path is well suited for mobile phones, handhelds, etc. but may be too costly for devices like HoloLens 2, which need to render to a stereo display at [60 frames per second](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/understanding-performance-for-mixed-reality). To ensure developers have access to a lighting path that is performant on HoloLens 2, Graphics Tools incudes a simplified physically based lighting system accessible via the the `MF_GTDefaultLit` [material function](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/Functions/index.html).
 
 ![Lighting](Images/FeatureCards/Lighting.png)
 
@@ -19,9 +19,9 @@ By default Unreal uses the [mobile lighting](https://docs.unrealengine.com/en-US
 
 ## Example Levels
 
-There are demonstrations of the GT lighting model thought the example levels. For examples of creating metals such as gold, bronze, and aluminum check out the `\GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\MaterialGallery.umap` level.
+There are demonstrations of the GT lighting model throughout the example levels. For examples of creating metals such as gold, copper, and aluminum check out the `\GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\MaterialGallery.umap` level.
 
-To compare on constrast the differences between the GT lighting model and Unreal's default mobile lighting model open the `\GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialMatrix\MaterialMatrix.umap` level.
+To compare on contrast the differences between the GT lighting model and Unreal's default mobile lighting model open the `\GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialMatrix\MaterialMatrix.umap` level.
 
 ![Material Matrix](Images/Lighting/LightingMaterialMatrix.png)
 
@@ -37,7 +37,7 @@ The lighting model accepts a single direct light (directional light) and indirec
 To specify the directional light add a `GTDirectionalLight` actor (or component) to the level. The `GTDirectionalLight` will automatically feed the light's direction, color, and intensity to the `MPC_GTSettings` [material parameter collection](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/ParameterCollections/index.html) which is then read by the `MF_GTDefaultLit` material function.
 
 > [!NOTE] 
-> If any materials within your level use Unreal's built in lighting model a Unreal [directional light](https://docs.unrealengine.com/en-US/BuildingWorlds/LightingAndShadows/LightTypes/Directional/index.html) will still need to be used. It's recommended to child the Unreal directional light to the `GTDirectionalLight` with a zero relative rotation so that light directions are the same. A [sky light](https://docs.unrealengine.com/en-US/BuildingWorlds/LightingAndShadows/LightTypes/SkyLight/index.html) with a cube map specified should also be added to the level if indirect lighting conditions want to be mimicked between GT and Unreal.
+> If any materials within your level use Unreal's built in lighting model a Unreal [directional light](https://docs.unrealengine.com/en-US/BuildingWorlds/LightingAndShadows/LightTypes/Directional/index.html) will still need to be present. It's recommended to child the Unreal directional light to the `GTDirectionalLight` actor (or component) with a zero relative rotation so that light directions are the same. A [sky light](https://docs.unrealengine.com/en-US/BuildingWorlds/LightingAndShadows/LightTypes/SkyLight/index.html) with a cube map specified should also be added to the level if indirect lighting conditions want to be mimicked between GT and Unreal.
 
 By default all material's using the `MF_GTDefaultLit` material function use a generic "sunny day" [cube map](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/Cubemaps/index.html) to specify the indirect lighting and reflections. This cube map can be overridden by connecting a different reflection cube texture into the `ReflectionCube` input of the `MF_GTDefaultLit` material function.
 
