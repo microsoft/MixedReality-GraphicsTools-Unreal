@@ -15,7 +15,7 @@ A proximity light is a [Fluent Design System](https://www.microsoft.com/design/f
 ![ProximityLights](Images/FeatureCards/ProximityLights.png)
 
 > [!NOTE] 
-> Up to 3 proximity lights can effect a material at once. Additional proximity lights will not be included in light calculations.
+> Up to three proximity lights can effect a material at once. Additional proximity lights will not be included in light calculations.
 
 Another unique feature of proximity lights is that they can pulse to draw attention. To pulse a proximity light call the `Pulse` member function via Blueprint or C++. 
 
@@ -45,15 +45,15 @@ In the following steps we will create a new material that is illuminated by a pr
 
     ![Material Light](Images/ProximityLight/ProximityLightMaterialLight.png)
 
-4. Next let's give our material a base color. Very few materials exist in the real world are completely black (and completely black materials render transparently on additive displays like the one found on HoloLens). 
-    * Right click on the material graph and add the `ConstantVector3` node. 
+4. Next let's give our material a base color. Very few materials exist in the real world are completely black (and completely black materials render transparently on additive displays like the one found on HoloLens 2). 
+    * Right click on the material graph and add a `ConstantVector3` node. 
     * Set the node's RGB channels to 0.5, a neutral gray color. 
     * Connect this node to the `BaseColor` input of the `MF_GTDefaultLit` material function. (1)
 
     ![Material Light](Images/ProximityLight/ProximityLightMaterialColor.png)
 
 5. It's time to preview our material interacting with a proximity light. 
-    * First let's create a new level (File > New Level) and select a "Empty Level." 
+    * First let's create a new level (File > New Level) and select "Empty Level." 
     * From the "Place Actors" panel drop a `Sphere` actor into the level. 
     * With the `Sphere` actor selected change the material to our newly created material, `M_ProximityLit`. 
     * (Optional) Scale the sphere down to about 25% so that it's not so large.
@@ -62,12 +62,12 @@ In the following steps we will create a new material that is illuminated by a pr
 
 6. You may notice now that our `Sphere` actor is completely black and can't be differentiated from the background. To fix this let's add a directional light to our scene. Because we are using the `MF_GTDefaultLit` material function we must use a `GTDirectionalLight` actor (or component). 
     * From the "Place Actors" panel drop a `GTDirectionalLight` actor into the level. 
-    * Set the `GTDirectionalLight`'s "Intensity" to 1. The default value represents a "sunny day" and may wash out our proximity light. More information about the `GTDirectionalLight` component can be found in the [lighting](Lighting.md) documentation.
+    * Set the `GTDirectionalLight`'s "Intensity" to 2. The default value represents a "sunny day" and may wash out our proximity light. More information about the `GTDirectionalLight` component can be found in the [lighting](Lighting.md) documentation.
 
 7. Finally it's time to add a proximity light to the level. 
     * From the "Place Actors" panel drop a `GTProximityLight` actor into the level. 
     * Move the `GTProximityLight` actor around until it hovers near the surface of the the `Sphere` actor. You will now see the proximity light illuminate the surface with a blue-purple gradient. (1) 
-    * Try experimenting with different proximity light colors by changing the Center, Middle, and Outer colors. Or, try changing the size of proximity light via the Near or Far radii. 
+    * Try experimenting with different proximity light colors by changing the center, middle, and outer colors in the details panel of the proximity light. Or, try changing the size of proximity light via the near or far radii. 
     * If you want to hide the proximity light without removing the actor you can uncheck the "Visible" flag under the "Rendering" properties.
 
     ![Actor Complete](Images/ProximityLight/ProximityLightActorComplete.png)
@@ -100,7 +100,7 @@ GT_MAX_PROXIMITY_LIGHTS 3
 GT_MAX_PROXIMITY_LIGHTS 4
 ```
 
-To add support for more than 4 lights the above changes must be made as well as within a few other locations.
+To add support for more than 4 lights the above changes must be made as well as the below changes.
 
 1) Within the UpdateParameterCollection method in GTProximityLightComponent.cpp change each instance of ParameterNames (6 in total) to include a new entry. 
 
@@ -108,7 +108,7 @@ To add support for more than 4 lights the above changes must be made as well as 
 
 3) In `GraphicsToolsProject\Plugins\GraphicsTools\Shaders\GTProximityLightingUnreal.ush` add additional function parameters to the `GTContributionProximityLights` function. 
 
-4) Open `GraphicsToolsProject\Plugins\GraphicsTools\Content\Materials\MF_GTProximityLights.uasset` within the Unreal Editor and include the additional inputs in the `Contribution proximity lights` [custom expression](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/ExpressionReference/Custom/index.html). Finally, connect those inputs to the corresponding `MPC_GTSettings` parameters.
+4) Open `GraphicsToolsProject\Plugins\GraphicsTools\Content\Materials\MF_GTProximityLights.uasset` within the Unreal Editor and include the additional inputs in the `Contribution Proximity Lights` [custom expression](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/ExpressionReference/Custom/index.html). Finally, connect those inputs to the corresponding `MPC_GTSettings` parameters outputs.
 
 ## See also
 

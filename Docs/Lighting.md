@@ -82,19 +82,19 @@ To aide in understanding some of the inputs to the `MF_GTDefaultLit` material fu
     * Double click on `M_GTLit` to open the material editor again.
     * Right click on the material graph and add a `ScalarParameter` node. Name this node "Roughness." (1) We are adding a parameter node so that we can adjust the value and real time without having to recompile the shader. In practice if the value was constant it should be a `Constant` node.
     * Set the "Roughness" node's default value to 0.5, slider min to 0.0, and slider max to 1.0.
-    * With the material editor and level viewport side by side try adjusting the "Roughness" node's default value between 0 and 1. Note roughness values near 0 have small specular highlights and reflect the environment while values near 1 have large (or invisible) specular highlights and don't reflect very little of the environment.
+    * With the material editor and level viewport side by side try adjusting the "Roughness" node's default value between 0 and 1. Note roughness values near 0 have small specular highlights and reflect the environment, while values near 1 have large (or nearly invisible) specular highlights and reflect very little of the environment.
 
     ![Material Base Roughness](Images/Lighting/LightingMaterialRoughness.png)
 
 7. Now we will look at the `Metallic` property. The `Metallic` property controls whether a surface appears to be dielectric (0.0) or conductor (1.0). Very few materials exist somewhere between a dielectric or conductor and are often "either or" (0.0 or 1.0).
     *  Right click on the material graph and add a `ScalarParameter` node named "Metallic" and configure it like we did above for roughness.
-    *  With the material editor and level viewport side by side try adjusting the "Metallic" node's default value between 0 and 1. Note how conductors (metallic of 1.0) appear a bit darker in this setup because they only reflect the environment, like a mirror.
+    *  With the material editor and level viewport side by side try adjusting the "Metallic" node's default value between 0 and 1. Note how conductors (metallic of 1.0) appear a bit darker in this setup because they only reflect the environment (like a mirror).
 
-8. Let's jump to the `ReflectionCube` input property of `MF_GTDefaultLit`. By default all material's using the `MF_GTDefaultLit` material function use a generic "sunny day" [cube map](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/Cubemaps/index.html) to specify the indirect lighting and reflections. This cube map can be overridden by connecting a different reflection cube texture into the `ReflectionCube` input of the `MF_GTDefaultLit` material function.
+8. Let's jump to the `ReflectionCube` input property of `MF_GTDefaultLit`. By default all material's using the `MF_GTDefaultLit` material function use a generic "sunny day" [cube map](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/Cubemaps/index.html) to specify indirect lighting and reflections. This cube map can be overridden by connecting a different reflection cube texture into the `ReflectionCube` input of the `MF_GTDefaultLit` material function.
     * To specify a different cube texture right click on the material graph and add a `TextureObject` node. (1)
     * Graphics Tools doesn't include any example cube maps, so let's select one from the engine content. With the `TextureObject` node selected click on the "DefaultTexture" drop down in the details panel. Click the "View Options" button from the pop up and check "Show Engine Content." Now search "EpicQuad" and select: "EpicQuadPanorama_CC+EV1"
     * Connect the output of the `TextureObject` node to the `ReflectionCube` input.
-    * The material will now reflect a handful of "office buildings" which helps give the illusion of smoothness.
+    * The material will now reflect a handful of "office buildings" if the `Roughness` value is near zero (less than 0.5>). Reflections help give the illusion of smooth surface.
     * Lastly, try adjusting the "Roughness" node's default value between 0 and 1 again. Note, how the `ReflectionCube`'s output becomes "blurry" as surfaces get rougher.
 
     ![Material Reflection Cube](Images/Lighting/LightingMaterialReflectionCube.png)
@@ -102,15 +102,15 @@ To aide in understanding some of the inputs to the `MF_GTDefaultLit` material fu
 9. The `FullyRough` input property of `MF_GTDefaultLit` is important for performance critical situations. A "fully rough" material is very cheap to render, but lacks specular highlights, reflections, or indirect lighting. The only feature fully rough materials exhibit is diffuse light.
     * To mark a material as "fully rough", right click on the material graph and add a `StaticBool` node.
     * Connect the output of the `StaticBool` node to the `FullyRough` input.
-    * Try toggling the value of the `StaticBool` node on and off. (1) Note, when "on" the material only exhibits diffuse lighting but also doesn't contain many shader instructions.
+    * Try toggling the value of the `StaticBool` node on and off. (1) Note, when "on" the material only exhibits diffuse lighting, but doesn't contain many shader instructions.
 
     ![Material Fully Rough](Images/Lighting/LightingMaterialFullyRough.png)
 
 10. We glanced over a few input properties of `MF_GTDefaultLit` which are less commonly used. We will detail these properties below.
     * `Specular` scales the specular highlights on a material (only if the material contains specular lighting based on previous properties).
-    * `NormalWS` accepts a normal in world space. By default `MF_GTDefaultLit` uses the geometric normal. This input in often used in conjunction with [normal maps](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/NormalMaps/Creation/index.html). Be sure to transform the the output of a normal map from tangent space to world space using the `TransformVector` node before assigning to the `NormalWS` input. An example of this can be found in the `\GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\MaterialGallery.umap` level.
+    * `NormalWS` accepts a normal in world space. By default `MF_GTDefaultLit` uses the geometric normal. This input in often used in conjunction with [normal maps](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/NormalMaps/Creation/index.html). Be sure to transform the the output of a normal map from tangent space to world space using the `TransformVector` node before assigning to the `NormalWS` input. An example of this can be found in the `GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\Materials\M_ShaderBallNormalMap.umap` material.
     * `AmbientOclusion` determines how exposed each pixel in a material is to ambient lighting. Normally this value is driven by a grey-scale texture (AO Map).
-    * `DirectLightIntensity` allows a material to scale the amount of light being received from direct lights (the directional light) up or down. This value doesn't have a physical counterpart in reality, but is useful for artists to control lighting on a material to material basis.
+    * `DirectLightIntensity` allows a material to scale the amount of light being received from direct lights (the directional light). This value doesn't have a physical counterpart in reality, but is useful for artists to control lighting on a material without having to adjust the entire level's lighting.
 
 ## See also
 
