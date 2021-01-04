@@ -5,6 +5,7 @@
 
 #include "Components/BillboardComponent.h"
 #include "Materials/MaterialParameterCollection.h"
+#include "UObject/ConstructorHelpers.h"
 
 UGTLightComponent::UGTLightComponent()
 {
