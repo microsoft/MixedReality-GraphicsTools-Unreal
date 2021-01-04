@@ -19,7 +19,7 @@ Graphics Tools is the second MRTK-Unreal component to be released and is current
 If you're new to MRTK or Mixed Reality development in Unreal, we recommend starting at the beginning of our [Unreal development journey](https://docs.microsoft.com/windows/mixed-reality/unreal-development-overview), which was specifically created to walk you through installation, core concepts, and usage. 
 
 > [!CAUTION]
-> The Unreal development journey currently uses **Graphics Tools 0.10.x** and **Unreal 4.26.0 or later**. If you're working with other configurations it's still recommended that you start there, but you can also refer to the **[installation instructions](Installation.md)**.
+> The Unreal development journey currently uses **Graphics Tools 0.1.x** and **Unreal 4.26.0 or later**. If you're working with other configurations it's still recommended that you start there, but you can also refer to the **[installation instructions](Installation.md)**.
 
 ## Documentation Versioning
 
