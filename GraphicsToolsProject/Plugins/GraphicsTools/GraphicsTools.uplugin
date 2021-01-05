@@ -16,8 +16,7 @@
 	"Installed": false,
 	"SupportedTargetPlatforms": [
 		"Win64",
-		"HoloLens",
-		"Android"
+		"HoloLens"
 	],
 	"Modules": [
 		{
@@ -26,8 +25,7 @@
 			"LoadingPhase": "PostConfigInit",
 			"WhitelistPlatforms": [
 				"Win64",
-				"HoloLens",
-				"Android"
+				"HoloLens"
 			]
 		},
 		{
