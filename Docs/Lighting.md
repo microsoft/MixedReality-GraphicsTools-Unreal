@@ -17,7 +17,7 @@ By default Unreal uses the [mobile lighting](https://docs.unrealengine.com/en-US
 > [!NOTE] 
 > To improve fill rate performance on HoloLens 2 it is recommended to use the simplest materials possible (such as an unlit material). If lighting is required for your material then the `MF_GTDefaultLit` material function is preferred over Unreal's default mobile lighting.
 
-## Example Levels
+## Example levels
 
 There are demonstrations of the GT lighting model throughout the example levels. For examples of creating metals such as gold, copper, and aluminum check out the `\GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\MaterialGallery.umap` level.
 
@@ -25,7 +25,7 @@ To compare on contrast the differences between the GT lighting model and Unreal'
 
 ![Material Matrix](Images/Lighting/LightingMaterialMatrix.png)
 
-## Implementation Details and Restrictions
+## Implementation details and restrictions
 
 The `MF_GTDefaultLit` material function uses a [physically based lighting](https://en.wikipedia.org/wiki/Physically_based_rendering) system which approximates how diffuse and specular light emits from a surface using microfacet bidirectional reflectance distribution functions ([BRDFs](https://en.wikipedia.org/wiki/Bidirectional_reflectance_distribution_function)). These functions can be found in `\GraphicsToolsProject\Plugins\GraphicsTools\Shaders\Common\GTLighting.ush`. For additional resources into physically based lighting please see Brian Karis' [Physically Based Shading on Mobile](https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile) blog post. 
 
@@ -41,9 +41,9 @@ To specify the directional light add a `GTDirectionalLight` actor (or component)
 
 By default all material's using the `MF_GTDefaultLit` material function use a generic "sunny day" [cube map](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/Cubemaps/index.html) to specify the indirect lighting and reflections. This cube map can be overridden by connecting a different reflection cube texture into the `ReflectionCube` input of the `MF_GTDefaultLit` material function.
 
-## Example Usage
+## Example usage
 
-To aide in understanding some of the inputs to the `MF_GTDefaultLit` material function, let's create a new material and adjust some of the input values.
+To aid in understanding some of the inputs to the `MF_GTDefaultLit` material function, let's create a new material and adjust some of the input values.
 
 1. First create a material.
     * Right click within the "Content Browser" and select "Material" under the "Create Basic Asset" menu listings. 
@@ -108,7 +108,7 @@ To aide in understanding some of the inputs to the `MF_GTDefaultLit` material fu
 
 10. We glanced over a few input properties of `MF_GTDefaultLit` which are less commonly used. We will detail these properties below.
     * `Specular` scales the specular highlights on a material (only if the material contains specular lighting based on previous properties).
-    * `NormalWS` accepts a normal in world space. By default `MF_GTDefaultLit` uses the geometric normal. This input in often used in conjunction with [normal maps](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/NormalMaps/Creation/index.html). Be sure to transform the the output of a normal map from tangent space to world space using the `TransformVector` node before assigning to the `NormalWS` input. An example of this can be found in the `GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\Materials\M_ShaderBallNormalMap.umap` material.
+    * `NormalWS` accepts a normal in world space. By default `MF_GTDefaultLit` uses the geometric normal. This input is often used in conjunction with [normal maps](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Textures/NormalMaps/Creation/index.html). Be sure to transform the output of a normal map from tangent space to world space using the `TransformVector` node before assigning to the `NormalWS` input. An example of this can be found in the `GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\Materials\M_ShaderBallNormalMap.umap` material.
     * `AmbientOclusion` determines how exposed each pixel in a material is to ambient lighting. Normally this value is driven by a grey-scale texture (AO Map).
     * `DirectLightIntensity` allows a material to scale the amount of light being received from direct lights (the directional light). This value doesn't have a physical counterpart in reality, but is useful for artists to control lighting on a material without having to adjust the entire level's lighting.
 

@@ -18,11 +18,11 @@ Graphics Tools contains a handful of effects that a commonly found in Mixed Real
 
 Iridescence is a visual phenomenon that occurs when a surface gradually changes color when viewed from a different angle (or if lighting angles change). In nature this can be seen on soap bubbles, hummingbird feathers, and on oil slicks. Mixed Reality applications normally apply this effect to UI back plates to provide visual contrast and interest. 
 
-### Example Material
+### Example material
 
 Example usage of the `MF_GTIridescence` material function can be found within the `GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\Materials\M_ShaderBallIridescent.uasset` material.
 
-### Implementation Details
+### Implementation details
 
 To apply a approximation of iridescence on any material use the `MF_GTIridescence` material function. The `MF_GTIridescence` material function takes a handful of inputs:
 
@@ -37,15 +37,15 @@ To improve performance the `MF_GTIridescence` material function is intended to b
 
 ![Iridescence Vertex](Images/Effects/EffectsIridescenceVertex.png)
 
-## Rim Lighting
+## Rim lighting
 
 Also referred to Fresnel lighting, rim lighting illuminates pixels with normals which face nearly perpendicular to the viewing angle. Many Mixed Reality applications use rim lighting to highlight an object or give the impression of a hologram as seen in "Hollywood movies."
 
-### Example Material
+### Example material
 
 An example of rim lighting can be found within the `GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\Materials\M_ShaderBallRimLit.uasset` material.
 
-### Implementation Details
+### Implementation details
 
 To create a rim lit material use Unreal's built in `Fresnel` material node (1) and assign it to the `Emissive Color` of an "Unlit" material. Most rim lit materials are also set to "Additive" (2) so that that brighten anything they render over top of.
 

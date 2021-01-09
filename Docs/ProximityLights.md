@@ -19,11 +19,11 @@ A proximity light is a [Fluent Design System](https://www.microsoft.com/design/f
 
 Another unique feature of proximity lights is that they can pulse to draw attention. To pulse a proximity light call the `Pulse` member function via Blueprint or C++. 
 
-## Example Level
+## Example level
 
 There are some demonstrations of proximity lights within the `\GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\ProximityLights\ProximityLights.umap` level.
 
-## Example Usage
+## Example usage
 
 In the following steps we will create a new material that is illuminated by a proximity light.
 
@@ -72,7 +72,7 @@ In the following steps we will create a new material that is illuminated by a pr
 
     ![Actor Complete](Images/ProximityLight/ProximityLightActorComplete.png)
 
-## Advanced Usage
+## Advanced usage
 
 By default only three proximity lights can illuminate a material at a time. If your project requires an additional proximity light to influence a material the sample code below demonstrates how to achieve this.
 

@@ -18,14 +18,14 @@ The first release of the Graphics Tools supports only HoloLens 2. Support for ot
 
 Unreal 4.26.x required.
 
-## What's New
+## What's new
 
 Everything is new because this is the first release of Graphics Tools. Please see the [README](../README.md#graphics-building-blocks) page for a list of features and building blocks.
 
-## Breaking Changes
+## Breaking changes
 
 None, since this is the first release.
 
-## Known Issues
+## Known issues
 
 None. If you run into issues caused by Graphics Tools or have questions about how to do something, please [file an issue](https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/issues/new) on the GitHub repo.

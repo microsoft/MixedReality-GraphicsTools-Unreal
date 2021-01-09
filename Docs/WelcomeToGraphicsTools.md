@@ -21,7 +21,7 @@ If you're new to MRTK or Mixed Reality development in Unreal, we recommend start
 > [!CAUTION]
 > The Unreal development journey currently uses **Graphics Tools 0.1.x** and **Unreal 4.26.0 or later**. If you're working with other configurations it's still recommended that you start there, but you can also refer to the **[installation instructions](Installation.md)**.
 
-## Documentation Versioning
+## Documentation versioning
 
 We have complete documentation for all release versions, but we recommend using the highest numbered public release branch for stability. Versions can be selected from the dropdown at the top-right of the screen:
 
