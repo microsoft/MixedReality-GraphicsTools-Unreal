@@ -37,19 +37,20 @@ Half GTDistribution(Half roughness,
     return min(d, GT_MEDIUMP_FLT_MAX);
 }
 
+// Calculated at full precision to avoid artifacts.
 float GTVisibility(float roughness,
                    float NoV,
                    float NoL)
 {
     // Hammon 2017, "PBR Diffuse Lighting for GGX+Smith Microsurfaces"
-    return 0.5 / lerp(2.0 * NoL * NoV, NoL + NoV, roughness);
+	return 0.5 / lerp(2 * NoL * NoV, NoL + NoV, roughness);
 }
 
 Half3 GTFresnel(Half3 f0,
                 Half LoH)
 {
     // Schlick 1994, "An Inexpensive BRDF Model for Physically-Based Rendering"
-    Half f = pow(1.0 - LoH, 5.0);
+    Half f = pow(Half(1) - LoH, Half(5));
     return f + f0 * (1.0 - f); // f90 = 1.0
 }
 
@@ -94,15 +95,15 @@ Half3 GTContributionDirectionalLight(Half3 baseColor,
     Half NoV = max(dot(worldNormal, cameraVector), GT_MIN_N_DOT_V);
     Half NoH = saturate(dot(worldNormal, h));
     Half LoH = saturate(dot(lightDirection, h));
-    Half dielectric = 1 - metallic;
+    Half dielectric = Half(1) - metallic;
     Half3 NxH = cross(worldNormal, h);
-    Half3 fresnel = 0.16 * specular * specular * dielectric + baseColor * metallic;
+    Half3 fresnel = Half(0.16) * specular * specular * dielectric + baseColor * metallic;
 
     Half3 specularLobe = GTSpecularLobe(roughnessSq, NoV, NoL, NoH, LoH, NxH, fresnel);
     Half3 diffuseLobe = GTDiffuseLobe(baseColor) * max(dielectric, roughness);
 #endif // GT_FULLY_ROUGH
 
-    Half energyCompensation = 1 + (1 - (metallic * 1.5));
+    Half energyCompensation = Half(1) + (Half(1) - (metallic * Half(1.5)));
     return ((diffuseLobe + specularLobe) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL * energyCompensation;
 }
 
@@ -112,7 +113,7 @@ Half3 GTContributionSH(Half3 baseColor,
                        Half3 skySHDiffuse,
                        Half3 skyLightColor)
 {
-    return (skySHDiffuse * skyLightColor * baseColor) * max(0.3, min(1 - metallic, 1 - roughness));
+	return (skySHDiffuse * skyLightColor * baseColor) * max(Half(0.3), min(Half(1) - metallic, Half(1) - roughness));
 }
 
 #define GT_REFLECTION_CUBE_MAX_MIP 10
@@ -121,12 +122,10 @@ Half3 GTContributionReflection(Half3 baseColor,
                                Half roughnessSq,
                                TextureCube reflectionCube,
                                SamplerState reflectionCubeSampler,
-                               Half3 reflectionVector,
-                               Half3 mixingWeight)
+                               Half3 reflectionVector)
 {
-    Half lod = (GT_REFLECTION_CUBE_MAX_MIP - 1) - (1 - log2(roughnessSq));
-    Half3 specularIBL = reflectionCube.SampleLevel(reflectionCubeSampler, reflectionVector, lod).rgb * mixingWeight;
-    return specularIBL * baseColor;
+    Half lod = (GT_REFLECTION_CUBE_MAX_MIP - Half(1)) - (Half(1) - log2(roughnessSq));
+	return reflectionCube.SampleLevel(reflectionCubeSampler, reflectionVector, lod).rgb * baseColor;
 }
 
 Half3 GTProximityLightColor(Half4 centerColor,
@@ -151,9 +150,9 @@ Half3 GTContributionProximityLight(float3 worldPosition,
     float normalizedProximityLightDistance = saturate(proximityLightDistance * lightSettings.y);
     float3 projectedProximityLight = lightPosition.xyz - (worldNormal * abs(proximityLightDistance));
     float projectedProximityLightDistance = length(projectedProximityLight - worldPosition);
-    float attenuation = (1.0 - normalizedProximityLightDistance) * lightPosition.w;
+    float attenuation = (1 - normalizedProximityLightDistance) * lightPosition.w;
     float pulse = step(lightPulseSettings.x, projectedProximityLightDistance) * lightPulseSettings.y;
-    float intensity = smoothstep(1.0, 0.0, projectedProximityLightDistance / (lightSettings.x * max(pow(normalizedProximityLightDistance, 0.25), lightSettings.w))) * pulse * attenuation;
+    float intensity = smoothstep(1, 0, projectedProximityLightDistance / (lightSettings.x * max(pow(normalizedProximityLightDistance, 0.25), lightSettings.w))) * pulse * attenuation;
 
     return GTProximityLightColor(lightCenterColor, lightMiddleColor, lightOuterColor, saturate(projectedProximityLightDistance * lightSettings.z)) * intensity;
 }
