@@ -16,9 +16,9 @@ void FGTProximityLightComponentVisualizer::DrawVisualization(
 		LightTransform.RemoveScaling();
 
 		// Draw the near radius and color.
-		DrawWireSphereAutoSides(PDI, LightTransform, Light->GetCenterColor(), Light->GetNearRaidus(), SDPG_World);
+		DrawWireSphereAutoSides(PDI, LightTransform, Light->GetCenterColor(), Light->GetNearRadius(), SDPG_World);
 
 		// Draw the far radius and color.
-		DrawWireSphereAutoSides(PDI, LightTransform, Light->GetOuterColor(), Light->GetFarRaidus(), SDPG_World);
+		DrawWireSphereAutoSides(PDI, LightTransform, Light->GetOuterColor(), Light->GetFarRadius(), SDPG_World);
 	}
 }

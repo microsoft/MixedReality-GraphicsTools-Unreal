@@ -54,7 +54,9 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                        ReflectionCube,
                                        ReflectionCubeSampler,
                                        Parameters.ReflectionVector * Parameters.TwoSidedSign);
-
+#else
+	// Ensure fully rough materials aren't fully black.
+    Result += BaseColor * Half(0.025);
 #endif // GT_FULLY_ROUGH
 
     // Direct (directional light).

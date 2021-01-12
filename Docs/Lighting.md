@@ -10,12 +10,12 @@ keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, devel
 
 # Lighting
 
-By default Unreal uses the [mobile lighting](https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/Lighting/index.html) rendering path for Mixed Reality (specifically HoloLens 2). This lighting path is well suited for mobile phones, handhelds, etc. but may be too costly for devices like HoloLens 2, which need to render to a stereo display at [60 frames per second](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/understanding-performance-for-mixed-reality). To ensure developers have access to a lighting path that is performant on HoloLens 2, Graphics Tools incudes a simplified physically based lighting system accessible via the the `MF_GTDefaultLit` [material function](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/Functions/index.html).
+By default Unreal uses the [mobile lighting](https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/Lighting/index.html) rendering path for Mixed Reality (specifically HoloLens 2). This lighting path is well suited for mobile phones, handhelds, etc. but may be too costly for devices like HoloLens 2, which need to render to a stereo display at [60 frames per second](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/understanding-performance-for-mixed-reality). To ensure developers have access to a lighting path that is performant on HoloLens 2, Graphics Tools incudes a simplified physically based lighting system accessible via the the `MF_GTDefaultLit` [material function](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/Functions/index.html). 
 
 ![Lighting](Images/FeatureCards/Lighting.png)
 
 > [!NOTE] 
-> To improve fill rate performance on HoloLens 2 it is recommended to use the simplest materials possible (such as an unlit material). If lighting is required for your material then the `MF_GTDefaultLit` material function is preferred over Unreal's default mobile lighting.
+> To improve fill rate performance on HoloLens 2 it is recommended to use the simplest materials possible (such as an unlit material). If lighting is required for your material then the `MF_GTDefaultLit` material function is preferred over Unreal's default mobile lighting. To quickly create lit materials you may also make [material instances](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/MaterialInstances/index.html) that utilize the `M_GTDefaultLit` material as a parent material.
 
 ## Example levels
 

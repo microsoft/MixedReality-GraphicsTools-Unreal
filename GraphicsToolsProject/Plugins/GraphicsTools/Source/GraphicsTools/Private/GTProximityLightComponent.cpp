@@ -116,7 +116,7 @@ public:
 				SetVectorParameterValue(
 					ParameterCollectionInstance, ParameterNames[LightIndex],
 					FLinearColor(
-						Light->GetNearRaidus() * PulseScaler, 1.0f / Light->GetFarRaidus() * PulseScaler,
+						Light->GetNearRadius() * PulseScaler, 1.0f / Light->GetFarRadius() * PulseScaler,
 						1.0f / Light->GetNearDistance() * PulseScaler, Light->GetMinNearSizePercentage()));
 			}
 
@@ -127,7 +127,7 @@ public:
 					"ProximityLightPulseSettings3"};
 				SetVectorParameterValue(
 					ParameterCollectionInstance, ParameterNames[LightIndex],
-					FLinearColor(Light->GetNearRaidus() * Light->GetPulseTime(), 1.0f - Light->GetPulseFadeTime(), 0.0f, 0.0f));
+					FLinearColor(Light->GetNearRadius() * Light->GetPulseTime(), 1.0f - Light->GetPulseFadeTime(), 0.0f, 0.0f));
 			}
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::CenterColorDirty))
@@ -167,7 +167,7 @@ UGTProximityLightComponent::UGTProximityLightComponent()
 	bWantsOnUpdateTransform = true;
 }
 
-void UGTProximityLightComponent::SetNearRaidus(float Radius)
+void UGTProximityLightComponent::SetNearRadius(float Radius)
 {
 	if (NearRadius != Radius)
 	{
@@ -182,7 +182,7 @@ void UGTProximityLightComponent::SetNearRaidus(float Radius)
 	}
 }
 
-void UGTProximityLightComponent::SetFarRaidus(float Radius)
+void UGTProximityLightComponent::SetFarRadius(float Radius)
 {
 	if (FarRadius != Radius)
 	{

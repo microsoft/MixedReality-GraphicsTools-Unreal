@@ -10,7 +10,7 @@ keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, devel
 
 # Effects
 
-Graphics Tools contains a handful of effects that a commonly found in Mixed Reality applications. Effects normally exist as a single [material function](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/Functions/index.html) which can be dropped into a material graph. Expect the library of effects to grow over time with subsequent Graphics Tools releases.
+Graphics Tools contains a handful of effects that are commonly found in Mixed Reality applications. Effects normally exist as a single [material function](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/Functions/index.html) which can be dropped into a material graph. Expect the library of effects to grow over time with subsequent Graphics Tools releases.
 
 ![Effects](Images/FeatureCards/Effects.png)
 
@@ -24,7 +24,7 @@ Example usage of the `MF_GTIridescence` material function can be found within th
 
 ### Implementation details
 
-To apply a approximation of iridescence on any material use the `MF_GTIridescence` material function. The `MF_GTIridescence` material function takes a handful of inputs:
+To apply an approximation of iridescence on any material use the `MF_GTIridescence` material function. The `MF_GTIridescence` material function takes a handful of inputs:
 
 * `Threshold` defines the range when sampling the `Spectrum` texture. (The default value is recommended for most scenarios.)
 * `Angle` controls the "roll" of the `Spectrum` texture in `UV` space.

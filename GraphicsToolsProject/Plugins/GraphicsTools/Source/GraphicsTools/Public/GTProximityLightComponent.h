@@ -31,19 +31,19 @@ public:
 
 	/** Accessor to the light's near radius. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
-	float GetNearRaidus() const { return NearRadius; }
+	float GetNearRadius() const { return NearRadius; }
 
 	/** Sets the light's near radius. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetNearRaidus(float Radius);
+	void SetNearRadius(float Radius);
 
 	/** Accessor to the light's far radius. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
-	float GetFarRaidus() const { return FarRadius; }
+	float GetFarRadius() const { return FarRadius; }
 
 	/** Sets the light's far radius. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetFarRaidus(float Radius);
+	void SetFarRadius(float Radius);
 
 	/** Accessor to the light's near distance. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
@@ -127,13 +127,13 @@ protected:
 private:
 	/** Specifies the radius of the ProximityLight effect when near to a surface. */
 	UPROPERTY(
-		EditAnywhere, BlueprintGetter = "GetNearRaidus", BlueprintSetter = "SetNearRaidus", Category = "Light",
+		EditAnywhere, BlueprintGetter = "GetNearRadius", BlueprintSetter = "SetNearRadius", Category = "Light",
 		meta = (UIMin = "1.0", UIMax = "500.0", SliderExponent = "5.0"))
 	float NearRadius = 5;
 
 	/** Specifies the radius of the ProximityLight effect when far from a surface. */
 	UPROPERTY(
-		EditAnywhere, BlueprintGetter = "GetFarRaidus", BlueprintSetter = "SetFarRaidus", Category = "Light",
+		EditAnywhere, BlueprintGetter = "GetFarRadius", BlueprintSetter = "SetFarRadius", Category = "Light",
 		meta = (UIMin = "1.0", UIMax = "500.0", SliderExponent = "5.0"))
 	float FarRadius = 20;
 
