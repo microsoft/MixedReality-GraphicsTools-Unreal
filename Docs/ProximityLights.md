@@ -67,7 +67,7 @@ In the following steps we will create a new material that is illuminated by a pr
 7. Finally it's time to add a proximity light to the level. 
     * From the "Place Actors" panel drop a `GTProximityLight` actor into the level. 
     * Move the `GTProximityLight` actor around until it hovers near the surface of the the `Sphere` actor. You will now see the proximity light illuminate the surface with a blue-purple gradient. (1) 
-    * Try experimenting with different proximity light colors by changing the center, middle, and outer colors in the details panel of the proximity light. Or, try changing the size of proximity light via the near or far radii. 
+    * Try experimenting with different proximity light colors by changing the center, middle, and outer colors in the details panel of the proximity light. Or, try changing the size of proximity light via projected radius. 
     * If you want to hide the proximity light without removing the actor you can uncheck the "Visible" flag under the "Rendering" properties.
 
     ![Actor Complete](Images/ProximityLight/ProximityLightActorComplete.png)

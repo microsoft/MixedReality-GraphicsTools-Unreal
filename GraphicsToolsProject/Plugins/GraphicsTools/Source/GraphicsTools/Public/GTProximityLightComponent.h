@@ -29,37 +29,37 @@ class GRAPHICSTOOLS_API UGTProximityLightComponent : public UGTLightComponent
 public:
 	UGTProximityLightComponent();
 
-	/** Accessor to the light's near radius. */
+	/** Accessor to the light's projected radius. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
-	float GetNearRadius() const { return NearRadius; }
+	float GetProjectedRadius() const { return ProjectedRadius; }
 
-	/** Sets the light's near radius. */
+	/** Sets the light's projected radius. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetNearRadius(float Radius);
+	void SetProjectedRadius(float Radius);
 
-	/** Accessor to the light's far radius. */
+	/** Accessor to the light's attenuation radius. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
-	float GetFarRadius() const { return FarRadius; }
+	float GetAttenuationRadius() const { return AttenuationRadius; }
 
-	/** Sets the light's far radius. */
+	/** Sets the light's attenuation radius. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetFarRadius(float Radius);
+	void SetAttenuationRadius(float Radius);
 
-	/** Accessor to the light's near distance. */
+	/** Accessor to the light's shrink distance. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
-	float GetNearDistance() const { return NearDistance; }
+	float GetShrinkDistance() const { return ShrinkDistance; }
 
-	/** Sets the light's near distance. */
+	/** Sets the light's shrink distance. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetNearDistance(float Distance);
+	void SetShrinkDistance(float Distance);
 
-	/** Accessor to the light's near distance. */
+	/** Accessor to the light's shrink percentage. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
-	float GetMinNearSizePercentage() const { return MinNearSizePercentage; }
+	float GetShrinkPercentage() const { return ShrinkPercentage; }
 
-	/** Sets the light's near distance. */
+	/** Sets the light's shrink percentage. */
 	UFUNCTION(BlueprintSetter, Category = "Light")
-	void SetMinNearSizePercentage(float Percentage);
+	void SetShrinkPercentage(float Percentage);
 
 	/** Accessor to the light's center color. */
 	UFUNCTION(BlueprintGetter, Category = "Light")
@@ -120,34 +120,36 @@ protected:
 	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
 
 #if WITH_EDITOR
-	/** Ensures near and far radii remain less than or greater than each other. */
+	/** Ensures projected and attenuation radii remain less than or greater than each other. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif // WITH_EDITOR
 
 private:
-	/** Specifies the radius of the ProximityLight effect when near to a surface. */
+	/** Specifies the radius of the ProximityLight effect when projected onto a surface. */
 	UPROPERTY(
-		EditAnywhere, BlueprintGetter = "GetNearRadius", BlueprintSetter = "SetNearRadius", Category = "Light",
+		EditAnywhere, BlueprintGetter = "GetProjectedRadius", BlueprintSetter = "SetProjectedRadius", Category = "Light",
 		meta = (UIMin = "1.0", UIMax = "500.0", SliderExponent = "5.0"))
-	float NearRadius = 5;
+	float ProjectedRadius = 5;
 
-	/** Specifies the radius of the ProximityLight effect when far from a surface. */
+	/** Specifies the radius at which the ProximityLight effect is no longer visible. */
 	UPROPERTY(
-		EditAnywhere, BlueprintGetter = "GetFarRadius", BlueprintSetter = "SetFarRadius", Category = "Light",
+		EditAnywhere, BlueprintGetter = "GetAttenuationRadius", BlueprintSetter = "SetAttenuationRadius", Category = "Light",
 		meta = (UIMin = "1.0", UIMax = "500.0", SliderExponent = "5.0"))
-	float FarRadius = 20;
+	float AttenuationRadius = 20;
 
-	/** Specifies the distance a ProximityLight must be from a surface (less than or equal to) to be considered near. */
+	/** Specifies the distance a ProximityLight must be from a surface (less than or equal to) to begin shrinking to the
+	(ProjectedRadius * ShrinkPercentage) radius. */
 	UPROPERTY(
-		EditAnywhere, BlueprintGetter = "GetNearDistance", BlueprintSetter = "SetNearDistance", Category = "Light",
+		EditAnywhere, BlueprintGetter = "GetShrinkDistance", BlueprintSetter = "SetShrinkDistance", Category = "Light",
 		meta = (UIMin = "1.0", UIMax = "500.0", SliderExponent = "5.0"))
-	float NearDistance = 2;
+	float ShrinkDistance = 2;
 
-	/** When a ProximityLight is near, the smallest size percentage from the near size it can shrink to. */
+	/** When a ProximityLight is closer to a surface than the ShrinkDistance, the smallest percentage of the ProjectedRadius it can
+	 * shrink to. */
 	UPROPERTY(
-		EditAnywhere, BlueprintGetter = "GetMinNearSizePercentage", BlueprintSetter = "SetMinNearSizePercentage", Category = "Light",
+		EditAnywhere, BlueprintGetter = "GetShrinkPercentage", BlueprintSetter = "SetShrinkPercentage", Category = "Light",
 		meta = (UIMin = "0.0", UIMax = "1.0"))
-	float MinNearSizePercentage = 0.35f;
+	float ShrinkPercentage = 0.35f;
 
 	/** The color of the ProximityLight gradient at the center (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetCenterColor", BlueprintSetter = "SetCenterColor", Category = "Light")

@@ -116,8 +116,8 @@ public:
 				SetVectorParameterValue(
 					ParameterCollectionInstance, ParameterNames[LightIndex],
 					FLinearColor(
-						Light->GetNearRadius() * PulseScaler, 1.0f / Light->GetFarRadius() * PulseScaler,
-						1.0f / Light->GetNearDistance() * PulseScaler, Light->GetMinNearSizePercentage()));
+						Light->GetProjectedRadius() * PulseScaler, 1.0f / Light->GetAttenuationRadius() * PulseScaler,
+						1.0f / Light->GetShrinkDistance() * PulseScaler, Light->GetShrinkPercentage()));
 			}
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::PulseSettingsDirty))
@@ -127,7 +127,7 @@ public:
 					"ProximityLightPulseSettings3"};
 				SetVectorParameterValue(
 					ParameterCollectionInstance, ParameterNames[LightIndex],
-					FLinearColor(Light->GetNearRadius() * Light->GetPulseTime(), 1.0f - Light->GetPulseFadeTime(), 0.0f, 0.0f));
+					FLinearColor(Light->GetProjectedRadius() * Light->GetPulseTime(), 1.0f - Light->GetPulseFadeTime(), 0.0f, 0.0f));
 			}
 
 			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::CenterColorDirty))
@@ -167,51 +167,51 @@ UGTProximityLightComponent::UGTProximityLightComponent()
 	bWantsOnUpdateTransform = true;
 }
 
-void UGTProximityLightComponent::SetNearRadius(float Radius)
+void UGTProximityLightComponent::SetProjectedRadius(float Radius)
 {
-	if (NearRadius != Radius)
+	if (ProjectedRadius != Radius)
 	{
-		NearRadius = FMath::Clamp(Radius, 1.0f, 500.0f);
+		ProjectedRadius = FMath::Clamp(Radius, 1.0f, 500.0f);
 
-		if (NearRadius > FarRadius)
+		if (ProjectedRadius > AttenuationRadius)
 		{
-			FarRadius = NearRadius;
+			AttenuationRadius = ProjectedRadius;
 		}
 
 		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
-void UGTProximityLightComponent::SetFarRadius(float Radius)
+void UGTProximityLightComponent::SetAttenuationRadius(float Radius)
 {
-	if (FarRadius != Radius)
+	if (AttenuationRadius != Radius)
 	{
-		FarRadius = FMath::Clamp(Radius, 1.0f, 500.0f);
+		AttenuationRadius = FMath::Clamp(Radius, 1.0f, 500.0f);
 
-		if (FarRadius < NearRadius)
+		if (AttenuationRadius < ProjectedRadius)
 		{
-			NearRadius = FarRadius;
+			ProjectedRadius = AttenuationRadius;
 		}
 
 		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
-void UGTProximityLightComponent::SetNearDistance(float Distance)
+void UGTProximityLightComponent::SetShrinkDistance(float Distance)
 {
-	if (NearDistance != Distance)
+	if (ShrinkDistance != Distance)
 	{
-		NearDistance = FMath::Clamp(Distance, 1.0f, 500.0f);
+		ShrinkDistance = FMath::Clamp(Distance, 1.0f, 500.0f);
 
 		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
-void UGTProximityLightComponent::SetMinNearSizePercentage(float Percentage)
+void UGTProximityLightComponent::SetShrinkPercentage(float Percentage)
 {
-	if (MinNearSizePercentage != Percentage)
+	if (ShrinkPercentage != Percentage)
 	{
-		MinNearSizePercentage = FMath::Clamp(Percentage, 0.0f, 1.0f);
+		ShrinkPercentage = FMath::Clamp(Percentage, 0.0f, 1.0f);
 
 		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
@@ -337,18 +337,18 @@ void UGTProximityLightComponent::OnUpdateTransform(EUpdateTransformFlags UpdateT
 #if WITH_EDITOR
 void UGTProximityLightComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, NearRadius))
+	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, ProjectedRadius))
 	{
-		if (NearRadius > FarRadius)
+		if (ProjectedRadius > AttenuationRadius)
 		{
-			FarRadius = NearRadius;
+			AttenuationRadius = ProjectedRadius;
 		}
 	}
-	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, FarRadius))
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, AttenuationRadius))
 	{
-		if (FarRadius < NearRadius)
+		if (AttenuationRadius < ProjectedRadius)
 		{
-			NearRadius = FarRadius;
+			ProjectedRadius = AttenuationRadius;
 		}
 	}
 
