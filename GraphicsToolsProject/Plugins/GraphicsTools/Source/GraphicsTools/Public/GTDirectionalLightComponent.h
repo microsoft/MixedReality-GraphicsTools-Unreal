@@ -45,7 +45,7 @@ protected:
 	/** Adds the DirectionalLight to the global light list. */
 	virtual void OnRegister() override;
 
-	/** Removes the DirectionalLight to the global light list. */
+	/** Removes the DirectionalLight from the global light list. */
 	virtual void OnUnregister() override;
 
 	/** Adds or removes the DirectionalLight to the global light list based on visibility. */

@@ -107,7 +107,7 @@ protected:
 	/** Adds the ProximityLight to the global light list. */
 	virtual void OnRegister() override;
 
-	/** Removes the ProximityLight to the global light list. */
+	/** Removes the ProximityLight from the global light list. */
 	virtual void OnUnregister() override;
 
 	/** Adds or removes the ProximityLight to the global light list based on visibility. */
@@ -125,6 +125,8 @@ protected:
 #endif // WITH_EDITOR
 
 private:
+	EPulseState PulseTick(float DeltaTime);
+
 	/** Specifies the radius of the ProximityLight effect when projected onto a surface. */
 	UPROPERTY(
 		EditAnywhere, BlueprintGetter = "GetProjectedRadius", BlueprintSetter = "SetProjectedRadius", Category = "Light",
@@ -162,8 +164,6 @@ private:
 	/** The color of the ProximityLight gradient at the outer edge (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOuterColor", BlueprintSetter = "SetOuterColor", Category = "Light")
 	FColor OuterColor = FColor(114, 55, 191, 255);
-
-	EPulseState PulseTick(float DeltaTime);
 
 	EPulseState PulseState = EPulseState::Idle;
 	float PulseTimer = 0;
