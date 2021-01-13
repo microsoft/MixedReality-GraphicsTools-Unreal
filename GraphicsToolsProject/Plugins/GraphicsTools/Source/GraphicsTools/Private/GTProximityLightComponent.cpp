@@ -11,7 +11,7 @@
 
 #define GT_MAX_PROXIMITY_LIGHTS 4
 
-namespace
+namespace ProximityLights
 {
 	enum class EParameterCollectionFlags : uint8
 	{
@@ -25,7 +25,7 @@ namespace
 
 		AllDirty = static_cast<uint8>(~0)
 	};
-	ENUM_CLASS_FLAGS(EParameterCollectionFlags);
+	ENUM_CLASS_FLAGS(ProximityLights::EParameterCollectionFlags);
 
 	typedef TArray<UGTProximityLightComponent*> LightList;
 
@@ -44,7 +44,7 @@ namespace
 		}
 	}
 
-	void UpdateParameterCollection(UGTProximityLightComponent* Light, EParameterCollectionFlags DirtyFlags)
+	void UpdateParameterCollection(UGTProximityLightComponent* Light, ProximityLights::EParameterCollectionFlags DirtyFlags)
 	{
 		if (!Light->IsValid())
 		{
@@ -59,16 +59,17 @@ namespace
 			UMaterialParameterCollectionInstance* ParameterCollectionInstance =
 				Light->GetWorld()->GetParameterCollectionInstance(Light->GetParameterCollection());
 
-			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::LocationDirty) || DirtyFlags == EParameterCollectionFlags::NoneDirty)
+			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::LocationDirty) ||
+				DirtyFlags == ProximityLights::EParameterCollectionFlags::NoneDirty)
 			{
 				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightLocation0", "ProximityLightLocation1", "ProximityLightLocation2", "ProximityLightLocation3"};
 				FLinearColor Location(Light->GetComponentLocation());
-				Location.A = DirtyFlags == EParameterCollectionFlags::NoneDirty ? 0.0f : 1.0f;
+				Location.A = DirtyFlags == ProximityLights::EParameterCollectionFlags::NoneDirty ? 0.0f : 1.0f;
 				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Location);
 			}
 
-			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::SettingsDirty))
+			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::SettingsDirty))
 			{
 				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightSettings0", "ProximityLightSettings1", "ProximityLightSettings2", "ProximityLightSettings3"};
@@ -80,7 +81,7 @@ namespace
 						1.0f / Light->GetShrinkDistance() * PulseScaler, Light->GetShrinkPercentage()));
 			}
 
-			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::PulseSettingsDirty))
+			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::PulseSettingsDirty))
 			{
 				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightPulseSettings0", "ProximityLightPulseSettings1", "ProximityLightPulseSettings2",
@@ -90,21 +91,21 @@ namespace
 					FLinearColor(Light->GetProjectedRadius() * Light->GetPulseTime(), 1.0f - Light->GetPulseFadeTime(), 0.0f, 0.0f));
 			}
 
-			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::CenterColorDirty))
+			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::CenterColorDirty))
 			{
 				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightCenterColor0", "ProximityLightCenterColor1", "ProximityLightCenterColor2", "ProximityLightCenterColor3"};
 				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetCenterColor());
 			}
 
-			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::MiddleColorDirty))
+			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::MiddleColorDirty))
 			{
 				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightMiddleColor0", "ProximityLightMiddleColor1", "ProximityLightMiddleColor2", "ProximityLightMiddleColor3"};
 				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetMiddleColor());
 			}
 
-			if (EnumHasAnyFlags(DirtyFlags, EParameterCollectionFlags::OuterColorDirty))
+			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::OuterColorDirty))
 			{
 				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
 					"ProximityLightOuterColor0", "ProximityLightOuterColor1", "ProximityLightOuterColor2", "ProximityLightOuterColor3"};
@@ -112,7 +113,7 @@ namespace
 			}
 		}
 	}
-} // namespace
+} // namespace ProximityLights
 
 void AddLight(UGTProximityLightComponent* Light)
 {
@@ -121,12 +122,12 @@ void AddLight(UGTProximityLightComponent* Light)
 		return;
 	}
 
-	LightList& Lights = GetLightList(Light->GetWorld());
+	ProximityLights::LightList& Lights = ProximityLights::GetLightList(Light->GetWorld());
 
 	if (Lights.Find(Light) == INDEX_NONE)
 	{
 		Lights.Add(Light);
-		UpdateParameterCollection(Light, EParameterCollectionFlags::AllDirty);
+		ProximityLights::UpdateParameterCollection(Light, ProximityLights::EParameterCollectionFlags::AllDirty);
 	}
 }
 
@@ -137,19 +138,19 @@ void RemoveLight(UGTProximityLightComponent* Light)
 		return;
 	}
 
-	LightList& Lights = GetLightList(Light->GetWorld());
+	ProximityLights::LightList& Lights = ProximityLights::GetLightList(Light->GetWorld());
 	const int32 Index = Lights.Find(Light);
 
 	if (Index != INDEX_NONE)
 	{
 		// Disable the last active light.
-		UpdateParameterCollection(Lights[Lights.Num() - 1], EParameterCollectionFlags::NoneDirty);
+		ProximityLights::UpdateParameterCollection(Lights[Lights.Num() - 1], ProximityLights::EParameterCollectionFlags::NoneDirty);
 
 		Lights.RemoveAt(Index);
 
 		for (auto CurrentLight : Lights)
 		{
-			UpdateParameterCollection(CurrentLight, EParameterCollectionFlags::AllDirty);
+			ProximityLights::UpdateParameterCollection(CurrentLight, ProximityLights::EParameterCollectionFlags::AllDirty);
 		}
 	}
 }
@@ -174,7 +175,7 @@ void UGTProximityLightComponent::SetProjectedRadius(float Radius)
 			AttenuationRadius = ProjectedRadius;
 		}
 
-		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -189,7 +190,7 @@ void UGTProximityLightComponent::SetAttenuationRadius(float Radius)
 			ProjectedRadius = AttenuationRadius;
 		}
 
-		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -199,7 +200,7 @@ void UGTProximityLightComponent::SetShrinkDistance(float Distance)
 	{
 		ShrinkDistance = FMath::Clamp(Distance, 1.0f, 500.0f);
 
-		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -209,7 +210,7 @@ void UGTProximityLightComponent::SetShrinkPercentage(float Percentage)
 	{
 		ShrinkPercentage = FMath::Clamp(Percentage, 0.0f, 1.0f);
 
-		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -219,7 +220,7 @@ void UGTProximityLightComponent::SetCenterColor(FColor Color)
 	{
 		CenterColor = Color;
 
-		UpdateParameterCollection(this, EParameterCollectionFlags::CenterColorDirty);
+		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::CenterColorDirty);
 	}
 }
 
@@ -229,7 +230,7 @@ void UGTProximityLightComponent::SetMiddleColor(FColor Color)
 	{
 		MiddleColor = Color;
 
-		UpdateParameterCollection(this, EParameterCollectionFlags::MiddleColorDirty);
+		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::MiddleColorDirty);
 	}
 }
 
@@ -239,7 +240,7 @@ void UGTProximityLightComponent::SetOuterColor(FColor Color)
 	{
 		OuterColor = Color;
 
-		UpdateParameterCollection(this, EParameterCollectionFlags::OuterColorDirty);
+		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::OuterColorDirty);
 	}
 }
 
@@ -283,7 +284,8 @@ void UGTProximityLightComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	PulseState = PulseTick(DeltaTime);
-	UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty | EParameterCollectionFlags::PulseSettingsDirty);
+	ProximityLights::UpdateParameterCollection(
+		this, ProximityLights::EParameterCollectionFlags::SettingsDirty | ProximityLights::EParameterCollectionFlags::PulseSettingsDirty);
 
 	if (PulseState == EPulseState::Idle)
 	{
@@ -326,7 +328,7 @@ void UGTProximityLightComponent::OnUpdateTransform(EUpdateTransformFlags UpdateT
 {
 	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
 
-	UpdateParameterCollection(this, EParameterCollectionFlags::LocationDirty);
+	ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::LocationDirty);
 }
 
 #if WITH_EDITOR
@@ -347,7 +349,7 @@ void UGTProximityLightComponent::PostEditChangeProperty(FPropertyChangedEvent& P
 		}
 	}
 
-	UpdateParameterCollection(this, EParameterCollectionFlags::AllDirty);
+	ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::AllDirty);
 
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }

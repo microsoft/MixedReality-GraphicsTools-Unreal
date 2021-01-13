@@ -10,7 +10,7 @@
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 
-namespace
+namespace DirectionalLights
 {
 	typedef TArray<UGTDirectionalLightComponent*> LightList;
 
@@ -101,7 +101,7 @@ namespace
 			}
 		}
 	}
-} // namespace
+} // DirectionalLights
 
 UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 {
@@ -147,7 +147,7 @@ void UGTDirectionalLightComponent::SetLightIntensity(float Intensity)
 	{
 		LightIntensity = Intensity;
 
-		UpdateParameterCollection(this);
+		DirectionalLights::UpdateParameterCollection(this);
 	}
 }
 
@@ -157,7 +157,7 @@ void UGTDirectionalLightComponent::SetLightColor(FColor Color)
 	{
 		LightColor = Color;
 
-		UpdateParameterCollection(this);
+		DirectionalLights::UpdateParameterCollection(this);
 	}
 }
 
@@ -167,7 +167,7 @@ void UGTDirectionalLightComponent::OnRegister()
 
 	if (IsVisible())
 	{
-		AddLight(this);
+		DirectionalLights::AddLight(this);
 	}
 
 #if WITH_EDITORONLY_DATA
@@ -182,7 +182,7 @@ void UGTDirectionalLightComponent::OnUnregister()
 {
 	Super::OnUnregister();
 
-	RemoveLight(this);
+	DirectionalLights::RemoveLight(this);
 }
 
 void UGTDirectionalLightComponent::OnVisibilityChanged()
@@ -191,11 +191,11 @@ void UGTDirectionalLightComponent::OnVisibilityChanged()
 
 	if (IsVisible())
 	{
-		AddLight(this);
+		DirectionalLights::AddLight(this);
 	}
 	else
 	{
-		RemoveLight(this);
+		DirectionalLights::RemoveLight(this);
 	}
 }
 
@@ -203,13 +203,13 @@ void UGTDirectionalLightComponent::OnUpdateTransform(EUpdateTransformFlags Updat
 {
 	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
 
-	UpdateParameterCollection(this);
+	DirectionalLights::UpdateParameterCollection(this);
 }
 
 #if WITH_EDITOR
 void UGTDirectionalLightComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	UpdateParameterCollection(this);
+	DirectionalLights::UpdateParameterCollection(this);
 
 	if (ArrowComponent != nullptr)
 	{

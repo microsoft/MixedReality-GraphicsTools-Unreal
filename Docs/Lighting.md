@@ -15,7 +15,7 @@ By default Unreal uses the [mobile lighting](https://docs.unrealengine.com/en-US
 ![Lighting](Images/FeatureCards/Lighting.png)
 
 > [!NOTE] 
-> To improve fill rate performance on HoloLens 2 it is recommended to use the simplest materials possible (such as an unlit material). If lighting is required for your material then the `MF_GTDefaultLit` material function is preferred over Unreal's default mobile lighting. To quickly create lit materials you may also make [material instances](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/MaterialInstances/index.html) that utilize the `M_GTDefaultLit` material as a parent material.
+> To improve fill rate performance on HoloLens 2 it is recommended to use the simplest materials possible (such as an unlit material). If lighting is required for your material then the `MF_GTDefaultLit` material function is preferred over Unreal's default mobile lighting. Using the `MF_GTDefaultLit` material function can remove roughly 35 pixel shader instructions from a similar default lit mobile material. To quickly create lit materials you may also make [material instances](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/MaterialInstances/index.html) that utilize the `M_GTDefaultLit` material as a parent material.
 
 ## Example levels
 
