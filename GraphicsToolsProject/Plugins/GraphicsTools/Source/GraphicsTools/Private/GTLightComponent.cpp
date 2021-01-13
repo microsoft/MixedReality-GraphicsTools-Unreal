@@ -3,6 +3,8 @@
 
 #include "GTLightComponent.h"
 
+#include "GTWorldSubsystem.h"
+
 #include "Components/BillboardComponent.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "UObject/ConstructorHelpers.h"
@@ -50,9 +52,9 @@ const UMaterialParameterCollection* UGTLightComponent::GetParameterCollection() 
 	return ParameterCollection;
 }
 
-bool UGTLightComponent::ValidLight(const UGTLightComponent* Light)
+bool UGTLightComponent::IsValid() const
 {
-	return (Light != nullptr && Light->GetWorld() != nullptr && Light->GetParameterCollection() != nullptr);
+	return (GetWorld() != nullptr && GetWorld()->GetSubsystem<UGTWorldSubsystem>() != nullptr && GetParameterCollection() != nullptr);
 }
 
 #if WITH_EDITOR

@@ -3,6 +3,7 @@
 
 #include "GTProximityLightComponent.h"
 
+#include "GTWorldSubsystem.h"
 #include "GraphicsTools.h"
 
 #include "Materials/MaterialParameterCollection.h"
@@ -10,66 +11,25 @@
 
 #define GT_MAX_PROXIMITY_LIGHTS 4
 
-enum class EParameterCollectionFlags : uint8
+namespace
 {
-	NoneDirty = 0,
-	LocationDirty = 1 << 2,
-	SettingsDirty = 1 << 3,
-	PulseSettingsDirty = 1 << 4,
-	CenterColorDirty = 1 << 5,
-	MiddleColorDirty = 1 << 6,
-	OuterColorDirty = 1 << 7,
-
-	AllDirty = static_cast<uint8>(~0)
-};
-ENUM_CLASS_FLAGS(EParameterCollectionFlags);
-
-struct ProximityLights
-{
-public:
-	typedef TArray<TWeakObjectPtr<UGTProximityLightComponent>> LightList;
-
-	LightList& GetLightList(bool bInGameWorld) { return bInGameWorld ? GameLights : EditorLights; }
-
-	void AddLight(UGTProximityLightComponent* Light)
+	enum class EParameterCollectionFlags : uint8
 	{
-		if (!UGTLightComponent::ValidLight(Light))
-		{
-			return;
-		}
+		NoneDirty = 0,
+		LocationDirty = 1 << 2,
+		SettingsDirty = 1 << 3,
+		PulseSettingsDirty = 1 << 4,
+		CenterColorDirty = 1 << 5,
+		MiddleColorDirty = 1 << 6,
+		OuterColorDirty = 1 << 7,
 
-		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
+		AllDirty = static_cast<uint8>(~0)
+	};
+	ENUM_CLASS_FLAGS(EParameterCollectionFlags);
 
-		if (Lights.Find(Light) == INDEX_NONE)
-		{
-			Lights.Add(Light);
-			UpdateParameterCollection(Light, EParameterCollectionFlags::AllDirty);
-		}
-	}
+	typedef TArray<UGTProximityLightComponent*> LightList;
 
-	void RemoveLight(UGTProximityLightComponent* Light)
-	{
-		if (!UGTLightComponent::ValidLight(Light))
-		{
-			return;
-		}
-
-		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
-		const int32 Index = Lights.Find(Light);
-
-		if (Index != INDEX_NONE)
-		{
-			// Disable the last active light.
-			UpdateParameterCollection(Lights[Lights.Num() - 1].Get(), EParameterCollectionFlags::NoneDirty);
-
-			Lights.RemoveAt(Index);
-
-			for (auto CurrentLight : Lights)
-			{
-				UpdateParameterCollection(CurrentLight.Get(), EParameterCollectionFlags::AllDirty);
-			}
-		}
-	}
+	LightList& GetLightList(const UWorld* World) { return World->GetSubsystem<UGTWorldSubsystem>()->ProximityLights; }
 
 	void SetVectorParameterValue(
 		UMaterialParameterCollectionInstance* ParameterCollectionInstance, FName ParameterName, const FLinearColor& ParameterValue)
@@ -86,12 +46,12 @@ public:
 
 	void UpdateParameterCollection(UGTProximityLightComponent* Light, EParameterCollectionFlags DirtyFlags)
 	{
-		if (!UGTLightComponent::ValidLight(Light))
+		if (!Light->IsValid())
 		{
 			return;
 		}
 
-		const LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
+		const LightList& Lights = GetLightList(Light->GetWorld());
 		const int32 LightIndex = Lights.Find(Light);
 
 		if (LightIndex != INDEX_NONE && LightIndex < GT_MAX_PROXIMITY_LIGHTS)
@@ -152,11 +112,47 @@ public:
 			}
 		}
 	}
+} // namespace
 
-private:
-	LightList GameLights;
-	LightList EditorLights;
-} GlobalProximityLights;
+void AddLight(UGTProximityLightComponent* Light)
+{
+	if (!Light->IsValid())
+	{
+		return;
+	}
+
+	LightList& Lights = GetLightList(Light->GetWorld());
+
+	if (Lights.Find(Light) == INDEX_NONE)
+	{
+		Lights.Add(Light);
+		UpdateParameterCollection(Light, EParameterCollectionFlags::AllDirty);
+	}
+}
+
+void RemoveLight(UGTProximityLightComponent* Light)
+{
+	if (!Light->IsValid())
+	{
+		return;
+	}
+
+	LightList& Lights = GetLightList(Light->GetWorld());
+	const int32 Index = Lights.Find(Light);
+
+	if (Index != INDEX_NONE)
+	{
+		// Disable the last active light.
+		UpdateParameterCollection(Lights[Lights.Num() - 1], EParameterCollectionFlags::NoneDirty);
+
+		Lights.RemoveAt(Index);
+
+		for (auto CurrentLight : Lights)
+		{
+			UpdateParameterCollection(CurrentLight, EParameterCollectionFlags::AllDirty);
+		}
+	}
+}
 
 UGTProximityLightComponent::UGTProximityLightComponent()
 {
@@ -178,7 +174,7 @@ void UGTProximityLightComponent::SetProjectedRadius(float Radius)
 			AttenuationRadius = ProjectedRadius;
 		}
 
-		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -193,7 +189,7 @@ void UGTProximityLightComponent::SetAttenuationRadius(float Radius)
 			ProjectedRadius = AttenuationRadius;
 		}
 
-		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -203,7 +199,7 @@ void UGTProximityLightComponent::SetShrinkDistance(float Distance)
 	{
 		ShrinkDistance = FMath::Clamp(Distance, 1.0f, 500.0f);
 
-		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -213,7 +209,7 @@ void UGTProximityLightComponent::SetShrinkPercentage(float Percentage)
 	{
 		ShrinkPercentage = FMath::Clamp(Percentage, 0.0f, 1.0f);
 
-		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty);
 	}
 }
 
@@ -223,7 +219,7 @@ void UGTProximityLightComponent::SetCenterColor(FColor Color)
 	{
 		CenterColor = Color;
 
-		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::CenterColorDirty);
+		UpdateParameterCollection(this, EParameterCollectionFlags::CenterColorDirty);
 	}
 }
 
@@ -233,7 +229,7 @@ void UGTProximityLightComponent::SetMiddleColor(FColor Color)
 	{
 		MiddleColor = Color;
 
-		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::MiddleColorDirty);
+		UpdateParameterCollection(this, EParameterCollectionFlags::MiddleColorDirty);
 	}
 }
 
@@ -243,7 +239,7 @@ void UGTProximityLightComponent::SetOuterColor(FColor Color)
 	{
 		OuterColor = Color;
 
-		GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::OuterColorDirty);
+		UpdateParameterCollection(this, EParameterCollectionFlags::OuterColorDirty);
 	}
 }
 
@@ -287,8 +283,7 @@ void UGTProximityLightComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	PulseState = PulseTick(DeltaTime);
-	GlobalProximityLights.UpdateParameterCollection(
-		this, EParameterCollectionFlags::SettingsDirty | EParameterCollectionFlags::PulseSettingsDirty);
+	UpdateParameterCollection(this, EParameterCollectionFlags::SettingsDirty | EParameterCollectionFlags::PulseSettingsDirty);
 
 	if (PulseState == EPulseState::Idle)
 	{
@@ -302,7 +297,7 @@ void UGTProximityLightComponent::OnRegister()
 
 	if (IsVisible())
 	{
-		GlobalProximityLights.AddLight(this);
+		AddLight(this);
 	}
 }
 
@@ -310,7 +305,7 @@ void UGTProximityLightComponent::OnUnregister()
 {
 	Super::OnUnregister();
 
-	GlobalProximityLights.RemoveLight(this);
+	RemoveLight(this);
 }
 
 void UGTProximityLightComponent::OnVisibilityChanged()
@@ -319,11 +314,11 @@ void UGTProximityLightComponent::OnVisibilityChanged()
 
 	if (IsVisible())
 	{
-		GlobalProximityLights.AddLight(this);
+		AddLight(this);
 	}
 	else
 	{
-		GlobalProximityLights.RemoveLight(this);
+		RemoveLight(this);
 	}
 }
 
@@ -331,7 +326,7 @@ void UGTProximityLightComponent::OnUpdateTransform(EUpdateTransformFlags UpdateT
 {
 	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
 
-	GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::LocationDirty);
+	UpdateParameterCollection(this, EParameterCollectionFlags::LocationDirty);
 }
 
 #if WITH_EDITOR
@@ -352,7 +347,7 @@ void UGTProximityLightComponent::PostEditChangeProperty(FPropertyChangedEvent& P
 		}
 	}
 
-	GlobalProximityLights.UpdateParameterCollection(this, EParameterCollectionFlags::AllDirty);
+	UpdateParameterCollection(this, EParameterCollectionFlags::AllDirty);
 
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }

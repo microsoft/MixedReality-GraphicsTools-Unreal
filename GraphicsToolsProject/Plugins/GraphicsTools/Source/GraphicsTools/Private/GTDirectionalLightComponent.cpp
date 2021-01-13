@@ -3,58 +3,18 @@
 
 #include "GTDirectionalLightComponent.h"
 
+#include "GTWorldSubsystem.h"
 #include "GraphicsTools.h"
 
 #include "Components/ArrowComponent.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 
-struct DirectionalLights
+namespace
 {
-public:
-	typedef TArray<TWeakObjectPtr<UGTDirectionalLightComponent>> LightList;
+	typedef TArray<UGTDirectionalLightComponent*> LightList;
 
-	LightList& GetLightList(bool bInGameWorld) { return bInGameWorld ? GameLights : EditorLights; }
-
-	void AddLight(UGTDirectionalLightComponent* Light)
-	{
-		if (!UGTLightComponent::ValidLight(Light))
-		{
-			return;
-		}
-
-		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
-
-		if (Lights.Find(Light) == INDEX_NONE)
-		{
-			if (Lights.Add(Light) == 0)
-			{
-				UpdateParameterCollection(Light);
-			}
-		}
-	}
-
-	void RemoveLight(UGTDirectionalLightComponent* Light)
-	{
-		if (!UGTLightComponent::ValidLight(Light))
-		{
-			return;
-		}
-
-		LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
-		const int32 Index = Lights.Find(Light);
-
-		if (Index != INDEX_NONE)
-		{
-			Lights.RemoveAt(Index);
-
-			if (Index == 0)
-			{
-				bool bLightEnabled = Lights.Num() != 0;
-				UpdateParameterCollection(bLightEnabled ? Lights[0].Get() : Light, bLightEnabled);
-			}
-		}
-	}
+	LightList& GetLightList(const UWorld* World) { return World->GetSubsystem<UGTWorldSubsystem>()->DirectionalLights; }
 
 	void SetVectorParameterValue(
 		UMaterialParameterCollectionInstance* ParameterCollectionInstance, FName ParameterName, const FLinearColor& ParameterValue)
@@ -71,12 +31,12 @@ public:
 
 	void UpdateParameterCollection(UGTDirectionalLightComponent* Light, bool LightEnabled = true)
 	{
-		if (!UGTLightComponent::ValidLight(Light))
+		if (!Light->IsValid())
 		{
 			return;
 		}
 
-		const LightList& Lights = GetLightList(Light->GetWorld()->IsGameWorld());
+		const LightList& Lights = GetLightList(Light->GetWorld());
 		const int32 LightIndex = Lights.Find(Light);
 
 		// Only the first directional light will be considered (or a disabled light in the case of removing the last light).
@@ -102,10 +62,46 @@ public:
 		}
 	}
 
-private:
-	LightList GameLights;
-	LightList EditorLights;
-} GlobalDirectionalLights;
+	void AddLight(UGTDirectionalLightComponent* Light)
+	{
+		if (!Light->IsValid())
+		{
+			return;
+		}
+
+		LightList& Lights = GetLightList(Light->GetWorld());
+
+		if (Lights.Find(Light) == INDEX_NONE)
+		{
+			if (Lights.Add(Light) == 0)
+			{
+				UpdateParameterCollection(Light);
+			}
+		}
+	}
+
+	void RemoveLight(UGTDirectionalLightComponent* Light)
+	{
+		if (!Light->IsValid())
+		{
+			return;
+		}
+
+		LightList& Lights = GetLightList(Light->GetWorld());
+		const int32 Index = Lights.Find(Light);
+
+		if (Index != INDEX_NONE)
+		{
+			Lights.RemoveAt(Index);
+
+			if (Index == 0)
+			{
+				bool bLightEnabled = Lights.Num() != 0;
+				UpdateParameterCollection(bLightEnabled ? Lights[0] : Light, bLightEnabled);
+			}
+		}
+	}
+} // namespace
 
 UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 {
@@ -151,7 +147,7 @@ void UGTDirectionalLightComponent::SetLightIntensity(float Intensity)
 	{
 		LightIntensity = Intensity;
 
-		GlobalDirectionalLights.UpdateParameterCollection(this);
+		UpdateParameterCollection(this);
 	}
 }
 
@@ -161,7 +157,7 @@ void UGTDirectionalLightComponent::SetLightColor(FColor Color)
 	{
 		LightColor = Color;
 
-		GlobalDirectionalLights.UpdateParameterCollection(this);
+		UpdateParameterCollection(this);
 	}
 }
 
@@ -171,7 +167,7 @@ void UGTDirectionalLightComponent::OnRegister()
 
 	if (IsVisible())
 	{
-		GlobalDirectionalLights.AddLight(this);
+		AddLight(this);
 	}
 
 #if WITH_EDITORONLY_DATA
@@ -186,7 +182,7 @@ void UGTDirectionalLightComponent::OnUnregister()
 {
 	Super::OnUnregister();
 
-	GlobalDirectionalLights.RemoveLight(this);
+	RemoveLight(this);
 }
 
 void UGTDirectionalLightComponent::OnVisibilityChanged()
@@ -195,11 +191,11 @@ void UGTDirectionalLightComponent::OnVisibilityChanged()
 
 	if (IsVisible())
 	{
-		GlobalDirectionalLights.AddLight(this);
+		AddLight(this);
 	}
 	else
 	{
-		GlobalDirectionalLights.RemoveLight(this);
+		RemoveLight(this);
 	}
 }
 
@@ -207,13 +203,13 @@ void UGTDirectionalLightComponent::OnUpdateTransform(EUpdateTransformFlags Updat
 {
 	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
 
-	GlobalDirectionalLights.UpdateParameterCollection(this);
+	UpdateParameterCollection(this);
 }
 
 #if WITH_EDITOR
 void UGTDirectionalLightComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	GlobalDirectionalLights.UpdateParameterCollection(this);
+	UpdateParameterCollection(this);
 
 	if (ArrowComponent != nullptr)
 	{

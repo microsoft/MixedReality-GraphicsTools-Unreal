@@ -28,7 +28,8 @@ public:
 	/** Const accessor to the global Graphics Tools material parameter collection. */
 	const UMaterialParameterCollection* GetParameterCollection() const;
 
-	static bool ValidLight(const UGTLightComponent* Light);
+	/** Returns true if the light belongs to a world and has a material parameter collection. */
+	bool IsValid() const;
 
 protected:
 #if WITH_EDITOR
