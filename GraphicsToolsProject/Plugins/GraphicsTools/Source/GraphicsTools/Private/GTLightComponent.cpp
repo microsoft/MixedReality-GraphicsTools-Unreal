@@ -32,6 +32,11 @@ UGTLightComponent::UGTLightComponent()
 
 UMaterialParameterCollection* UGTLightComponent::GetParameterCollection()
 {
+	return const_cast<UMaterialParameterCollection*>(static_cast<const UGTLightComponent*>(this)->GetParameterCollection());
+}
+
+const UMaterialParameterCollection* UGTLightComponent::GetParameterCollection() const
+{
 	// Avoid returning a collection which is being destroyed since any systems storing soft pointers may assert.
 	if (ParameterCollection != nullptr && ParameterCollection->HasAnyFlags(RF_BeginDestroyed))
 	{
@@ -39,11 +44,6 @@ UMaterialParameterCollection* UGTLightComponent::GetParameterCollection()
 	}
 
 	return ParameterCollection;
-}
-
-const UMaterialParameterCollection* UGTLightComponent::GetParameterCollection() const
-{
-	return const_cast<UGTLightComponent*>(this)->GetParameterCollection();
 }
 
 bool UGTLightComponent::IsValid() const
