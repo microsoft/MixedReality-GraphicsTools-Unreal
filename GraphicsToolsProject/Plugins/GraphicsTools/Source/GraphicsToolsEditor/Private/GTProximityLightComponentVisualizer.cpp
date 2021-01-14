@@ -18,6 +18,9 @@ void FGTProximityLightComponentVisualizer::DrawVisualization(
 		// Draw the projected radius and center color.
 		DrawWireSphereAutoSides(PDI, LightTransform, Light->GetCenterColor(), Light->GetProjectedRadius(), SDPG_World);
 
+		// Draw the shrink distance as a white sphere.
+		DrawWireSphereAutoSides(PDI, LightTransform, FColor::White, Light->GetShrinkDistance(), SDPG_World);
+
 		// Draw the attenuation radius and outer color.
 		DrawWireSphereAutoSides(PDI, LightTransform, Light->GetOuterColor(), Light->GetAttenuationRadius(), SDPG_World);
 	}
