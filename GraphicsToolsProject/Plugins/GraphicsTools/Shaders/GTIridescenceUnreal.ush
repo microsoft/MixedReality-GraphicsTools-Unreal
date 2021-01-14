@@ -1,0 +1,37 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_IRIDESCENCE_UNREAL
+#define GT_IRIDESCENCE_UNREAL
+
+#include "Common/GTEffects.ush"
+
+float3 GTIridescence(FMaterialVertexParameters Parameters,
+                     float3 CameraLocation,
+                     float Threshold,
+                     float Angle,
+                     float Intensity,
+                     float2 UV,
+                     Texture2D Spectrum,
+                     SamplerState SpectrumSampler)
+{
+#if USE_INSTANCING || IS_MESHPARTICLE_FACTORY
+    MaterialFloat3x3 LocalToWorld = (MaterialFloat3x3)Parameters.InstanceLocalToWorld;
+#else
+    MaterialFloat3x3 LocalToWorld = GetLocalToWorld3x3(Parameters.PrimitiveId);
+#endif
+
+    float3 Tangent = normalize(mul(float3(1, 0, 0), LocalToWorld));
+    float3 Incident = normalize(GetWorldPosition(Parameters) - CameraLocation);
+    float ToI = dot(Tangent, Incident);
+
+    return GTIridescence(ToI,
+                         Threshold,
+                         Angle,
+                         Intensity,
+                         UV,
+                         Spectrum,
+                         SpectrumSampler);
+}
+
+#endif // GT_IRIDESCENCE_UNREAL

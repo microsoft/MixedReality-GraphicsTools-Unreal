@@ -1,0 +1,160 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_LIGHTING
+#define GT_LIGHTING
+
+#include "GTCommon.ush"
+
+//
+// PBR lighting modeled from: https://google.github.io/filament/Filament.html and
+// https://blog.selfshadow.com/2014/08/12/physically-based-shading-at-siggraph-2014/
+//
+
+Half GTDistribution(Half roughness,
+                    Half NoH,
+                    Half3 NxH)
+{
+    // Walter et al. 2007, "Microfacet Models for Refraction through Rough Surfaces"
+
+    // In mediump, there are two problems computing 1.0 - NoH^2
+    // 1) 1.0 - NoH^2 suffers floating point cancellation when NoH^2 is close to 1 (highlights)
+    // 2) NoH doesn't have enough precision around 1.0
+    // Both problem can be fixed by computing 1-NoH^2 in highp and providing NoH in highp as well
+
+    // However, we can do better using Lagrange's identity:
+    //      ||a x b||^2 = ||a||^2 ||b||^2 - (a . b)^2
+    // since N and H are unit vectors: ||N x H||^2 = 1.0 - NoH^2
+    // This computes 1.0 - NoH^2 directly (which is close to zero in the highlights and has
+    // enough precision).
+    // Overall this yields better performance, keeping all computations in mediump
+    Half oneMinusNoHSquared = dot(NxH, NxH);
+
+    Half a = NoH * roughness;
+    Half k = roughness / (oneMinusNoHSquared + a * a);
+    Half d = k * k * GT_ONE_OVER_PI;
+
+    return min(d, GT_MEDIUMP_FLT_MAX);
+}
+
+// Calculated at full precision to avoid artifacts.
+float GTVisibility(float roughness,
+                   float NoV,
+                   float NoL)
+{
+    // Hammon 2017, "PBR Diffuse Lighting for GGX+Smith Microsurfaces"
+	return 0.5 / lerp(2 * NoL * NoV, NoL + NoV, roughness);
+}
+
+Half3 GTFresnel(Half3 f0,
+                Half LoH)
+{
+    // Schlick 1994, "An Inexpensive BRDF Model for Physically-Based Rendering"
+    Half f = pow(Half(1) - LoH, Half(5));
+    return f + f0 * (1.0 - f); // f90 = 1.0
+}
+
+Half3 GTSpecularLobe(Half roughness,
+                     Half NoV,
+                     Half NoL,
+                     Half NoH,
+                     Half LoH,
+                     Half3 NxH,
+                     Half3 fresnel)
+{
+    Half D = GTDistribution(roughness, NoH, NxH);
+    float V = GTVisibility(roughness, NoV, NoL);
+    Half3 F = GTFresnel(fresnel, LoH);
+
+    return (D * V) * F;
+}
+
+Half3 GTDiffuseLobe(Half3 baseColor)
+{
+    return baseColor * GT_ONE_OVER_PI;
+}
+
+Half3 GTContributionDirectionalLight(Half3 baseColor,
+                                     Half metallic,
+                                     Half roughness,
+                                     Half roughnessSq,
+                                     Half specular,
+                                     Half3 worldNormal,
+                                     Half3 cameraVector,
+                                     Half3 lightDirection,
+                                     Half4 lightColorIntensity)
+{
+    Half3 h = normalize(cameraVector + lightDirection);
+    Half NoL = saturate(dot(worldNormal, lightDirection));
+
+#if GT_FULLY_ROUGH
+    Half3 specularLobe = Half3(0, 0, 0);
+    Half3 diffuseLobe = GTDiffuseLobe(baseColor);
+#else
+    // Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
+    Half NoV = max(dot(worldNormal, cameraVector), GT_MIN_N_DOT_V);
+    Half NoH = saturate(dot(worldNormal, h));
+    Half LoH = saturate(dot(lightDirection, h));
+    Half dielectric = Half(1) - metallic;
+    Half3 NxH = cross(worldNormal, h);
+    Half3 fresnel = Half(0.16) * specular * specular * dielectric + baseColor * metallic;
+
+    Half3 specularLobe = GTSpecularLobe(roughnessSq, NoV, NoL, NoH, LoH, NxH, fresnel);
+    Half3 diffuseLobe = GTDiffuseLobe(baseColor) * max(dielectric, roughness);
+#endif // GT_FULLY_ROUGH
+
+    Half energyCompensation = Half(1) + (Half(1) - (metallic * Half(1.5)));
+    return ((diffuseLobe + specularLobe) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL * energyCompensation;
+}
+
+Half3 GTContributionSH(Half3 baseColor,
+                       Half metallic,
+                       Half roughness,
+                       Half3 skySHDiffuse,
+                       Half3 skyLightColor)
+{
+	return (skySHDiffuse * skyLightColor * baseColor) * max(Half(0.3), min(Half(1) - metallic, Half(1) - roughness));
+}
+
+#define GT_REFLECTION_CUBE_MAX_MIP 10
+
+Half3 GTContributionReflection(Half3 baseColor,
+                               Half roughnessSq,
+                               TextureCube reflectionCube,
+                               SamplerState reflectionCubeSampler,
+                               Half3 reflectionVector)
+{
+    Half lod = (GT_REFLECTION_CUBE_MAX_MIP - Half(1)) - (Half(1) - log2(roughnessSq));
+	return reflectionCube.SampleLevel(reflectionCubeSampler, reflectionVector, lod).rgb * baseColor;
+}
+
+Half3 GTProximityLightColor(Half4 centerColor,
+                            Half4 middleColor,
+                            Half4 outerColor,
+                            Half t)
+{
+    Half3 color = lerp(centerColor.rgb, middleColor.rgb, lerp(centerColor.a, middleColor.a, t));
+    return lerp(color, outerColor.rgb, lerp(middleColor.a, outerColor.a, t));
+}
+
+Half3 GTContributionProximityLight(float3 worldPosition,
+                                   float3 worldNormal,
+                                   float4 lightPosition,
+                                   float4 lightSettings,
+                                   float4 lightPulseSettings,
+                                   Half4 lightCenterColor,
+                                   Half4 lightMiddleColor,
+                                   Half4 lightOuterColor)
+{
+    float proximityLightDistance = dot(lightPosition.xyz - worldPosition, worldNormal);
+    float normalizedProximityLightDistance = saturate(proximityLightDistance * lightSettings.y);
+    float3 projectedProximityLight = lightPosition.xyz - (worldNormal * abs(proximityLightDistance));
+    float projectedProximityLightDistance = length(projectedProximityLight - worldPosition);
+    float attenuation = (1 - normalizedProximityLightDistance) * lightPosition.w;
+    float pulse = step(lightPulseSettings.x, projectedProximityLightDistance) * lightPulseSettings.y;
+    float intensity = smoothstep(1, 0, projectedProximityLightDistance / (lightSettings.x * max(pow(normalizedProximityLightDistance, 0.25), lightSettings.w))) * pulse * attenuation;
+
+    return GTProximityLightColor(lightCenterColor, lightMiddleColor, lightOuterColor, saturate(projectedProximityLightDistance * lightSettings.z)) * intensity;
+}
+
+#endif // GT_LIGHTING

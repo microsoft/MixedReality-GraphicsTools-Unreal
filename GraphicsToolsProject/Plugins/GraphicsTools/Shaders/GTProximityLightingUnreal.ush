@@ -1,0 +1,67 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_PROXIMITY_LIGHTING_UNREAL
+#define GT_PROXIMITY_LIGHTING_UNREAL
+
+#include "Common/GTLighting.ush"
+
+Half3 GTContributionProximityLights(FMaterialPixelParameters Parameters,
+                                    float4 ProximityLightLocation0,
+                                    float4 ProximityLightSettings0,
+                                    float4 ProximityLightPulseSettings0,
+                                    Half4 ProximityLightCenterColor0,
+                                    Half4 ProximityLightMiddleColor0,
+                                    Half4 ProximityLightOuterColor0,
+
+                                    float4 ProximityLightLocation1,
+                                    float4 ProximityLightSettings1,
+                                    float4 ProximityLightPulseSettings1,
+                                    Half4 ProximityLightCenterColor1,
+                                    Half4 ProximityLightMiddleColor1,
+                                    Half4 ProximityLightOuterColor1,
+
+                                    float4 ProximityLightLocation2,
+                                    float4 ProximityLightSettings2,
+                                    float4 ProximityLightPulseSettings2,
+                                    Half4 ProximityLightCenterColor2,
+                                    Half4 ProximityLightMiddleColor2,
+                                    Half4 ProximityLightOuterColor2,
+
+                                    float4 ProximityLightLocation3,
+                                    float4 ProximityLightSettings3,
+                                    float4 ProximityLightPulseSettings3,
+                                    Half4 ProximityLightCenterColor3,
+                                    Half4 ProximityLightMiddleColor3,
+                                    Half4 ProximityLightOuterColor3)
+{
+    // Custom material expressions do not support array input, so we need to pack the array in the shader.
+    float4 ProximityLightLocations[] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2, ProximityLightLocation3};
+    float4 ProximityLightSettings[] = {ProximityLightSettings0, ProximityLightSettings1, ProximityLightSettings2, ProximityLightSettings3};
+    float4 ProximityLightPulseSettings[] = {ProximityLightPulseSettings0, ProximityLightPulseSettings1, ProximityLightPulseSettings2, ProximityLightPulseSettings3};
+    Half4 ProximityLightCenterColors[] = {ProximityLightCenterColor0, ProximityLightCenterColor1, ProximityLightCenterColor2, ProximityLightCenterColor3};
+    Half4 ProximityLightMiddleColors[] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2, ProximityLightMiddleColor3};
+    Half4 ProximityLightOuterColors[] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2, ProximityLightOuterColor3};
+
+    float3 WorldLocation = GetWorldPosition(Parameters);
+    float3 WorldNormal = Parameters.WorldNormal;
+
+    Half3 Result = 0;
+
+	[unroll]
+    for (int i = 0; i < GT_MAX_PROXIMITY_LIGHTS; ++i)
+    {
+        Result += GTContributionProximityLight(WorldLocation,
+                                               WorldNormal,
+                                               ProximityLightLocations[i],
+                                               ProximityLightSettings[i],
+                                               ProximityLightPulseSettings[i],
+                                               ProximityLightCenterColors[i],
+                                               ProximityLightMiddleColors[i],
+                                               ProximityLightOuterColors[i]);
+    }
+
+    return Result;
+}
+
+#endif // GT_PROXIMITY_LIGHTING_UNREAL

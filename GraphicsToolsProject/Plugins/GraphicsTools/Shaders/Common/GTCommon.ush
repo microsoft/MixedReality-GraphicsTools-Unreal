@@ -1,0 +1,24 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_COMMON
+#define GT_COMMON
+
+#define Half min16float
+#define Half2 min16float2
+#define Half3 min16float3
+#define Half4 min16float4
+#define Half3x3 min16float3x3
+#define Half3x4 min16float3x4
+
+#define GT_PI 3.14159265359
+#define GT_ONE_OVER_PI 1.0 / 3.14159265359
+#define GT_MEDIUMP_FLT_MAX 65504.0
+#define GT_MIN_N_DOT_V 1e-4
+
+Half GTLuminance(Half3 linearColor)
+{
+    return dot(linearColor, Half3(0.3, 0.59, 0.11));
+}
+
+#endif // GT_COMMON

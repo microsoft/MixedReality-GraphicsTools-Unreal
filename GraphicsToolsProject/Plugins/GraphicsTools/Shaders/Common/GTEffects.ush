@@ -1,0 +1,31 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_EFFECTS
+#define GT_EFFECTS
+
+#include "GTCommon.ush"
+
+float3 GTIridescence(float ToI,
+                     float threshold,
+                     float angle,
+                     float intensity,
+                     float2 uv,
+                     Texture2D spectrum,
+                     SamplerState spectrumSampler)
+{
+    float k = ToI * 0.5 + 0.5;
+    float4 left = spectrum.SampleLevel(spectrumSampler,
+                                       float2(lerp(0.0, 1.0 - threshold, k), 0.5),
+                                       0);
+    float4 right = spectrum.SampleLevel(spectrumSampler,
+                                        float2(lerp(threshold, 1.0, k), 0.5),
+                                        0);
+
+    float cosAngle = cos(angle);
+    uv = uv - float2(0.5, 0.5);
+    float s = (cosAngle * uv.x - sin(angle) * uv.y) / cosAngle;
+    return (left.rgb + s * (right.rgb - left.rgb)) * intensity;
+}
+
+#endif // GT_EFFECTS
