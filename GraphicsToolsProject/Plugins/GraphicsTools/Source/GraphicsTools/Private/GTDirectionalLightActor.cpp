@@ -7,7 +7,7 @@
 
 AGTDirectionalLightActor::AGTDirectionalLightActor()
 {
-	// Make the light component the root component.
+	// Make the DirectionalLight component the root component.
 	LightComponent = CreateDefaultSubobject<UGTDirectionalLightComponent>(TEXT("DirectionalLightComponent"));
 	RootComponent = LightComponent;
 

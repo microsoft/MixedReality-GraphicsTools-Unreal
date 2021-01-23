@@ -16,6 +16,14 @@
 #define GT_MEDIUMP_FLT_MAX 65504.0
 #define GT_MIN_N_DOT_V 1e-4
 
+float4x4 CreateMatrixFromColumns(float4 c0, float4 c1, float4 c2, float4 c3)
+{
+    return float4x4(c0.x, c1.x, c2.x, c3.x,
+                    c0.y, c1.y, c2.y, c3.y,
+                    c0.z, c1.z, c2.z, c3.z,
+                    c0.w, c1.w, c2.w, c3.w);
+}
+
 Half GTLuminance(Half3 linearColor)
 {
     return dot(linearColor, Half3(0.3, 0.59, 0.11));

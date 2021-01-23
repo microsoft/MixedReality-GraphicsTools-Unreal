@@ -5,7 +5,7 @@
 
 #include "GraphicsToolsEditor.h"
 
-#include <SceneManagement.h>
+#include "Engine/Public/SceneManagement.h"
 
 void FGTProximityLightComponentVisualizer::DrawVisualization(
 	const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)

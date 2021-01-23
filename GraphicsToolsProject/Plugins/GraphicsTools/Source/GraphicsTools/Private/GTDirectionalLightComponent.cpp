@@ -4,30 +4,14 @@
 #include "GTDirectionalLightComponent.h"
 
 #include "GTWorldSubsystem.h"
-#include "GraphicsTools.h"
 
 #include "Components/ArrowComponent.h"
-#include "Materials/MaterialParameterCollection.h"
-#include "Materials/MaterialParameterCollectionInstance.h"
 
 namespace DirectionalLights
 {
 	typedef TArray<UGTDirectionalLightComponent*> LightList;
 
 	LightList& GetLightList(const UWorld* World) { return World->GetSubsystem<UGTWorldSubsystem>()->DirectionalLights; }
-
-	void SetVectorParameterValue(
-		UMaterialParameterCollectionInstance* ParameterCollectionInstance, FName ParameterName, const FLinearColor& ParameterValue)
-	{
-		const bool bFoundParameter = ParameterCollectionInstance->SetVectorParameterValue(ParameterName, ParameterValue);
-
-		if (!bFoundParameter)
-		{
-			UE_LOG(
-				GraphicsTools, Warning, TEXT("Unable to find %s parameter in material parameter collection %s."), *ParameterName.ToString(),
-				*ParameterCollectionInstance->GetCollection()->GetPathName());
-		}
-	}
 
 	void UpdateParameterCollection(UGTDirectionalLightComponent* Light, bool LightEnabled = true)
 	{
@@ -45,20 +29,17 @@ namespace DirectionalLights
 			return;
 		}
 
-		UMaterialParameterCollectionInstance* ParameterCollectionInstance =
-			Light->GetWorld()->GetParameterCollectionInstance(Light->GetParameterCollection());
-
 		{
 			static FName DirectionEnabledParameterName("DirectionalLightDirectionEnabled");
 			FLinearColor DirectionEnabled(-Light->GetForwardVector());
 			DirectionEnabled.A = LightEnabled ? 1.0f : 0.0f;
-			SetVectorParameterValue(ParameterCollectionInstance, DirectionEnabledParameterName, DirectionEnabled);
+			Light->SetVectorParameterValue(DirectionEnabledParameterName, DirectionEnabled);
 		}
 		{
 			static FName ColorIntensityParameterName("DirectionalLightColorIntensity");
 			FLinearColor ColorIntensity(Light->GetLightColor());
 			ColorIntensity.A = Light->GetLightIntensity();
-			SetVectorParameterValue(ParameterCollectionInstance, ColorIntensityParameterName, ColorIntensity);
+			Light->SetVectorParameterValue(ColorIntensityParameterName, ColorIntensity);
 		}
 	}
 
@@ -101,7 +82,7 @@ namespace DirectionalLights
 			}
 		}
 	}
-} // DirectionalLights
+} // namespace DirectionalLights
 
 UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 {

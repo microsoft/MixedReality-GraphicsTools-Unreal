@@ -1,0 +1,31 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_CLIPPING_UNREAL
+#define GT_CLIPPING_UNREAL
+
+#include "Common/GTClipping.ush"
+
+float GTClippingSphere(FMaterialPixelParameters Parameters,
+                       float4 TransformColumn0,
+                       float4 TransformColumn1,
+                       float4 TransformColumn2,
+                       float4 TransformColumn3)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return GTPointVsSphere(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3));
+}
+
+float GTClippingBox(FMaterialPixelParameters Parameters,
+                    float4 TransformColumn0,
+                    float4 TransformColumn1,
+                    float4 TransformColumn2,
+                    float4 TransformColumn3)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return GTPointVsBox(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3));
+}
+
+#endif // GT_CLIPPING_UNREAL

@@ -110,7 +110,7 @@ protected:
 	/** Removes the ProximityLight from the global light list. */
 	virtual void OnUnregister() override;
 
-	/** Adds or removes the ProximityLight to the global light list based on visibility. */
+	/** Adds or removes the ProximityLight from the global light list based on visibility. */
 	virtual void OnVisibilityChanged() override;
 
 	//
