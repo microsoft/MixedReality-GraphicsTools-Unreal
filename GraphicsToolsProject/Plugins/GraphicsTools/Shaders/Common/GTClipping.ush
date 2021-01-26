@@ -6,15 +6,15 @@
 
 #include "GTCommon.ush"
 
-float GTPointVsSphere(float3 worldPosition, float4x4 sphereInverseTransform)
+float GTPointVsSphere(float3 worldPosition, float4x4 sphereInverseTransform, float clippingSide)
 {
-    return length(mul(sphereInverseTransform, float4(worldPosition, 1.0)).xyz) - 0.5;
+    return (length(mul(sphereInverseTransform, float4(worldPosition, 1.0)).xyz) - 0.5) * clippingSide;
 }
 
-float GTPointVsBox(float3 worldPosition, float4x4 boxInverseTransform)
+float GTPointVsBox(float3 worldPosition, float4x4 boxInverseTransform, float clippingSide)
 {
     float3 distance = abs(mul(boxInverseTransform, float4(worldPosition, 1.0))) - 0.5;
-    return length(max(distance, 0.0)) + min(max(distance.x, max(distance.y, distance.z)), 0.0);
+    return length(max(distance, 0.0)) + min(max(distance.x, max(distance.y, distance.z)), 0.0) * clippingSide;
 }
 
 #endif // GT_CLIPPING

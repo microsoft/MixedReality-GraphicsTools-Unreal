@@ -9,10 +9,12 @@
 #include "GTClippingBoxComponent.generated.h"
 
 /**
- * TODO
+ * Sub class of a ClippingPrimitive that represents an analytic box used to pass state to materials for per pixel clipping.
  */
 UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
 class GRAPHICSTOOLS_API UGTClippingBoxComponent : public UGTClippingPrimitiveComponent
 {
 	GENERATED_BODY()
+public:
+	UGTClippingBoxComponent();
 };

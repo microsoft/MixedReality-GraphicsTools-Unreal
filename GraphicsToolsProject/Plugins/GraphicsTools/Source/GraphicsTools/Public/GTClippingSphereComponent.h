@@ -9,10 +9,12 @@
 #include "GTClippingSphereComponent.generated.h"
 
 /**
- * TODO
+ * Sub class of a ClippingPrimitive that represents an analytic sphere used to pass state to materials for per pixel clipping.
  */
 UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
 class GRAPHICSTOOLS_API UGTClippingSphereComponent : public UGTClippingPrimitiveComponent
 {
 	GENERATED_BODY()
+public:
+	UGTClippingSphereComponent();
 };

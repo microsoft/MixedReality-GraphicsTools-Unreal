@@ -34,7 +34,7 @@ Half GTDistribution(Half roughness,
     Half k = roughness / (oneMinusNoHSquared + a * a);
     Half d = k * k * GT_ONE_OVER_PI;
 
-    return min(d, GT_MEDIUMP_FLT_MAX);
+    return min(d, GT_MEDIUMP_FLOAT_MAX);
 }
 
 // Calculated at full precision to avoid artifacts.

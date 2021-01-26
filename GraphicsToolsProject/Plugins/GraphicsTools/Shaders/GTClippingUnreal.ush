@@ -7,6 +7,7 @@
 #include "Common/GTClipping.ush"
 
 float GTClippingSphere(FMaterialPixelParameters Parameters,
+                       float4 Settings,
                        float4 TransformColumn0,
                        float4 TransformColumn1,
                        float4 TransformColumn2,
@@ -14,10 +15,11 @@ float GTClippingSphere(FMaterialPixelParameters Parameters,
 {
     float3 WorldLocation = GetWorldPosition(Parameters);
 
-    return GTPointVsSphere(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3));
+    return (Settings.x > 0) ? GTPointVsSphere(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3), Settings.y) : GT_FLOAT_MAX;
 }
 
 float GTClippingBox(FMaterialPixelParameters Parameters,
+                    float4 Settings,
                     float4 TransformColumn0,
                     float4 TransformColumn1,
                     float4 TransformColumn2,
@@ -25,7 +27,7 @@ float GTClippingBox(FMaterialPixelParameters Parameters,
 {
     float3 WorldLocation = GetWorldPosition(Parameters);
 
-    return GTPointVsBox(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3));
+    return (Settings.x > 0) ? GTPointVsBox(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3), Settings.y) : GT_FLOAT_MAX;
 }
 
 #endif // GT_CLIPPING_UNREAL
