@@ -38,6 +38,22 @@ public:
 	UFUNCTION(BlueprintSetter, Category = "Light")
 	void SetLightColor(FColor Color);
 
+	/** Gets the material parameter name used for the direction and enabled state. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const FName& GetDirectionEnabledParameterName() const { return DirectionEnabledParameterName; }
+
+	/** Sets the material parameter name used for the direction and enabled state. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetDirectionEnabledParameterName(const FName& Name);
+
+	/** Gets the material parameter name used for the color and intensity state. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const FName& GetColorIntensityParameterName() const { return ColorIntensityParameterName; }
+
+	/** Sets the material parameter name used for the color and intensity state. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetColorIntensityParameterName(const FName& Name);
+
 protected:
 	//
 	// UActorComponent interface
@@ -78,4 +94,16 @@ private:
 	/** The color of the DirectionalLight. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetLightColor", BlueprintSetter = "SetLightColor", Category = "Light")
 	FColor LightColor = FColor(255, 255, 255, 255);
+
+	/** Material parameter name used for the lights direction and enabled state to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetDirectionEnabledParameterName",
+		BlueprintSetter = "SetDirectionEnabledParameterName", AdvancedDisplay)
+	FName DirectionEnabledParameterName;
+
+	/** Material parameter name used for the lights color and intensity to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetColorIntensityParameterName",
+		BlueprintSetter = "SetColorIntensityParameterName", AdvancedDisplay)
+	FName ColorIntensityParameterName;
 };

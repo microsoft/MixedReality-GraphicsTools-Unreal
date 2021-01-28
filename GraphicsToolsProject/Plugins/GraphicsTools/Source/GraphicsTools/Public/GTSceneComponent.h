@@ -88,7 +88,7 @@ protected:
 
 private:
 	/** An override that removes the component from the WorldParameterCollection and allows the user to control what MaterialParameterCollection gets written to. */
-	UPROPERTY(EditAnywhere, Category = "GT Scene Component", BlueprintSetter = "SetParameterCollectionOverride")
+	UPROPERTY(EditAnywhere, Category = "GT Scene Component", BlueprintSetter = "SetParameterCollectionOverride", AdvancedDisplay)
 	UMaterialParameterCollection* ParameterCollectionOverride = nullptr;
 
 	/** The default MaterialParameterCollection all components within the current world will write to. */

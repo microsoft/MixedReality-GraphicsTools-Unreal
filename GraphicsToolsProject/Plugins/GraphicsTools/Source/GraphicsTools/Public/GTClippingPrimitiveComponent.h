@@ -57,6 +57,14 @@ public:
 
 protected:
 	//
+	// USceneComponent interface
+
+#if WITH_EDITOR
+	/** Ensures projected and attenuation radii remain less than or greater than each other. */
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR
+
+	//
 	// UGTSceneComponent interface
 
 	/** Updates the current parameter collection based on the current UGTClippingPrimitiveComponent. */

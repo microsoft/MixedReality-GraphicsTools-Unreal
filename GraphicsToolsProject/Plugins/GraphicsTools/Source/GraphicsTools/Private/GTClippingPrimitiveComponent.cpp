@@ -21,7 +21,6 @@ UGTClippingPrimitiveComponent::UGTClippingPrimitiveComponent()
 		static const FName ParameterNames[4] = {
 			"ClippingPrimitiveTransformColumn0", "ClippingPrimitiveTransformColumn1", "ClippingPrimitiveTransformColumn2",
 			"ClippingPrimitiveTransformColumn3"};
-
 		TransformColumnParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
 	}
 }
@@ -46,7 +45,7 @@ void UGTClippingPrimitiveComponent::SetSettingsParameterName(const FName& Name)
 
 void UGTClippingPrimitiveComponent::SetTransformColumnParameterNames(const TArray<FName>& Names)
 {
-	if (Names.Num() == 4)
+	if (Names.Num() >= 4)
 	{
 		TransformColumnParameterNames = Names;
 		UpdateParameterCollection();
@@ -54,9 +53,25 @@ void UGTClippingPrimitiveComponent::SetTransformColumnParameterNames(const TArra
 	else
 	{
 		UE_LOG(
-			GraphicsTools, Warning, TEXT("Unable to SetTransformColumnParameterNames because the input does not contain 4 column names."));
+			GraphicsTools, Warning, TEXT("Unable to SetTransformColumnParameterNames because the input does not contain at least 4 column names."));
 	}
 }
+
+#if WITH_EDITOR
+void UGTClippingPrimitiveComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTClippingPrimitiveComponent, TransformColumnParameterNames))
+	{
+		// Ensure we always have 4 names.
+		while (TransformColumnParameterNames.Num() < 4)
+		{
+			TransformColumnParameterNames.Add(FName());
+		}
+	}
+
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+}
+#endif // WITH_EDITOR
 
 void UGTClippingPrimitiveComponent::UpdateParameterCollection(bool IsDisabled)
 {

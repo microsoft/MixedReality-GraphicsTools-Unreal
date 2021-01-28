@@ -41,6 +41,15 @@ UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 		ArrowComponent->bIsScreenSizeScaled = true;
 	}
 #endif // WITH_EDITORONLY_DATA
+
+	{
+		static const FName ParameterName("DirectionalLightDirectionEnabled");
+		DirectionEnabledParameterName = ParameterName;
+	}
+	{
+		static const FName ParameterName("DirectionalLightColorIntensity");
+		ColorIntensityParameterName = ParameterName;
+	}
 }
 
 void UGTDirectionalLightComponent::SetLightIntensity(float Intensity)
@@ -59,6 +68,24 @@ void UGTDirectionalLightComponent::SetLightColor(FColor Color)
 	{
 		LightColor = Color;
 
+		UpdateParameterCollection();
+	}
+}
+
+void UGTDirectionalLightComponent::SetDirectionEnabledParameterName(const FName& Name)
+{
+	if (DirectionEnabledParameterName != Name)
+	{
+		DirectionEnabledParameterName = Name;
+		UpdateParameterCollection();
+	}
+}
+
+void UGTDirectionalLightComponent::SetColorIntensityParameterName(const FName& Name)
+{
+	if (ColorIntensityParameterName != Name)
+	{
+		ColorIntensityParameterName = Name;
 		UpdateParameterCollection();
 	}
 }
@@ -99,20 +126,19 @@ void UGTDirectionalLightComponent::UpdateParameterCollection(bool IsDisabled)
 		const TArray<UGTSceneComponent*>& Components = GetWorldComponents();
 		const int32 ComponentIndex = Components.Find(this);
 
-		// Only the first directional light will be considered, or a disabled light in the case of removing the last light, or any components with an MPC override.
+		// Only the first directional light will be considered, or a disabled light in the case of removing the last light, or any
+		// components with an MPC override.
 		if (ComponentIndex == 0 || IsDisabled || HasParameterCollectionOverride())
 		{
 			{
-				static const FName DirectionEnabledParameterName("DirectionalLightDirectionEnabled");
 				FLinearColor DirectionEnabled(-GetForwardVector());
 				DirectionEnabled.A = !IsDisabled;
-				SetVectorParameterValue(DirectionEnabledParameterName, DirectionEnabled);
+				SetVectorParameterValue(GetDirectionEnabledParameterName(), DirectionEnabled);
 			}
 			{
-				static const FName ColorIntensityParameterName("DirectionalLightColorIntensity");
 				FLinearColor ColorIntensity(GetLightColor());
 				ColorIntensity.A = GetLightIntensity();
-				SetVectorParameterValue(ColorIntensityParameterName, ColorIntensity);
+				SetVectorParameterValue(GetColorIntensityParameterName(), ColorIntensity);
 			}
 		}
 	}
