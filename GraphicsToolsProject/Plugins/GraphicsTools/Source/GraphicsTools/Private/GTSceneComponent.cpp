@@ -11,13 +11,17 @@
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "UObject/ConstructorHelpers.h"
 
+TArray<UGTSceneComponent*> UGTSceneComponent::Empty;
+
 UGTSceneComponent::UGTSceneComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	bWantsOnUpdateTransform = true;
+
 	static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> Finder(TEXT("/GraphicsTools/Materials/MPC_GTSettings"));
 	check(Finder.Object);
-	ParameterCollection = Finder.Object;
+	WorldParameterCollection = Finder.Object;
 
 #if WITH_EDITORONLY_DATA
 	bVisualizeComponent = true;
@@ -30,6 +34,87 @@ UGTSceneComponent::UGTSceneComponent()
 		EditorTextureScale = 0.5f;
 	}
 #endif // WITH_EDITORONLY_DATA
+}
+
+void UGTSceneComponent::SetParameterCollectionOverride(UMaterialParameterCollection* Override)
+{
+	RemoveFromWorldParameterCollection();
+	ParameterCollectionOverride = (Override == WorldParameterCollection) ? nullptr : Override;
+	AddToWorldParameterCollection();
+}
+
+void UGTSceneComponent::OnRegister()
+{
+	Super::OnRegister();
+
+	if (IsVisible())
+	{
+		AddToWorldParameterCollection();
+	}
+
+#if WITH_EDITOR
+	if (SpriteComponent != nullptr)
+	{
+		SpriteComponent->SetSprite(EditorTexture);
+		SpriteComponent->SetRelativeScale3D(FVector(EditorTextureScale));
+	}
+#endif // WITH_EDITOR
+}
+
+void UGTSceneComponent::OnUnregister()
+{
+	Super::OnUnregister();
+
+	RemoveFromWorldParameterCollection();
+}
+
+void UGTSceneComponent::OnVisibilityChanged()
+{
+	Super::OnVisibilityChanged();
+
+	if (IsVisible())
+	{
+		AddToWorldParameterCollection();
+	}
+	else
+	{
+		RemoveFromWorldParameterCollection();
+	}
+}
+
+void UGTSceneComponent::OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport)
+{
+	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
+
+	UpdateParameterCollection();
+}
+
+#if WITH_EDITOR
+void UGTSceneComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	UpdateParameterCollection();
+
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+}
+#endif // WITH_EDITOR
+
+bool UGTSceneComponent::IsValid() const
+{
+	return (GetWorld() != nullptr && GetWorld()->GetSubsystem<UGTWorldSubsystem>() != nullptr && GetParameterCollection() != nullptr);
+}
+
+const UMaterialParameterCollection* UGTSceneComponent::GetParameterCollection() const
+{
+	const UMaterialParameterCollection* CurrentCollection =
+		HasParameterCollectionOverride() ? ParameterCollectionOverride : WorldParameterCollection;
+
+	// Avoid returning a collection which is being destroyed since any systems storing soft pointers may assert.
+	if (CurrentCollection != nullptr && CurrentCollection->HasAnyFlags(RF_BeginDestroyed))
+	{
+		return nullptr;
+	}
+
+	return CurrentCollection;
 }
 
 bool UGTSceneComponent::SetVectorParameterValue(FName ParameterName, const FLinearColor& ParameterValue)
@@ -52,31 +137,52 @@ bool UGTSceneComponent::SetVectorParameterValue(FName ParameterName, const FLine
 	return false;
 }
 
-bool UGTSceneComponent::IsValid() const
+void UGTSceneComponent::AddToWorldParameterCollection()
 {
-	return (GetWorld() != nullptr && GetWorld()->GetSubsystem<UGTWorldSubsystem>() != nullptr && GetParameterCollection() != nullptr);
-}
-
-const UMaterialParameterCollection* UGTSceneComponent::GetParameterCollection() const
-{
-	// Avoid returning a collection which is being destroyed since any systems storing soft pointers may assert.
-	if (ParameterCollection != nullptr && ParameterCollection->HasAnyFlags(RF_BeginDestroyed))
+	if (IsValid())
 	{
-		return nullptr;
-	}
+		if (HasParameterCollectionOverride())
+		{
+			UpdateParameterCollection();
+		}
+		else
+		{
+			TArray<UGTSceneComponent*>& Components = GetWorldComponents();
 
-	return ParameterCollection;
-}
-
-#if WITH_EDITOR
-void UGTSceneComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	if (SpriteComponent != nullptr)
-	{
-		SpriteComponent->SetSprite(EditorTexture);
-		SpriteComponent->SetRelativeScale3D(FVector(EditorTextureScale));
+			if (Components.Find(this) == INDEX_NONE)
+			{
+				Components.Add(this);
+				UpdateParameterCollection();
+			}
+		}
 	}
 }
-#endif // WITH_EDITOR
+
+void UGTSceneComponent::RemoveFromWorldParameterCollection()
+{
+	if (IsValid())
+	{
+		if (HasParameterCollectionOverride())
+		{
+			UpdateParameterCollection(true);
+		}
+		else
+		{
+			TArray<UGTSceneComponent*>& Components = GetWorldComponents();
+			const int32 ComponentIndex = Components.Find(this);
+
+			if (ComponentIndex != INDEX_NONE)
+			{
+				// Disable the last component.
+				Components[Components.Num() - 1]->UpdateParameterCollection(true);
+
+				Components.RemoveAt(ComponentIndex);
+
+				for (auto Component : Components)
+				{
+					Component->UpdateParameterCollection();
+				}
+			}
+		}
+	}
+}

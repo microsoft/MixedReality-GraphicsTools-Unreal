@@ -9,11 +9,10 @@
 
 #include "GTWorldSubsystem.generated.h"
 
-class UGTDirectionalLightComponent;
-class UGTProximityLightComponent;
+class UGTSceneComponent;
 
 /**
- * Subsystem to hold all graphics data associated with a world.
+ * Subsystem to hold all graphics data associated with a world that will effect the world's MPC_GTSettings material parameter collection.
  */
 UCLASS(ClassGroup = GraphicsTools)
 class GRAPHICSTOOLS_API UGTWorldSubsystem : public UWorldSubsystem
@@ -22,10 +21,16 @@ class GRAPHICSTOOLS_API UGTWorldSubsystem : public UWorldSubsystem
 
 public:
 	/** List of all DirectionalLights within a world. */
-	TArray<UGTDirectionalLightComponent*> DirectionalLights;
+	TArray<UGTSceneComponent*> DirectionalLights;
 
 	/** List of all ProximityLights within a world. */
-	TArray<UGTProximityLightComponent*> ProximityLights;
+	TArray<UGTSceneComponent*> ProximityLights;
+
+	/** List of all ClippingSpheres within a world. */
+	TArray<UGTSceneComponent*> ClippingSpheres;
+
+	/** List of all ClippingBoxes within a world. */
+	TArray<UGTSceneComponent*> ClippingBoxes;
 
 protected:
 	/** Allows editor preview worlds to have this subsystem. */

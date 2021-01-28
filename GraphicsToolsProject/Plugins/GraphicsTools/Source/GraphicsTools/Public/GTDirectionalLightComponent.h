@@ -45,35 +45,30 @@ protected:
 	/** Adds the DirectionalLight to the global light list. */
 	virtual void OnRegister() override;
 
-	/** Removes the DirectionalLight from the global light list. */
-	virtual void OnUnregister() override;
-
-	/** Adds or removes the DirectionalLight to the global light list based on visibility. */
-	virtual void OnVisibilityChanged() override;
-
 	//
 	// USceneComponent interface
-
-	/** Notifies systems of the DirectionalLight's new direction. */
-	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
 
 #if WITH_EDITOR
 	/** Updates the material parameter collection. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif // WITH_EDITOR
 
-#if WITH_EDITORONLY_DATA
-public:
-	/** Returns ArrowComponent subobject **/
-	UArrowComponent* GetArrowComponent() const { return ArrowComponent; }
+	//
+	// UGTSceneComponent interface
+
+	/** Accessor to all UGTDirectionalLightComponent components within a world writing to the WorldParameterCollection. */
+	virtual TArray<UGTSceneComponent*>& GetWorldComponents() override;
+
+	/** Updates the current parameter collection based on the current UGTDirectionalLightComponent. */
+	virtual void UpdateParameterCollection(bool IsDisabled = false) override;
 
 private:
+#if WITH_EDITORONLY_DATA
 	// Reference to editor visualization arrow
 	UPROPERTY()
 	UArrowComponent* ArrowComponent = nullptr;
 #endif // WITH_EDITORONLY_DATA
 
-private:
 	/** Total energy that the DirectionalLight emits. */
 	UPROPERTY(
 		EditAnywhere, BlueprintGetter = "GetLightIntensity", BlueprintSetter = "SetLightIntensity", Category = "Light",

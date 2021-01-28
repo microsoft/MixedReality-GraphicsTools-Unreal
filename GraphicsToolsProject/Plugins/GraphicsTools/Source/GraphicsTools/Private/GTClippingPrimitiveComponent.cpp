@@ -7,48 +7,18 @@
 
 #include "UObject/ConstructorHelpers.h"
 
-namespace ClippingPrimitives
-{
-	void UpdateParameterCollection(UGTClippingPrimitiveComponent* Primitive)
-	{
-		if (!Primitive->IsValid())
-		{
-			return;
-		}
-
-		{
-			float Visible = Primitive->IsRegistered() && Primitive->IsVisible();
-			float Side = Primitive->GetClippingSide() == EGTClippingSide::Inside ? 1 : -1;
-			Primitive->SetVectorParameterValue(Primitive->GetSettingsParameterName(), FLinearColor(Visible, Side, 0));
-		}
-		{
-			FTransform Tranform = Primitive->GetComponentTransform();
-			Tranform.SetScale3D(Tranform.GetScale3D() * 2); // Double the scale to ensure sizing is consistent with other Unreal primitives.
-			FMatrix InverseMatrixTranspose = Tranform.ToInverseMatrixWithScale().GetTransposed();
-			const TArray<FName>& ParameterNames = Primitive->GetTransformColumnParameterNames();
-
-			for (int32 Index = 0; Index < 4; ++Index)
-			{
-				Primitive->SetVectorParameterValue(ParameterNames[Index], InverseMatrixTranspose.GetColumn(Index));
-			}
-		}
-	}
-} // namespace ClippingPrimitives
-
 UGTClippingPrimitiveComponent::UGTClippingPrimitiveComponent()
 {
-	bWantsOnUpdateTransform = true;
-
 #if WITH_EDITORONLY_DATA
 	EditorTexture = nullptr;
 #endif // WITH_EDITORONLY_DATA
 
 	{
-		static FName ParameterName("ClippingPrimitiveSettings");
+		static const FName ParameterName("ClippingPrimitiveSettings");
 		SettingsParameterName = ParameterName;
 	}
 	{
-		static FName ParameterNames[4] = {
+		static const FName ParameterNames[4] = {
 			"ClippingPrimitiveTransformColumn0", "ClippingPrimitiveTransformColumn1", "ClippingPrimitiveTransformColumn2",
 			"ClippingPrimitiveTransformColumn3"};
 
@@ -58,10 +28,10 @@ UGTClippingPrimitiveComponent::UGTClippingPrimitiveComponent()
 
 void UGTClippingPrimitiveComponent::SetClippingSide(EGTClippingSide Side)
 {
-	if (Clippingside != Side)
+	if (ClippingSide != Side)
 	{
-		Clippingside = Side;
-		ClippingPrimitives::UpdateParameterCollection(this);
+		ClippingSide = Side;
+		UpdateParameterCollection();
 	}
 }
 
@@ -70,7 +40,7 @@ void UGTClippingPrimitiveComponent::SetSettingsParameterName(const FName& Name)
 	if (SettingsParameterName != Name)
 	{
 		SettingsParameterName = Name;
-		ClippingPrimitives::UpdateParameterCollection(this);
+		UpdateParameterCollection();
 	}
 }
 
@@ -79,7 +49,7 @@ void UGTClippingPrimitiveComponent::SetTransformColumnParameterNames(const TArra
 	if (Names.Num() == 4)
 	{
 		TransformColumnParameterNames = Names;
-		ClippingPrimitives::UpdateParameterCollection(this);
+		UpdateParameterCollection();
 	}
 	else
 	{
@@ -88,42 +58,33 @@ void UGTClippingPrimitiveComponent::SetTransformColumnParameterNames(const TArra
 	}
 }
 
-void UGTClippingPrimitiveComponent::OnRegister()
+void UGTClippingPrimitiveComponent::UpdateParameterCollection(bool IsDisabled)
 {
-	Super::OnRegister();
-
-	if (IsVisible())
+	if (IsValid())
 	{
-		ClippingPrimitives::UpdateParameterCollection(this);
+		const TArray<UGTSceneComponent*>& Components = GetWorldComponents();
+		const int32 ComponentIndex = Components.Find(this);
+
+		// Only the first clipping primitive of this type will be considered, or a disabled clipping primitive of this type in the case of
+		// removing the last clipping primitive of this type, or any components with an MPC override.
+		if (ComponentIndex == 0 || IsDisabled || HasParameterCollectionOverride())
+		{
+			{
+				const float Side = GetClippingSide() == EGTClippingSide::Inside ? 1 : -1;
+				SetVectorParameterValue(GetSettingsParameterName(), FLinearColor(!IsDisabled, Side, 0));
+			}
+			{
+				FTransform Tranform = GetComponentTransform();
+				Tranform.SetScale3D(
+					Tranform.GetScale3D() * 2); // Double the scale to ensure sizing is consistent with other Unreal primitives.
+				FMatrix InverseMatrixTranspose = Tranform.ToInverseMatrixWithScale().GetTransposed();
+				const TArray<FName>& ParameterNames = GetTransformColumnParameterNames();
+
+				for (int32 ColumnIndex = 0; ColumnIndex < 4; ++ColumnIndex)
+				{
+					SetVectorParameterValue(ParameterNames[ColumnIndex], InverseMatrixTranspose.GetColumn(ColumnIndex));
+				}
+			}
+		}
 	}
 }
-
-void UGTClippingPrimitiveComponent::OnUnregister()
-{
-	Super::OnUnregister();
-
-	ClippingPrimitives::UpdateParameterCollection(this);
-}
-
-void UGTClippingPrimitiveComponent::OnVisibilityChanged()
-{
-	Super::OnVisibilityChanged();
-
-	ClippingPrimitives::UpdateParameterCollection(this);
-}
-
-void UGTClippingPrimitiveComponent::OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport)
-{
-	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
-
-	ClippingPrimitives::UpdateParameterCollection(this);
-}
-
-#if WITH_EDITOR
-void UGTClippingPrimitiveComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	ClippingPrimitives::UpdateParameterCollection(this);
-}
-#endif // WITH_EDITOR

@@ -17,4 +17,11 @@ class GRAPHICSTOOLS_API UGTClippingSphereComponent : public UGTClippingPrimitive
 	GENERATED_BODY()
 public:
 	UGTClippingSphereComponent();
+
+protected:
+	//
+	// UGTSceneComponent interface
+
+	/** Accessor to all UGTClippingSphereComponent components within a world writing to the WorldParameterCollection. */
+	virtual TArray<UGTSceneComponent*>& GetWorldComponents() override;
 };

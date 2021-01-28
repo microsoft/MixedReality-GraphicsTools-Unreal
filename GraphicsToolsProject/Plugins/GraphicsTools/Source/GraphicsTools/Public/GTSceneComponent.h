@@ -22,23 +22,59 @@ class GRAPHICSTOOLS_API UGTSceneComponent : public USceneComponent
 public:
 	UGTSceneComponent();
 
-	/** Sets a vector value on the current material parameter collection, returns true if successful. */
-	bool SetVectorParameterValue(FName ParameterName, const FLinearColor& ParameterValue);
+	/** Specifies the current WorldParameterCollection override, if null is passed in the component will start writing to the
+	 * WorldParameterCollection. */
+	UFUNCTION(BlueprintSetter, Category = "GT Scene Component")
+	void SetParameterCollectionOverride(UMaterialParameterCollection* Override);
+
+	/** Returns true if the WorldParameterCollection is currently being overridden. */
+	UFUNCTION(BlueprintPure, Category = "GT Scene Component")
+	bool HasParameterCollectionOverride() const { return ParameterCollectionOverride != nullptr; }
+
+protected:
+	//
+	// UActorComponent interface
+
+	/** Adds the component to the world and applies editor sprite textures. */
+	virtual void OnRegister() override;
+
+	/** Removes the component from the world list. */
+	virtual void OnUnregister() override;
+
+	/** Adds or removes the component to the world list based on visibility. */
+	virtual void OnVisibilityChanged() override;
+
+	//
+	// USceneComponent interface
+
+	/** Notifies systems of the DirectionalLight's new direction. */
+	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
+
+#if WITH_EDITOR
+	/** Updates the material parameter collection. */
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR
 
 	/** Returns true if the scene belongs to a world and has a material parameter collection. */
 	virtual bool IsValid() const;
 
-protected:
-	/** Const accessor to the current material parameter collection. */
+	/** Const accessor to the current material parameter collection in use. */
 	const UMaterialParameterCollection* GetParameterCollection() const;
 
-#if WITH_EDITOR
-	//
-	// UActorComponent interface
+	/** Sets a vector value on the current material parameter collection, returns true if successful. */
+	bool SetVectorParameterValue(FName ParameterName, const FLinearColor& ParameterValue);
 
-	/** Applies editor sprite textures. */
-	virtual void OnRegister() override;
-#endif // WITH_EDITOR
+	/** Adds this component to a list which will be processed when writing to the WorldParameterCollection. */
+	void AddToWorldParameterCollection();
+
+	/** Removes this component from a list which will be processed when writing to the WorldParameterCollection. */
+	void RemoveFromWorldParameterCollection();
+
+	/** Pure virtual accessor to all components of a specific type within a world writing to the WorldParameterCollection. */
+	virtual TArray<UGTSceneComponent*>& GetWorldComponents() PURE_VIRTUAL(UGTSceneComponent::UpdateParameterCollection, return Empty;);
+
+	/** Pure virtual method that updates the parameter collection based on the current type. */
+	virtual void UpdateParameterCollection(bool IsDisabled = false) PURE_VIRTUAL(UGTSceneComponent::UpdateParameterCollection, );
 
 #if WITH_EDITORONLY_DATA
 	/** Sprite for the scene in the editor. */
@@ -51,7 +87,14 @@ protected:
 #endif // WITH_EDITORONLY_DATA
 
 private:
-	/** The MaterialParameterCollection this scene will write to. */
+	/** An override that removes the component from the WorldParameterCollection and allows the user to control what MaterialParameterCollection gets written to. */
+	UPROPERTY(EditAnywhere, Category = "GT Scene Component", BlueprintSetter = "SetParameterCollectionOverride")
+	UMaterialParameterCollection* ParameterCollectionOverride = nullptr;
+
+	/** The default MaterialParameterCollection all components within the current world will write to. */
 	UPROPERTY(Transient)
-	UMaterialParameterCollection* ParameterCollection = nullptr;
+	UMaterialParameterCollection* WorldParameterCollection = nullptr;
+
+	/** Empty component list which is used by the pure virtual GetWorldComponents method. */
+	static TArray<UGTSceneComponent*> Empty;
 };

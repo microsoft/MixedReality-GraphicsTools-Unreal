@@ -104,25 +104,22 @@ protected:
 	/** Conditional tick method which occurs when a light needs to animate. */
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	/** Adds the ProximityLight to the global light list. */
-	virtual void OnRegister() override;
-
-	/** Removes the ProximityLight from the global light list. */
-	virtual void OnUnregister() override;
-
-	/** Adds or removes the ProximityLight from the global light list based on visibility. */
-	virtual void OnVisibilityChanged() override;
-
 	//
 	// USceneComponent interface
-
-	/** Notifies systems of the ProximityLight's new location. */
-	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
 
 #if WITH_EDITOR
 	/** Ensures projected and attenuation radii remain less than or greater than each other. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif // WITH_EDITOR
+
+	//
+	// UGTSceneComponent interface
+
+	/** Accessor to all UGTProximityLightComponent components within a world writing to the WorldParameterCollection. */
+	virtual TArray<UGTSceneComponent*>& GetWorldComponents() override;
+
+	/** Updates the current parameter collection based on the current UGTProximityLightComponent. */
+	virtual void UpdateParameterCollection(bool IsDisabled = false) override;
 
 private:
 	EPulseState PulseTick(float DeltaTime);

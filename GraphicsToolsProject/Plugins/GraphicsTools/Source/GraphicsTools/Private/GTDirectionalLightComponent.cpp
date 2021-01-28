@@ -7,88 +7,9 @@
 
 #include "Components/ArrowComponent.h"
 
-namespace DirectionalLights
-{
-	typedef TArray<UGTDirectionalLightComponent*> LightList;
-
-	LightList& GetLightList(const UWorld* World) { return World->GetSubsystem<UGTWorldSubsystem>()->DirectionalLights; }
-
-	void UpdateParameterCollection(UGTDirectionalLightComponent* Light, bool LightEnabled = true)
-	{
-		if (!Light->IsValid())
-		{
-			return;
-		}
-
-		const LightList& Lights = GetLightList(Light->GetWorld());
-		const int32 LightIndex = Lights.Find(Light);
-
-		// Only the first directional light will be considered (or a disabled light in the case of removing the last light).
-		if (LightEnabled && (LightIndex != 0))
-		{
-			return;
-		}
-
-		{
-			static FName DirectionEnabledParameterName("DirectionalLightDirectionEnabled");
-			FLinearColor DirectionEnabled(-Light->GetForwardVector());
-			DirectionEnabled.A = LightEnabled ? 1.0f : 0.0f;
-			Light->SetVectorParameterValue(DirectionEnabledParameterName, DirectionEnabled);
-		}
-		{
-			static FName ColorIntensityParameterName("DirectionalLightColorIntensity");
-			FLinearColor ColorIntensity(Light->GetLightColor());
-			ColorIntensity.A = Light->GetLightIntensity();
-			Light->SetVectorParameterValue(ColorIntensityParameterName, ColorIntensity);
-		}
-	}
-
-	void AddLight(UGTDirectionalLightComponent* Light)
-	{
-		if (!Light->IsValid())
-		{
-			return;
-		}
-
-		LightList& Lights = GetLightList(Light->GetWorld());
-
-		if (Lights.Find(Light) == INDEX_NONE)
-		{
-			if (Lights.Add(Light) == 0)
-			{
-				UpdateParameterCollection(Light);
-			}
-		}
-	}
-
-	void RemoveLight(UGTDirectionalLightComponent* Light)
-	{
-		if (!Light->IsValid())
-		{
-			return;
-		}
-
-		LightList& Lights = GetLightList(Light->GetWorld());
-		const int32 Index = Lights.Find(Light);
-
-		if (Index != INDEX_NONE)
-		{
-			Lights.RemoveAt(Index);
-
-			if (Index == 0)
-			{
-				bool bLightEnabled = Lights.Num() != 0;
-				UpdateParameterCollection(bLightEnabled ? Lights[0] : Light, bLightEnabled);
-			}
-		}
-	}
-} // namespace DirectionalLights
-
 UGTDirectionalLightComponent::UGTDirectionalLightComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
-	bWantsOnUpdateTransform = true;
 
 #if WITH_EDITORONLY_DATA
 	if (!IsRunningCommandlet())
@@ -128,7 +49,7 @@ void UGTDirectionalLightComponent::SetLightIntensity(float Intensity)
 	{
 		LightIntensity = Intensity;
 
-		DirectionalLights::UpdateParameterCollection(this);
+		UpdateParameterCollection();
 	}
 }
 
@@ -138,18 +59,13 @@ void UGTDirectionalLightComponent::SetLightColor(FColor Color)
 	{
 		LightColor = Color;
 
-		DirectionalLights::UpdateParameterCollection(this);
+		UpdateParameterCollection();
 	}
 }
 
 void UGTDirectionalLightComponent::OnRegister()
 {
 	Super::OnRegister();
-
-	if (IsVisible())
-	{
-		DirectionalLights::AddLight(this);
-	}
 
 #if WITH_EDITORONLY_DATA
 	if (ArrowComponent != nullptr)
@@ -159,39 +75,9 @@ void UGTDirectionalLightComponent::OnRegister()
 #endif // WITH_EDITORONLY_DATA
 }
 
-void UGTDirectionalLightComponent::OnUnregister()
-{
-	Super::OnUnregister();
-
-	DirectionalLights::RemoveLight(this);
-}
-
-void UGTDirectionalLightComponent::OnVisibilityChanged()
-{
-	Super::OnVisibilityChanged();
-
-	if (IsVisible())
-	{
-		DirectionalLights::AddLight(this);
-	}
-	else
-	{
-		DirectionalLights::RemoveLight(this);
-	}
-}
-
-void UGTDirectionalLightComponent::OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport)
-{
-	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
-
-	DirectionalLights::UpdateParameterCollection(this);
-}
-
 #if WITH_EDITOR
 void UGTDirectionalLightComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	DirectionalLights::UpdateParameterCollection(this);
-
 	if (ArrowComponent != nullptr)
 	{
 		ArrowComponent->ArrowColor = GetLightColor();
@@ -200,3 +86,34 @@ void UGTDirectionalLightComponent::PostEditChangeProperty(FPropertyChangedEvent&
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
 #endif // WITH_EDITOR
+
+TArray<UGTSceneComponent*>& UGTDirectionalLightComponent::GetWorldComponents()
+{
+	return GetWorld()->GetSubsystem<UGTWorldSubsystem>()->DirectionalLights;
+}
+
+void UGTDirectionalLightComponent::UpdateParameterCollection(bool IsDisabled)
+{
+	if (IsValid())
+	{
+		const TArray<UGTSceneComponent*>& Components = GetWorldComponents();
+		const int32 ComponentIndex = Components.Find(this);
+
+		// Only the first directional light will be considered, or a disabled light in the case of removing the last light, or any components with an MPC override.
+		if (ComponentIndex == 0 || IsDisabled || HasParameterCollectionOverride())
+		{
+			{
+				static const FName DirectionEnabledParameterName("DirectionalLightDirectionEnabled");
+				FLinearColor DirectionEnabled(-GetForwardVector());
+				DirectionEnabled.A = !IsDisabled;
+				SetVectorParameterValue(DirectionEnabledParameterName, DirectionEnabled);
+			}
+			{
+				static const FName ColorIntensityParameterName("DirectionalLightColorIntensity");
+				FLinearColor ColorIntensity(GetLightColor());
+				ColorIntensity.A = GetLightIntensity();
+				SetVectorParameterValue(ColorIntensityParameterName, ColorIntensity);
+			}
+		}
+	}
+}

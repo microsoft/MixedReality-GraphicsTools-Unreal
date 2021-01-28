@@ -33,7 +33,7 @@ public:
 
 	/** Gets if pixels will be clipped on the inside or outside of the primitive shape. */
 	UFUNCTION(BlueprintPure, Category = "Clipping Primitive")
-	EGTClippingSide GetClippingSide() const { return Clippingside; }
+	EGTClippingSide GetClippingSide() const { return ClippingSide; }
 
 	/** Sets if pixels will be clipped on the inside or outside of the primitive shape. */
 	UFUNCTION(BlueprintSetter, Category = "Clipping Primitive")
@@ -57,32 +57,15 @@ public:
 
 protected:
 	//
-	// UActorComponent interface
+	// UGTSceneComponent interface
 
-	/** Adds the ClippingPrimitive to the material parameter collection. */
-	virtual void OnRegister() override;
-
-	/** Removes the ClippingPrimitive from the material parameter collection. */
-	virtual void OnUnregister() override;
-
-	/** Adds or removes the ClippingPrimitive from the material parameter collection. */
-	virtual void OnVisibilityChanged() override;
-
-	//
-	// USceneComponent interface
-
-	/** Notifies systems of the ClippingPrimitive's new transformation. */
-	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
-
-#if WITH_EDITOR
-	/** Notifies systems of the ClippingPrimitive's new transformation when edited in the details panel. */
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif // WITH_EDITOR
+	/** Updates the current parameter collection based on the current UGTClippingPrimitiveComponent. */
+	virtual void UpdateParameterCollection(bool IsDisabled = false) override;
 
 private:
 	/** Specifies if the primitive discards pixels on the inside or outside of the primitive shape. */
 	UPROPERTY(EditAnywhere, Category = "Clipping Primitive", BlueprintGetter = "GetClippingside", BlueprintSetter = "SetClippingside")
-	EGTClippingSide Clippingside = EGTClippingSide::Inside;
+	EGTClippingSide ClippingSide = EGTClippingSide::Inside;
 
 	/** Material parameter name used for general primitive settings to pass to a material. */
 	UPROPERTY(
