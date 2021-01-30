@@ -6,6 +6,15 @@
 
 #include "Common/GTClipping.ush"
 
+float GTClippingPlane(FMaterialPixelParameters Parameters,
+                      float4 Settings,
+                      float4 Plane)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return (Settings.x > 0) ? GTPointVsPlane(WorldLocation, Plane, Settings.y) : GT_FLOAT_MAX;
+}
+
 float GTClippingSphere(FMaterialPixelParameters Parameters,
                        float4 Settings,
                        float4 TransformColumn0,

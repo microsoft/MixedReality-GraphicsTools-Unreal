@@ -26,6 +26,9 @@ public:
 	/** List of all ProximityLights within a world. */
 	TArray<UGTSceneComponent*> ProximityLights;
 
+	/** List of all ClippingPlanes within a world. */
+	TArray<UGTSceneComponent*> ClippingPlanes;
+
 	/** List of all ClippingSpheres within a world. */
 	TArray<UGTSceneComponent*> ClippingSpheres;
 

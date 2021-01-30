@@ -6,6 +6,12 @@
 
 #include "GTCommon.ush"
 
+float GTPointVsPlane(float3 worldPosition, float4 plane, float clippingSide)
+{
+    float3 planePosition = plane.xyz * plane.w;
+    return dot(worldPosition - planePosition, plane.xyz) * clippingSide;
+}
+
 float GTPointVsSphere(float3 worldPosition, float4x4 sphereInverseTransform, float clippingSide)
 {
     return (length(mul(sphereInverseTransform, float4(worldPosition, 1.0)).xyz) - 0.5) * clippingSide;

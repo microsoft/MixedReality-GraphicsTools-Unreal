@@ -45,7 +45,7 @@ void UGTClippingPrimitiveComponent::SetSettingsParameterName(const FName& Name)
 
 void UGTClippingPrimitiveComponent::SetTransformColumnParameterNames(const TArray<FName>& Names)
 {
-	if (Names.Num() >= 4)
+	if (Names.Num() >= GetTransformColumnCount())
 	{
 		TransformColumnParameterNames = Names;
 		UpdateParameterCollection();
@@ -53,7 +53,9 @@ void UGTClippingPrimitiveComponent::SetTransformColumnParameterNames(const TArra
 	else
 	{
 		UE_LOG(
-			GraphicsTools, Warning, TEXT("Unable to SetTransformColumnParameterNames because the input does not contain at least 4 column names."));
+			GraphicsTools, Warning,
+			TEXT("Unable to SetTransformColumnParameterNames because the input does not contain at least %i column names."),
+			GetTransformColumnCount());
 	}
 }
 
@@ -62,8 +64,8 @@ void UGTClippingPrimitiveComponent::PostEditChangeProperty(FPropertyChangedEvent
 {
 	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTClippingPrimitiveComponent, TransformColumnParameterNames))
 	{
-		// Ensure we always have 4 names.
-		while (TransformColumnParameterNames.Num() < 4)
+		// Ensure we always have GetTransformColumnCount names.
+		while (TransformColumnParameterNames.Num() < GetTransformColumnCount())
 		{
 			TransformColumnParameterNames.Add(FName());
 		}
@@ -84,22 +86,23 @@ void UGTClippingPrimitiveComponent::UpdateParameterCollection(bool IsDisabled)
 		// removing the last clipping primitive of this type, or any components with an MPC override.
 		if (ComponentIndex == 0 || IsDisabled || HasParameterCollectionOverride())
 		{
-			{
-				const float Side = GetClippingSide() == EGTClippingSide::Inside ? 1 : -1;
-				SetVectorParameterValue(GetSettingsParameterName(), FLinearColor(!IsDisabled, Side, 0));
-			}
-			{
-				FTransform Tranform = GetComponentTransform();
-				Tranform.SetScale3D(
-					Tranform.GetScale3D() * 2); // Double the scale to ensure sizing is consistent with other Unreal primitives.
-				FMatrix InverseMatrixTranspose = Tranform.ToInverseMatrixWithScale().GetTransposed();
-				const TArray<FName>& ParameterNames = GetTransformColumnParameterNames();
+			const float Side = GetClippingSide() == EGTClippingSide::Inside ? 1 : -1;
+			SetVectorParameterValue(GetSettingsParameterName(), FLinearColor(!IsDisabled, Side, 0));
 
-				for (int32 ColumnIndex = 0; ColumnIndex < 4; ++ColumnIndex)
-				{
-					SetVectorParameterValue(ParameterNames[ColumnIndex], InverseMatrixTranspose.GetColumn(ColumnIndex));
-				}
-			}
+			UpdateParameterCollectionTransform();
 		}
+	}
+}
+
+void UGTClippingPrimitiveComponent::UpdateParameterCollectionTransform()
+{
+	FTransform Tranform = GetComponentTransform();
+	Tranform.SetScale3D(Tranform.GetScale3D() * 2); // Double the scale to ensure sizing is consistent with other Unreal primitives.
+	FMatrix InverseMatrixTranspose = Tranform.ToInverseMatrixWithScale().GetTransposed();
+	const TArray<FName>& ParameterNames = GetTransformColumnParameterNames();
+
+	for (int32 ColumnIndex = 0; ColumnIndex < GetTransformColumnCount(); ++ColumnIndex)
+	{
+		SetVectorParameterValue(ParameterNames[ColumnIndex], InverseMatrixTranspose.GetColumn(ColumnIndex));
 	}
 }

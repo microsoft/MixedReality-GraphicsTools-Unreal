@@ -67,8 +67,14 @@ protected:
 	//
 	// UGTSceneComponent interface
 
-	/** Updates the current parameter collection based on the current UGTClippingPrimitiveComponent. */
+	/** Updates the current parameter collection based on the current primitive. */
 	virtual void UpdateParameterCollection(bool IsDisabled = false) override;
+
+	/** Sends the primitive's transform into the current parameter collection. */
+	virtual void UpdateParameterCollectionTransform();
+
+	/** The number of column's this primitives transform expects. */
+	virtual int32 GetTransformColumnCount() const { return 4; }
 
 private:
 	/** Specifies if the primitive discards pixels on the inside or outside of the primitive shape. */
