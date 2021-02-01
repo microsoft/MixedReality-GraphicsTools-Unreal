@@ -96,7 +96,7 @@ void UGTClippingPrimitiveComponent::UpdateParameterCollection(bool IsDisabled)
 
 void UGTClippingPrimitiveComponent::UpdateParameterCollectionTransform()
 {
-	FTransform Tranform = GetComponentTransform();
+	 FTransform Tranform = GetComponentTransform();
 	Tranform.SetScale3D(Tranform.GetScale3D() * 2); // Double the scale to ensure sizing is consistent with other Unreal primitives.
 	FMatrix InverseMatrixTranspose = Tranform.ToInverseMatrixWithScale().GetTransposed();
 	const TArray<FName>& ParameterNames = GetTransformColumnParameterNames();

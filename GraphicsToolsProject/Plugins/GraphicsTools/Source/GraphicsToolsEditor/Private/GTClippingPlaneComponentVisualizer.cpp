@@ -16,7 +16,9 @@ void FGTClippingPlaneComponentVisualizer::DrawVisualization(
 
 		DrawWireBox(PDI, LocalToWorld, FBox(FVector(0, -1, -1), FVector(0, 1, 1)), FColor::White, SDPG_World);
 
-		DrawDirectionalArrow(
-			PDI, LocalToWorld, FColor::White, 1 * (ClippingPlane->GetClippingSide() == EGTClippingSide::Inside) ? -1 : 1, 0.25, SDPG_World);
+		// Rotate the arrow's x-axis depending on the clipping side.
+		LocalToWorld = (ClippingPlane->GetClippingSide() == EGTClippingSide::Inside) ? FRotationMatrix(FRotator(180, 0, 0)) * LocalToWorld
+																					 : LocalToWorld;
+		DrawDirectionalArrow(PDI, LocalToWorld, FColor::White, 1, 0.25, SDPG_World);
 	}
 }

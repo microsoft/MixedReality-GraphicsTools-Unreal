@@ -39,4 +39,14 @@ float GTClippingBox(FMaterialPixelParameters Parameters,
     return (Settings.x > 0) ? GTPointVsBox(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3), Settings.y) : GT_FLOAT_MAX;
 }
 
+float GTClippingCone(FMaterialPixelParameters Parameters,
+                     float4 Settings,
+                     float4 ConeStart,
+                     float4 ConeEnd)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return (Settings.x > 0) ? GTPointVsCone(WorldLocation, ConeStart, ConeEnd, Settings.y) : GT_FLOAT_MAX;
+}
+
 #endif // GT_CLIPPING_UNREAL

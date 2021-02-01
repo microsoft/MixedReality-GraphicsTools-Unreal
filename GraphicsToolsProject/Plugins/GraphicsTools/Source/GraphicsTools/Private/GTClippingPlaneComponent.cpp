@@ -26,7 +26,7 @@ TArray<UGTSceneComponent*>& UGTClippingPlaneComponent::GetWorldComponents()
 
 void UGTClippingPlaneComponent::UpdateParameterCollectionTransform()
 {
-	FTransform Tranform = GetComponentTransform();
+	const FTransform& Tranform = GetComponentTransform();
 	FVector Normal = Tranform.GetUnitAxis(EAxis::X);
 
 	SetVectorParameterValue(

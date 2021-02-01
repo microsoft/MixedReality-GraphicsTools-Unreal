@@ -35,6 +35,9 @@ public:
 	/** List of all ClippingBoxes within a world. */
 	TArray<UGTSceneComponent*> ClippingBoxes;
 
+	/** List of all ClippingCones within a world. */
+	TArray<UGTSceneComponent*> ClippingCones;
+
 protected:
 	/** Allows editor preview worlds to have this subsystem. */
 	virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;
