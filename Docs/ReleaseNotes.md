@@ -8,7 +8,7 @@ ms.localizationpriority: high
 keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, development, MRTK, GT, Graphics Tools, release notes
 ---
 
-# Graphics Tools 0.1.0 Release Notes
+# Graphics Tools 0.2.0 release notes
 
 - [What's New](#whats-new)
 - [Breaking Changes](#breaking-changes)
@@ -28,8 +28,8 @@ None, since this is the first release.
 
 ## Known issues
 
-### M_ShaderBallRimLit Reprojection
+### Translucent material reprojection
 
-The `M_ShaderBallRimLit` material located with the examples plugin may "wobble or smear" on HoloLens 2 because it is a translucent material that does not write depth. Depth is required for all materials to reproject corectly because HoloLens 2 uses [depth based late stage reprojection](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/hologram-stability#reprojection).
+Translucent materials located with the examples plugin may "wobble or smear" on HoloLens 2 because translucent materials do not write depth. Depth is required for all materials to reproject corectly because HoloLens 2 uses [depth based late stage reprojection](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/hologram-stability#reprojection).
 
 If you run into issues caused by Graphics Tools or have questions about how to do something, please [file an issue](https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/issues/new) on the GitHub repo.

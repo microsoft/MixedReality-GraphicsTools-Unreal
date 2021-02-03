@@ -13,10 +13,7 @@ Graphics Tools for Unreal Engine is a UE game plugin with code, blueprints and e
 
 # Getting started with Graphics Tools
 
-If you're new to MRTK or Mixed Reality development in Unreal, **we recommend starting at the beginning of our** [Unreal development journey](https://docs.microsoft.com/windows/mixed-reality/unreal-development-overview) in the Microsoft Docs. The Unreal development journey is specifically tailored to walk new developers through the installation, core concepts, and usage of Graphics Tools.
-
-| CAUTION: The Unreal development journey currently uses **Graphics Tools 0.1.x** and **Unreal 4.26.0+**. |
-| --- |
+If you're new to MRTK or Mixed Reality development in Unreal, **we recommend starting at the beginning of our** [Unreal development journey](https://docs.microsoft.com/windows/mixed-reality/unreal-development-overview) in the Microsoft Docs. The Unreal development journey is specifically tailored to walk new developers through the installation, core concepts, and usage of Unreal Engine for Mixed Reality.
 
 If you're already familiar with Mixed Reality development in Unreal, you can find the installation instructions for the Graphics Tools plugin [here](Docs/Installation.md).
 
@@ -41,7 +38,7 @@ If you want to explore the different Graphics Tools features or want a reference
 
 1. [Clone](https://help.github.com/en/desktop/contributing-to-projects/cloning-a-repository-from-github-to-github-desktop) this repository.
 1. [Checkout](https://help.github.com/en/desktop/contributing-to-projects/switching-between-branches) the latest 'public/_version_.x' branch.
-    * Bear in mind that this branch is alive. It's not a release, and will be **updated regularly with potentially breaking changes**. There will be a release tag (e.g. _release/0.1.0_) marked as such in GitHub.
+    * Bear in mind that this branch is alive. It's not a release, and will be **updated regularly with potentially breaking changes**. There will be a release tag (e.g. _release/0.2.0_) marked as such in GitHub.
 
 You can now open the _Graphics Tools Project_ (/GraphicsToolsProject) and explore individual example levels or open the _Loader_ level to access some of the examples from a centralized hub. You can also copy the examples (/GraphicsToolsProject/Plugins/GraphicsToolsExamples) into the 'Plugins' folder in your own project and use the pre-made elements as a base for your own Mixed Reality experience.
 
@@ -51,7 +48,7 @@ Please note that the example content might change significantly between releases
 
 We also provide the _Graphics Tools Project_ (/GraphicsToolsProject) pre-packaged for HoloLens 2 so you can try out the main features directly on device easily. To use it:
 
-1. Obtain the packaged game from the latest release page (e.g. _GTProject-HoloLens.0.1.0.zip_) and unzip it to a local directory.
+1. Obtain the packaged game from the latest release page (e.g. _GTProject-HoloLens.0.2.0.zip_) and unzip it to a local directory.
 1. Install it in the device via the [Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal#install-sideload-an-app).
 
 # Feedback and contributions
