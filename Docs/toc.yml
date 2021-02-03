@@ -11,5 +11,7 @@
     href: ProximityLights.md
   - name: Effects
     href: Effects.md
+ - name: Clipping Primitives
+    href: ClippingPrimitives.md
 - name: Contributing
   href: CONTRIBUTING.md
