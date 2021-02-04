@@ -34,21 +34,20 @@ In the following steps we will create a new material that is illuminated by a pr
 
 2. It's good practice to keep your materials simple (in other words keep the number of shader instructions low) when authoring materials for Mixed Reality. 
     * To ensure this, mark `M_ProximityLit` as "Unlit" (1) in the material's "Shading Model" property. 
-    * (Optional) If you would like your material to still look as though it is lit, then right click on the material graph and add the `MF_GTDefaultLit` material function. 
-    * Connect the result of the `MF_GTDefaultLit` to the material's "Emissive Color." (2)
+    * (Optional) If you would like your material to still look as though it is lit, then right click on the material graph and add the `MF_GTDefaultLit` material function. Connect the result of the `MF_GTDefaultLit` to the material's "Emissive Color." (2)
 
     ![Material Setup](Images/ProximityLight/ProximityLightMaterialSetup.png)
 
 3. Our material now needs to add proximity light calculations. 
     * To do this right click on the material graph and add the `MF_GTProximityLights` material function (1). 
-    * Connect the result of `MF_GTProximityLights` to the material's "Emissive Color." If your material is also using the `MF_GTDefaultLit` material function (from step 3) then add the result from both functions before connecting the result to the material's "Emissive Color." (2)
+    * Connect the result of `MF_GTProximityLights` to the material's "Emissive Color." If your material is also using the `MF_GTDefaultLit` material function (from step 2) then add the result from both functions before connecting the result to the material's "Emissive Color." (2)
 
     ![Material Light](Images/ProximityLight/ProximityLightMaterialLight.png)
 
 4. Next let's give our material a base color. Very few materials exist in the real world are completely black (and completely black materials render transparently on additive displays like the one found on HoloLens 2). 
     * Right click on the material graph and add a `ConstantVector3` node. 
     * Set the node's RGB channels to 0.5, a neutral gray color. 
-    * Connect this node to the `BaseColor` input of the `MF_GTDefaultLit` material function. (1)
+    * Connect this node to the `BaseColor` input of the `MF_GTDefaultLit` material function. (1) Or, add to the `MF_GTProximityLights` output if you opted not to use the `MF_GTDefaultLit` function in step 2.
 
     ![Material Light](Images/ProximityLight/ProximityLightMaterialColor.png)
 
