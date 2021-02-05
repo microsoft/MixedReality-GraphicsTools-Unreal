@@ -100,7 +100,10 @@ void UGTSceneComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 bool UGTSceneComponent::IsValid() const
 {
-	return (GetWorld() != nullptr && GetWorld()->GetSubsystem<UGTWorldSubsystem>() != nullptr && GetParameterCollection() != nullptr);
+	// Ensure the world isn't being destroyed since any systems storing soft pointers may assert.
+	return (
+		GetWorld() != nullptr && GetWorld()->HasAnyFlags(RF_BeginDestroyed) == false &&
+		GetWorld()->GetSubsystem<UGTWorldSubsystem>() != nullptr && GetParameterCollection() != nullptr);
 }
 
 const UMaterialParameterCollection* UGTSceneComponent::GetParameterCollection() const
