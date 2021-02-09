@@ -9,6 +9,7 @@
 
 #include "GTVisualProfiler.generated.h"
 
+class UStaticMeshComponent;
 class UTextRenderComponent;
 
 /**
@@ -40,7 +41,18 @@ private:
 		return Component;
 	}
 
+	void UpdateTransform(float DeltaTime);
+
+protected: // TEMP
 	/** TODO. */
-	UPROPERTY()
-	UTextRenderComponent* LabelComponent = nullptr;
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* BackPlate = nullptr;
+
+	/** TODO. */
+	UPROPERTY(VisibleAnywhere)
+	UTextRenderComponent* DrawCallsLabel = nullptr;
+
+	/** TODO. */
+	UPROPERTY(VisibleAnywhere)
+	UTextRenderComponent* PrimitivesLabel = nullptr;
 };
