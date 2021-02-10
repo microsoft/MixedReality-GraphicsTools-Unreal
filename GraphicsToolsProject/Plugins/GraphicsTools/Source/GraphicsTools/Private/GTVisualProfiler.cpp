@@ -10,28 +10,24 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
 
-const int32 NumberOfSamples = 200;
-
 AGTVisualProfiler::AGTVisualProfiler()
-	: RenderThreadTime(0.0f)
+	: bSnapped(false)
+	, ThresholdFrameTime(16.0f)
+	, FrameTime(0.0f)
+	, RenderThreadTime(0.0f)
 	, GameThreadTime(0.0f)
 	, GPUFrameTime{0.0f}
-	, FrameTime(0.0f)
-	, RawRenderThreadTime(0.0f)
-	, RawGameThreadTime(0.0f)
-	, RawGPUFrameTime{0.0f}
-	, RawFrameTime(0.0f)
-//, CurrentIndex(0)
+	, PrevFrameTime(0)
+	, PrevRenderThreadTime(0)
+	, PrevGameThreadTime(0)
+	, PrevGPUFrameTime{0}
+	, PrevNumDrawCalls(0)
+	, PrevNumPrimitives(0)
 {
-	// RenderThreadTimes.AddZeroed(NumberOfSamples);
-	// GameThreadTimes.AddZeroed(NumberOfSamples);
-	// for (auto& GPUFrameTimesArray : GPUFrameTimes)
-	//{
-	//	GPUFrameTimesArray.AddZeroed(NumberOfSamples);
-	//}
-	// FrameTimes.AddZeroed(NumberOfSamples);
-
 	PrimaryActorTick.bCanEverTick = true;
+
+	// TargetFrameTime = // TODO, get from platform.
+	ThresholdFrameTime = (ThresholdFrameTime <= 0) ? 1 : ThresholdFrameTime;
 
 	// Acquire default materials.
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultQuadMeshFinder(TEXT("/Engine/BasicShapes/Plane"));
@@ -48,130 +44,174 @@ AGTVisualProfiler::AGTVisualProfiler()
 	check(DefaultTextMaterialFinder.Object);
 	DefaultTextMaterial = DefaultTextMaterialFinder.Object;
 
-	// Create child components.
+	// UI constants.
+	static const float PrefixYOffset = -3.9f;
+	static const float LabelYOffset = -2.4f;
+	static const float PivotYOffset = 0;
+	static const float HeightZOffset = 0.45f;
+	static const FVector BarPivot(0, 1, 0);
+	static const FVector BarSize(0.004f, 0.02f, 1);
+	static const FRotator QuadRotation(90, 0, 0);
+	static const FString ZeroMs(TEXT("0.00 ms"));
+	static const FLinearColor BackPlateColor(FColor(80, 80, 80, 255));     // Dark Gray
+	static const FLinearColor FrameTimeColor(FColor(0, 164, 239, 255));    // Vivid Cerulean
+	static const FLinearColor GameThreadColor(FColor(255, 185, 0, 255));   // Selective Yellow
+	static const FLinearColor RenderThreadColor(FColor(242, 80, 34, 255)); // Orioles Orange
+	static const FLinearColor GPUTimeColor(FColor(127, 186, 0, 255));      // Apple Green
+
+	// Build the profiler by creating child components.
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("VisualProfiler"));
 
-	BackPlate = CreateQuad(
-		TEXT("BackPlate"), RootComponent, FVector::ZeroVector, FRotator(0, 90, 90), FVector(0.1f, 0.02f, 1),
-		FLinearColor(20 / 256.0f, 20 / 256.0f, 20 / 256.0f, 1));
+	FVector Location(-0.02f, 0, 0.9f);
 
-	const float DepthOffset = -0.02f;
-	const FRotator TextRotation(0, 180, 0);
-	const FString ZeroMs(TEXT("0.00 ms"));
-	{
-		FrameTimeLabelPrefix =
-			CreateText(TEXT("FrameTimeLabelPrefix"), RootComponent, FVector(DepthOffset, -4.7f, 0.6f), TextRotation, TEXT("Frame: "));
-		FrameTimeLabel = CreateText(TEXT("FrameTimeLabel"), RootComponent, FVector(DepthOffset, -3.3f, 0.6f), TextRotation, ZeroMs);
+	CreateQuad(TEXT("BackPlate"), RootComponent, FVector::ZeroVector, FVector(0.025f, 0.08f, 1), BackPlateColor);
 
-		GameThreadTimeLabelPrefix =
-			CreateText(TEXT("GameThreadTimeLabelPrefix"), RootComponent, FVector(DepthOffset, -4.7f, 0.2f), TextRotation, TEXT("Game: "));
-		GameThreadTimeLabel =
-			CreateText(TEXT("GameThreadTimeLabel"), RootComponent, FVector(DepthOffset, -3.3f, 0.2f), TextRotation, ZeroMs);
+	Location.Y = PrefixYOffset;
+	CreateText(TEXT("FrameTimeLabelPrefix"), RootComponent, Location, TEXT("Frame: "));
+	Location.Y = LabelYOffset;
+	FrameTimeLabel = CreateText(TEXT("FrameTimeLabel"), RootComponent, Location, ZeroMs);
+	Location.Y = PivotYOffset;
+	FrameTimePivot = CreateScene<USceneComponent>(TEXT("FrameTimePivot"), RootComponent, Location, QuadRotation);
+	CreateQuad(TEXT("FrameTimePivotQuad"), FrameTimePivot, BarPivot, BarSize, FrameTimeColor, FRotator::ZeroRotator);
 
-		RenderThreadTimeLabelPrefix = CreateText(
-			TEXT("RenderThreadTimeLabelPrefix"), RootComponent, FVector(DepthOffset, -4.7f, -0.2f), TextRotation, TEXT("Draw: "));
-		RenderThreadTimeLabel =
-			CreateText(TEXT("RenderThreadTimeLabel"), RootComponent, FVector(DepthOffset, -3.3f, -0.2f), TextRotation, ZeroMs);
+	Location.Z = Location.Z - HeightZOffset;
 
-		GPUTimeLabelPrefix =
-			CreateText(TEXT("GPUTimeLabelPrefix"), RootComponent, FVector(DepthOffset, -4.7f, -0.6f), TextRotation, TEXT("GPU: "));
-		GPUTimeLabel = CreateText(TEXT("GPUTimeLabel"), RootComponent, FVector(DepthOffset, -3.3f, -0.6f), TextRotation, ZeroMs);
-	}
+	Location.Y = PrefixYOffset;
+	CreateText(TEXT("GameThreadTimeLabelPrefix"), RootComponent, Location, TEXT("Game: "));
+	Location.Y = LabelYOffset;
+	GameThreadTimeLabel = CreateText(TEXT("GameThreadTimeLabel"), RootComponent, Location, ZeroMs);
+	Location.Y = PivotYOffset;
+	GameThreadTimePivot = CreateScene<USceneComponent>(TEXT("GameThreadTimePivot"), RootComponent, Location, QuadRotation);
+	CreateQuad(TEXT("GameTimePivotQuad"), GameThreadTimePivot, BarPivot, BarSize, GameThreadColor, FRotator::ZeroRotator);
 
-	DrawCallsLabel =
-		CreateText(TEXT("DrawCallsLabel"), RootComponent, FVector(DepthOffset, 0, 0.25), FRotator(0, 180, 0), TEXT("Draw Calls: 0"));
+	Location.Z = Location.Z - (HeightZOffset * 0.5f);
 
-	PrimitivesLabel =
-		CreateText(TEXT("PrimitivesLabel"), RootComponent, FVector(DepthOffset, 0, -0.25), FRotator(0, 180, 0), TEXT("Primitives: 0"));
-}
+	CreateQuad(TEXT("TargetLine"), RootComponent, FVector(Location.X * 2, BarPivot.Y * 2, Location.Z), FVector(0.018f, 0.0005f, 1));
 
-void AGTVisualProfiler::BeginPlay()
-{
-	Super::BeginPlay();
+	Location.Z = Location.Z - (HeightZOffset * 0.5f);
+
+	Location.Y = PrefixYOffset;
+	CreateText(TEXT("RenderThreadTimeLabelPrefix"), RootComponent, Location, TEXT("Draw: "));
+	Location.Y = LabelYOffset;
+	RenderThreadTimeLabel = CreateText(TEXT("RenderThreadTimeLabel"), RootComponent, Location, ZeroMs);
+	Location.Y = PivotYOffset;
+	RenderThreadTimePivot = CreateScene<USceneComponent>(TEXT("RenderThreadTimePivot"), RootComponent, Location, QuadRotation);
+	CreateQuad(TEXT("RenderThreadTimePivotQuad"), RenderThreadTimePivot, BarPivot, BarSize, RenderThreadColor, FRotator::ZeroRotator);
+
+	Location.Z = Location.Z - HeightZOffset;
+
+	Location.Y = PrefixYOffset;
+	CreateText(TEXT("GPUTimeLabelPrefix"), RootComponent, Location, TEXT("GPU: "));
+	Location.Y = LabelYOffset;
+	GPUTimeLabel = CreateText(TEXT("GPUTimeLabel"), RootComponent, Location, ZeroMs);
+	Location.Y = PivotYOffset;
+	GPUTimePivot = CreateScene<USceneComponent>(TEXT("GPUTimePivot"), RootComponent, Location, QuadRotation);
+	CreateQuad(TEXT("GPUTimePivotQuad"), GPUTimePivot, BarPivot, BarSize, GPUTimeColor, FRotator::ZeroRotator);
+
+	Location.Z = Location.Z - HeightZOffset;
+
+	Location.Y = PrefixYOffset;
+	DrawCallsLabel = CreateText(TEXT("DrawCallsLabel"), RootComponent, Location, TEXT("Draw Calls: 0"));
+	Location.Y = 0;
+	PrimitivesLabel = CreateText(TEXT("PrimitivesLabel"), RootComponent, Location, TEXT("Polys: 0"));
 }
 
 void AGTVisualProfiler::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Calculate the current frame times. (Timing calculations mirrored from FStatUnitData.)
 	{
 		float DiffTime = FApp::GetCurrentTime() - FApp::GetLastTime();
-
-		RawFrameTime = DiffTime * 1000.0f;
+		float RawFrameTime = DiffTime * 1000.0f;
 		FrameTime = 0.9 * FrameTime + 0.1 * RawFrameTime;
 
-		/** Number of milliseconds the gamethread was used last frame. */
-		RawGameThreadTime = FPlatformTime::ToMilliseconds(GGameThreadTime);
+		// Number of milliseconds the game thread was used last frame.
+		float RawGameThreadTime = FPlatformTime::ToMilliseconds(GGameThreadTime);
 		GameThreadTime = 0.9 * GameThreadTime + 0.1 * RawGameThreadTime;
 
-		/** Number of milliseconds the renderthread was used last frame. */
-		RawRenderThreadTime = FPlatformTime::ToMilliseconds(GRenderThreadTime);
+		// Number of milliseconds the render thread was used last frame.
+		float RawRenderThreadTime = FPlatformTime::ToMilliseconds(GRenderThreadTime);
 		RenderThreadTime = 0.9 * RenderThreadTime + 0.1 * RawRenderThreadTime;
+
+		float RawGPUFrameTime[MAX_NUM_GPUS];
 
 		for (uint32 GPUIndex : FRHIGPUMask::All())
 		{
-			/** Number of milliseconds the GPU was busy last frame. */
+			// Number of milliseconds the GPU was busy last frame.
 			const uint32 GPUCycles = RHIGetGPUFrameCycles(GPUIndex);
 			RawGPUFrameTime[GPUIndex] = FPlatformTime::ToMilliseconds(GPUCycles);
 			GPUFrameTime[GPUIndex] = 0.9 * GPUFrameTime[GPUIndex] + 0.1 * RawGPUFrameTime[GPUIndex];
 		}
 
-		/*RenderThreadTimes[CurrentIndex] = RenderThreadTime;
-		GameThreadTimes[CurrentIndex] =GameThreadTime;
-		for (uint32 GPUIndex : FRHIGPUMask::All())
+		// Apply the timings to the UI.
+		if (CheckTimeDirty(FrameTime, PrevFrameTime))
 		{
-			GPUFrameTimes[GPUIndex][CurrentIndex] = GPUFrameTime[GPUIndex];
+			FrameTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), FrameTime)));
+			FrameTimeLabel->SetTextRenderColor(TimeToTextColor(FrameTime));
+			FrameTimePivot->SetRelativeScale3D(FVector(1, TimeToScale(FrameTime), 1));
 		}
-		FrameTimes[CurrentIndex] = FrameTime;
 
-		CurrentIndex++;
-
-		if (CurrentIndex == NumberOfSamples)
+		if (CheckTimeDirty(GameThreadTime, PrevGameThreadTime))
 		{
-			CurrentIndex = 0;
-		}*/
-	}
+			GameThreadTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), GameThreadTime)));
+			GameThreadTimeLabel->SetTextRenderColor(TimeToTextColor(GameThreadTime));
+			GameThreadTimePivot->SetRelativeScale3D(FVector(1, TimeToScale(GameThreadTime), 1));
+		}
 
-	// Timings.
-	{
-		FrameTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), FrameTime)));
-		GameThreadTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), GameThreadTime)));
-		RenderThreadTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), RenderThreadTime)));
-		GPUTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), GPUFrameTime[0])));
+		if (CheckTimeDirty(RenderThreadTime, PrevRenderThreadTime))
+		{
+			RenderThreadTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), RenderThreadTime)));
+			RenderThreadTimeLabel->SetTextRenderColor(TimeToTextColor(RenderThreadTime));
+			RenderThreadTimePivot->SetRelativeScale3D(FVector(1, TimeToScale(RenderThreadTime), 1));
+		}
+
+		if (CheckTimeDirty(GPUFrameTime[0], PrevGPUFrameTime[0]))
+		{
+			GPUTimeLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("%3.2f ms"), GPUFrameTime[0])));
+			GPUTimeLabel->SetTextRenderColor(TimeToTextColor(GPUFrameTime[0]));
+			GPUTimePivot->SetRelativeScale3D(FVector(1, TimeToScale(GPUFrameTime[0]), 1));
+		}
 	}
 
 	// Draw calls.
 	{
-		const int32 NumDrawCalls = GNumDrawCallsRHI;
-		DrawCallsLabel->SetText(FText::Format(FText::AsCultureInvariant("Draw Calls: {0}"), FText::AsNumber(NumDrawCalls)));
+		static const int32 ProfilerDrawCalls = 16;
+		const int32 NumDrawCalls = FMath::Max(GNumDrawCallsRHI - ProfilerDrawCalls, 0);
+
+		if (CheckCountDirty(NumDrawCalls, PrevNumDrawCalls))
+		{
+			DrawCallsLabel->SetText(FText::Format(FText::AsCultureInvariant("Draw Calls: {0}"), FText::AsNumber(NumDrawCalls)));
+		}
 	}
 
 	// Primitives.
 	{
-		int32 NumPrimitives = GNumPrimitivesDrawnRHI;
+		static const int32 ProfilerPrimitives = 336;
+		int32 NumPrimitives = FMath::Max(GNumPrimitivesDrawnRHI - ProfilerPrimitives, 0);
 
-		if (NumPrimitives < 10000)
+		if (CheckCountDirty(NumPrimitives, PrevNumPrimitives))
 		{
-			PrimitivesLabel->SetText(FText::Format(FText::AsCultureInvariant("Primitives: {0}"), FText::AsNumber(NumPrimitives)));
+			if (NumPrimitives < 10000)
+			{
+				PrimitivesLabel->SetText(FText::Format(FText::AsCultureInvariant("Polys: {0}"), FText::AsNumber(NumPrimitives)));
+			}
+			else
+			{
+				float NumPrimitivesK = NumPrimitives / 1000.f;
+				PrimitivesLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("Polys: %.1fK"), NumPrimitivesK)));
+			}
 		}
-		else
-		{
-			// TODO
-			//float NumPrimitivesK = NumPrimitives / 1000.f;
-			//PrimitivesLabel->SetText(
-			//	FText::Format(FText::AsCultureInvariant("Primitives: {0}"), *FString::Printf(TEXT("%.1fK"), NumPrimitivesK)));
-		}
-
 	}
 
-	UpdateTransform(DeltaTime);
+	SolveToCamera(DeltaTime);
 }
 
 UStaticMeshComponent* AGTVisualProfiler::CreateQuad(
-	const FName& Name, USceneComponent* Parent, FVector RelativeLocation, FRotator RelativeRotation, FVector RelativeScale,
-	FLinearColor Color)
+	const FName& Name, USceneComponent* Parent, FVector RelativeLocation, FVector RelativeScale, FLinearColor Color,
+	FRotator RelativeRotation)
 {
-	UStaticMeshComponent* Component = CreateAndAttachComponent<UStaticMeshComponent>(Name, Parent, RelativeLocation, RelativeRotation);
+	UStaticMeshComponent* Component = CreateScene<UStaticMeshComponent>(Name, Parent, RelativeLocation, RelativeRotation);
 	Component->SetRelativeScale3D(RelativeScale);
 	Component->SetStaticMesh(DefaultQuadMesh);
 	UMaterialInstanceDynamic* Material = Component->CreateDynamicMaterialInstance(0, DefaultMaterial);
@@ -183,10 +223,10 @@ UStaticMeshComponent* AGTVisualProfiler::CreateQuad(
 }
 
 UTextRenderComponent* AGTVisualProfiler::CreateText(
-	const FName& Name, USceneComponent* Parent, FVector RelativeLocation, FRotator RelativeRotation, const FString& Text, float Size,
+	const FName& Name, USceneComponent* Parent, FVector RelativeLocation, const FString& Text, FRotator RelativeRotation, float Size,
 	bool LeftAlign)
 {
-	UTextRenderComponent* Component = CreateAndAttachComponent<UTextRenderComponent>(Name, Parent, RelativeLocation, RelativeRotation);
+	UTextRenderComponent* Component = CreateScene<UTextRenderComponent>(Name, Parent, RelativeLocation, RelativeRotation);
 	Component->SetMaterial(0, DefaultTextMaterial);
 	Component->SetWorldSize(Size);
 	Component->SetHorizontalAlignment(LeftAlign ? EHorizTextAligment::EHTA_Left : EHorizTextAligment::EHTA_Right);
@@ -196,7 +236,7 @@ UTextRenderComponent* AGTVisualProfiler::CreateText(
 	return Component;
 }
 
-void AGTVisualProfiler::UpdateTransform(float DeltaTime)
+void AGTVisualProfiler::SolveToCamera(float DeltaTime)
 {
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
@@ -204,18 +244,44 @@ void AGTVisualProfiler::UpdateTransform(float DeltaTime)
 		{
 			const FVector CameraLocation = CameraManager->GetCameraLocation();
 			const FRotator CameraRotation = CameraManager->GetCameraRotation();
-			const FVector CameraForward = CameraRotation.Vector();
-			float fov = CameraManager->GetFOVAngle();
-			const float Distance = FMath::Max((16.0f / CameraManager->GetFOVAngle()) * 100, 25.0f);
 
-			FVector TargetLocation = CameraLocation + (CameraForward * Distance);
-			TargetLocation += CameraRotation.RotateVector(FVector(0, 0, -1)) * 2.5; // TODO, make property.
+			FVector TargetLocation = CameraLocation + CameraRotation.RotateVector(FollowOffset);
 			FQuat TargetRotation = CameraRotation.Quaternion();
+			TargetRotation *= FQuat(FVector(0, 1, 0), 0.3f); // TODO, make property.
 
-			const float WindowFollowSpeed = 5.0f; // TODO, make property.
-			const float t = DeltaTime * WindowFollowSpeed;
+			const float T = bSnapped ? FMath::Clamp(DeltaTime * FollowSpeed, 0.0f, 1.0f) : 1;
 			SetActorLocationAndRotation(
-				FMath::Lerp(GetActorLocation(), TargetLocation, t), FQuat::Slerp(GetActorQuat(), TargetRotation, t));
+				FMath::Lerp(GetActorLocation(), TargetLocation, T), FQuat::Slerp(GetActorQuat(), TargetRotation, T));
+
+			bSnapped = true;
 		}
 	}
+}
+
+float AGTVisualProfiler::TimeToScale(float Time) const
+{
+	return FMath::Clamp(Time / ThresholdFrameTime, 0.0f, 2.0f);
+}
+
+FColor AGTVisualProfiler::TimeToTextColor(float Time) const
+{
+	static const FColor MissedFrameColor(255, 20, 5, 255); // Orange
+	return (static_cast<int32>(Time) > (static_cast<int32>(ThresholdFrameTime) + 1)) ? MissedFrameColor : FColor::White;
+}
+
+bool AGTVisualProfiler::CheckTimeDirty(float Time, int32& PrevTime)
+{
+	int32 NewTime = static_cast<int32>(Time * 100);
+	const bool Dirty = NewTime != PrevTime;
+	PrevTime = NewTime;
+
+	return Dirty;
+}
+
+bool AGTVisualProfiler::CheckCountDirty(int32 Count, int32& PrevCount)
+{
+	const bool Dirty = Count != PrevCount;
+	PrevCount = Count;
+
+	return Dirty;
 }
