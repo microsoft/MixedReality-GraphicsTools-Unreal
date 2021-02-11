@@ -23,6 +23,14 @@ class GRAPHICSTOOLS_API AGTVisualProfiler : public AActor
 public:
 	AGTVisualProfiler();
 
+	/** Getter to the FollowSpeed. */
+	UFUNCTION(BlueprintPure, Category = "Visual Profiler")
+	float GetFollowSpeed() const { return FollowSpeed; }
+
+	/** Setter to the FollowSpeed. */
+	UFUNCTION(BlueprintSetter, Category = "Visual Profiler")
+	void SetFollowSpeed(float Speed) { FollowSpeed = Speed; }
+
 	/** Getter to the FollowOffset. */
 	UFUNCTION(BlueprintPure, Category = "Visual Profiler")
 	FVector GetFollowOffset() const { return FollowOffset; }
@@ -31,13 +39,13 @@ public:
 	UFUNCTION(BlueprintSetter, Category = "Visual Profiler")
 	void SetFollowOffset(FVector Offset) { FollowOffset = Offset; }
 
-	/** Getter to the FollowSpeed. */
+	/** Getter to the PitchOffset. */
 	UFUNCTION(BlueprintPure, Category = "Visual Profiler")
-	float GetFollowSpeed() const { return FollowSpeed; }
+	float GetPitchOffset() const { return PitchOffset; }
 
-	/** Setter to the FollowSpeed. */
+	/** Setter to the PitchOffset. */
 	UFUNCTION(BlueprintSetter, Category = "Visual Profiler")
-	void SetFollowSpeed(float Speed) { FollowSpeed = Speed; }
+	void SetPitchOffset(float Offset) { PitchOffset = Offset; }
 
 private:
 	//
@@ -82,15 +90,21 @@ private:
 	/** TODO. */
 	bool CheckCountDirty(int32 Count, int32& PrevCount);
 
-	/** The offset from the camera in camera local space. */
-	UPROPERTY(EditAnywhere, Category = "Visual Profiler", BlueprintGetter = "GetFollowOffset", BlueprintSetter = "SetFollowOffset")
-	FVector FollowOffset = FVector(30.0f, 0.0f, -2.5f);
-
-	/** How quickly to interpolate the profiler towards its target position and rotation. */
+	/** How quickly to interpolate the profiler towards its target location and rotation. */
 	UPROPERTY(
 		EditAnywhere, Category = "Visual Profiler", BlueprintGetter = "GetFollowSpeed", BlueprintSetter = "SetFollowSpeed",
 		meta = (ClampMin = "0.0", ClampMax = "100.0", UIMin = "0.0", UIMax = "100.0"))
 	float FollowSpeed = 5.0f;
+
+	/** The offset from the target location in camera local space. */
+	UPROPERTY(EditAnywhere, Category = "Visual Profiler", BlueprintGetter = "GetFollowOffset", BlueprintSetter = "SetFollowOffset")
+	FVector FollowOffset = FVector(30.0f, 0.0f, -2.5f);
+
+	/** Extra pitch applied on top of the target rotation. (In degrees.) */
+	UPROPERTY(
+		EditAnywhere, Category = "Visual Profiler", BlueprintGetter = "GetPitchOffset", BlueprintSetter = "SetPitchOffset",
+		meta = (ClampMin = "0.0", ClampMax = "360.0", UIMin = "0.0", UIMax = "360.0"))
+	float PitchOffset = 18.0f;
 
 	/** Assets used to construct the profiler. */
 	UPROPERTY(Transient)

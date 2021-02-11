@@ -176,7 +176,7 @@ void AGTVisualProfiler::Tick(float DeltaTime)
 
 	// Draw calls.
 	{
-		static const int32 ProfilerDrawCalls = 16;
+		static const int32 ProfilerDrawCalls = 16; // Removed profiling induced draw calls.
 		const int32 NumDrawCalls = FMath::Max(GNumDrawCallsRHI - ProfilerDrawCalls, 0);
 
 		if (CheckCountDirty(NumDrawCalls, PrevNumDrawCalls))
@@ -187,7 +187,7 @@ void AGTVisualProfiler::Tick(float DeltaTime)
 
 	// Primitives.
 	{
-		static const int32 ProfilerPrimitives = 336;
+		static const int32 ProfilerPrimitives = 336; // Removed profiling induced primitives.
 		int32 NumPrimitives = FMath::Max(GNumPrimitivesDrawnRHI - ProfilerPrimitives, 0);
 
 		if (CheckCountDirty(NumPrimitives, PrevNumPrimitives))
@@ -247,7 +247,7 @@ void AGTVisualProfiler::SolveToCamera(float DeltaTime)
 
 			FVector TargetLocation = CameraLocation + CameraRotation.RotateVector(FollowOffset);
 			FQuat TargetRotation = CameraRotation.Quaternion();
-			TargetRotation *= FQuat(FVector(0, 1, 0), 0.3f); // TODO, make property.
+			TargetRotation *= FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(PitchOffset));
 
 			const float T = bSnapped ? FMath::Clamp(DeltaTime * FollowSpeed, 0.0f, 1.0f) : 1;
 			SetActorLocationAndRotation(
