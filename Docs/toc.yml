@@ -13,5 +13,7 @@
     href: Effects.md
  - name: Clipping Primitives
     href: ClippingPrimitives.md
+- name: Profiling
+    href: Profiling.md
 - name: Contributing
   href: CONTRIBUTING.md

@@ -28,8 +28,8 @@ If you're already familiar with Mixed Reality development in Unreal, you can fin
 | [![Lighting](Docs/Images/FeatureCards/Lighting.png)](Docs/Lighting.md) [Lighting](Docs/Lighting.md) | [![Proximity Lights](Docs/Images/FeatureCards/ProximityLights.png)](Docs/ProximityLights.md) [Proximity Lights](Docs/ProximityLights.md) | [![Effects](Docs/Images/FeatureCards/Effects.png)](Docs/Effects.md) [Effects](Docs/Effects.md) |
 |---|---|---|
 | Physically based lighting technique optimized for Mixed Reality | A custom light type used to demonstrate distance to surface | Common graphics effects utilized in Mixed Reality |
-[![ClippingPrimitives](Docs/Images/FeatureCards/ClippingPrimitives.png)](Docs/ClippingPrimitives.md) [Clipping Primitives](Docs/ClippingPrimitives.md) |  |  |
-| Tools to dynamically slice away a mesh and peer inside the geometry |  |  |
+[ ![ClippingPrimitives](Docs/Images/FeatureCards/ClippingPrimitives.png)](Docs/ClippingPrimitives.md) [Clipping Primitives](Docs/ClippingPrimitives.md) | [![Profiling](Docs/Images/FeatureCards/Profiling.png)](Docs/Profiling.md) [Profiling](Docs/Profiling.md) |  |
+| Tools to dynamically slice away a mesh and peer inside the geometry | Explore profiling techniques and tools useful for Mixed Reality development |  |
 |   |   |   |
 
 # Example levels
