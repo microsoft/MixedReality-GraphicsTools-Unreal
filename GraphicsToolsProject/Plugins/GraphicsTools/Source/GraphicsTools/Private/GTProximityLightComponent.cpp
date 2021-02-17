@@ -343,8 +343,14 @@ void UGTProximityLightComponent::UpdateParameterCollection(bool IsDisabled)
 {
 	if (IsValid())
 	{
-		const TArray<UGTSceneComponent*>& Components = GetWorldComponents();
-		const int32 ComponentIndex = Components.Find(this);
+		// When the proximity light has a material parameter collection override, assume the light is index zero.
+		int32 ComponentIndex = 0;
+
+		if (!HasParameterCollectionOverride())
+		{
+			const TArray<UGTSceneComponent*>& Components = GetWorldComponents();
+			ComponentIndex = Components.Find(this);
+		}
 
 		if (ComponentIndex != INDEX_NONE && ComponentIndex < GT_MAX_PROXIMITY_LIGHTS)
 		{
