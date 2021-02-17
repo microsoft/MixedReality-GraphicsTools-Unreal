@@ -6,7 +6,7 @@
 #include "GTWorldSubsystem.h"
 #include "GraphicsTools.h"
 
-#define GT_MAX_PROXIMITY_LIGHTS 4
+#define GT_MAX_PROXIMITY_LIGHTS 3
 
 UGTProximityLightComponent::UGTProximityLightComponent()
 {
@@ -16,32 +16,32 @@ UGTProximityLightComponent::UGTProximityLightComponent()
 
 	{
 		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-			"ProximityLightLocation0", "ProximityLightLocation1", "ProximityLightLocation2", "ProximityLightLocation3"};
+			"ProximityLightLocation0", "ProximityLightLocation1", "ProximityLightLocation2"};
 		LocationParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
 	}
 	{
 		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-			"ProximityLightSettings0", "ProximityLightSettings1", "ProximityLightSettings2", "ProximityLightSettings3"};
+			"ProximityLightSettings0", "ProximityLightSettings1", "ProximityLightSettings2"};
 		SettingsParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
 	}
 	{
 		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-			"ProximityLightPulseSettings0", "ProximityLightPulseSettings1", "ProximityLightPulseSettings2", "ProximityLightPulseSettings3"};
+			"ProximityLightPulseSettings0", "ProximityLightPulseSettings1", "ProximityLightPulseSettings2"};
 		PulseSettingsParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
 	}
 	{
 		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-			"ProximityLightCenterColor0", "ProximityLightCenterColor1", "ProximityLightCenterColor2", "ProximityLightCenterColor3"};
+			"ProximityLightCenterColor0", "ProximityLightCenterColor1", "ProximityLightCenterColor2"};
 		CenterColorParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
 	}
 	{
 		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-			"ProximityLightMiddleColor0", "ProximityLightMiddleColor1", "ProximityLightMiddleColor2", "ProximityLightMiddleColor3"};
+			"ProximityLightMiddleColor0", "ProximityLightMiddleColor1", "ProximityLightMiddleColor2"};
 		MiddleColorParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
 	}
 	{
 		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-			"ProximityLightOuterColor0", "ProximityLightOuterColor1", "ProximityLightOuterColor2", "ProximityLightOuterColor3"};
+			"ProximityLightOuterColor0", "ProximityLightOuterColor1", "ProximityLightOuterColor2"};
 		OuterColorParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
 	}
 }
