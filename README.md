@@ -51,6 +51,12 @@ We also provide the _Graphics Tools Project_ (/GraphicsToolsProject) pre-package
 1. Obtain the packaged game from the latest release page (e.g. _GTProject-HoloLens.0.2.0.zip_) and unzip it to a local directory.
 1. Install it in the device via the [Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal#install-sideload-an-app).
 
+# Videos
+
+| | [![Working with UE and HoloLens 2](Docs/Images/Readme/UnrealAndHL_Webinar.png)](https://youtu.be/t95Bge-yk5E) | |
+| :--- | :--- | :--- |
+| | Webinar showing how to build a product configurator using Graphics Tools | |
+
 # Feedback and contributions
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

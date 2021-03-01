@@ -67,6 +67,7 @@ AGTVisualProfiler::AGTVisualProfiler()
 
 	// Build the profiler by creating child components.
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("VisualProfiler"));
+	RootComponent->SetAutoActivate(true);
 
 	FVector Location(-0.02f, 0, 0.9f);
 
@@ -130,62 +131,65 @@ void AGTVisualProfiler::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Calculate the current frame times. (Timing calculations mirrored from FStatUnitData.)
+	if (RootComponent->IsActive() && RootComponent->IsVisible())
 	{
-		float DiffTime = FApp::GetCurrentTime() - FApp::GetLastTime();
-		float RawFrameTime = DiffTime * 1000.0f;
-		FrameTime = 0.9 * FrameTime + 0.1 * RawFrameTime;
-
-		// Number of milliseconds the game thread was used last frame.
-		float RawGameThreadTime = FPlatformTime::ToMilliseconds(GGameThreadTime);
-		GameThreadTime = 0.9 * GameThreadTime + 0.1 * RawGameThreadTime;
-
-		// Number of milliseconds the render thread was used last frame.
-		float RawRenderThreadTime = FPlatformTime::ToMilliseconds(GRenderThreadTime);
-		RenderThreadTime = 0.9 * RenderThreadTime + 0.1 * RawRenderThreadTime;
-
-		// Number of milliseconds the GPU was busy last frame.
-		const uint32 GPUCycles = RHIGetGPUFrameCycles(0); // We only track the first GPU.
-		float RawGPUFrameTime = FPlatformTime::ToMilliseconds(GPUCycles);
-		GPUFrameTime = 0.9 * GPUFrameTime + 0.1 * RawGPUFrameTime;
-
-		ApplyTiming(FrameTime, PrevFrameTime, FrameTimeLabel, FrameTimePivot);
-		ApplyTiming(GameThreadTime, PrevGameThreadTime, GameThreadTimeLabel, GameThreadTimePivot);
-		ApplyTiming(RenderThreadTime, PrevRenderThreadTime, RenderThreadTimeLabel, RenderThreadTimePivot);
-		ApplyTiming(GPUFrameTime, PrevGPUFrameTime, GPUTimeLabel, GPUTimePivot);
-	}
-
-	// Draw calls.
-	{
-		static const int32 ProfilerDrawCalls = 16; // Removed profiling induced draw calls.
-		const int32 NumDrawCalls = FMath::Max(GNumDrawCallsRHI - ProfilerDrawCalls, 0);
-
-		if (CheckCountDirty(NumDrawCalls, PrevNumDrawCalls))
+		// Calculate the current frame times. (Timing calculations mirrored from FStatUnitData.)
 		{
-			DrawCallsLabel->SetText(FText::Format(FText::AsCultureInvariant("Draw Calls: {0}"), FText::AsNumber(NumDrawCalls)));
+			float DiffTime = FApp::GetCurrentTime() - FApp::GetLastTime();
+			float RawFrameTime = DiffTime * 1000.0f;
+			FrameTime = 0.9 * FrameTime + 0.1 * RawFrameTime;
+
+			// Number of milliseconds the game thread was used last frame.
+			float RawGameThreadTime = FPlatformTime::ToMilliseconds(GGameThreadTime);
+			GameThreadTime = 0.9 * GameThreadTime + 0.1 * RawGameThreadTime;
+
+			// Number of milliseconds the render thread was used last frame.
+			float RawRenderThreadTime = FPlatformTime::ToMilliseconds(GRenderThreadTime);
+			RenderThreadTime = 0.9 * RenderThreadTime + 0.1 * RawRenderThreadTime;
+
+			// Number of milliseconds the GPU was busy last frame.
+			const uint32 GPUCycles = RHIGetGPUFrameCycles(0); // We only track the first GPU.
+			float RawGPUFrameTime = FPlatformTime::ToMilliseconds(GPUCycles);
+			GPUFrameTime = 0.9 * GPUFrameTime + 0.1 * RawGPUFrameTime;
+
+			ApplyTiming(FrameTime, PrevFrameTime, FrameTimeLabel, FrameTimePivot);
+			ApplyTiming(GameThreadTime, PrevGameThreadTime, GameThreadTimeLabel, GameThreadTimePivot);
+			ApplyTiming(RenderThreadTime, PrevRenderThreadTime, RenderThreadTimeLabel, RenderThreadTimePivot);
+			ApplyTiming(GPUFrameTime, PrevGPUFrameTime, GPUTimeLabel, GPUTimePivot);
 		}
-	}
 
-	// Primitives.
-	{
-		static const int32 ProfilerPrimitives = 336; // Removed profiling induced primitives.
-		int32 NumPrimitives = FMath::Max(GNumPrimitivesDrawnRHI - ProfilerPrimitives, 0);
-
-		if (CheckCountDirty(NumPrimitives, PrevNumPrimitives))
+		// Draw calls.
 		{
-			if (NumPrimitives < 10000)
+			static const int32 ProfilerDrawCalls = 16; // Removed profiling induced draw calls.
+			const int32 NumDrawCalls = FMath::Max(GNumDrawCallsRHI - ProfilerDrawCalls, 0);
+
+			if (CheckCountDirty(NumDrawCalls, PrevNumDrawCalls))
 			{
-				PrimitivesLabel->SetText(FText::Format(FText::AsCultureInvariant("Polys: {0}"), FText::AsNumber(NumPrimitives)));
-			}
-			else
-			{
-				float NumPrimitivesK = NumPrimitives / 1000.f;
-				PrimitivesLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("Polys: %.1fK"), NumPrimitivesK)));
+				DrawCallsLabel->SetText(FText::Format(FText::AsCultureInvariant("Draw Calls: {0}"), FText::AsNumber(NumDrawCalls)));
 			}
 		}
-	}
 
-	SolveToCamera(DeltaTime);
+		// Primitives.
+		{
+			static const int32 ProfilerPrimitives = 336; // Removed profiling induced primitives.
+			int32 NumPrimitives = FMath::Max(GNumPrimitivesDrawnRHI - ProfilerPrimitives, 0);
+
+			if (CheckCountDirty(NumPrimitives, PrevNumPrimitives))
+			{
+				if (NumPrimitives < 10000)
+				{
+					PrimitivesLabel->SetText(FText::Format(FText::AsCultureInvariant("Polys: {0}"), FText::AsNumber(NumPrimitives)));
+				}
+				else
+				{
+					float NumPrimitivesK = NumPrimitives / 1000.f;
+					PrimitivesLabel->SetText(FText::AsCultureInvariant(FString::Printf(TEXT("Polys: %.1fK"), NumPrimitivesK)));
+				}
+			}
+		}
+
+		SolveToCamera(DeltaTime);
+	}
 }
 
 void AGTVisualProfiler::SolveToCamera(float DeltaTime)

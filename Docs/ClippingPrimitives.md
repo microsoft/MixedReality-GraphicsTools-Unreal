@@ -81,7 +81,7 @@ In the following steps we will create a new material that when applied to a mesh
 4. Our material now needs to add clipping primitive calculations. Let's start with a clipping sphere.
     * To do this right click on the material graph and add the `MF_GTClippingSphere` material function (1). 
     * Connect the result of `MF_GTClippingSphere` to the material's "Opacity Mask."
-    * Note, you don't need to connect any inputs to the `MF_GTClippingSphere` by default. For an explanation as to why read on to the advanced usage section below. 
+    * Note, you don't need to connect any inputs to the `MF_GTClippingSphere` by default. For an explanation as to why read on to the [advanced usage](#Advanced-usage) section below. 
 
     ![Clipping Sphere](Images/ClippingPrimitives/ClippingPrimitivesMaterialClippingSphere.png)
 
