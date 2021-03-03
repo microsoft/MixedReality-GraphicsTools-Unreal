@@ -6,6 +6,12 @@
 
 #include "GTCommon.ush"
 
+float3 GTProceduralNormal(float3 position)
+{
+    float3 normal = cross(ddx(position), ddy(position));
+    return normalize(normal);
+}
+
 float3 GTIridescence(float ToI,
                      float threshold,
                      float angle,
