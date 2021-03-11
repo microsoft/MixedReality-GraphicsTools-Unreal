@@ -26,7 +26,8 @@ Half3 GTContributionProximityLights(FMaterialPixelParameters Parameters,
                                     float4 ProximityLightPulseSettings2,
                                     Half4 ProximityLightCenterColor2,
                                     Half4 ProximityLightMiddleColor2,
-                                    Half4 ProximityLightOuterColor2)
+                                    Half4 ProximityLightOuterColor2,
+                                    float3 Normal)
 {
     // Custom material expressions do not support array input, so we need to pack the array in the shader.
     float4 ProximityLightLocations[] = {ProximityLightLocation0, ProximityLightLocation1, ProximityLightLocation2};
@@ -37,15 +38,13 @@ Half3 GTContributionProximityLights(FMaterialPixelParameters Parameters,
     Half4 ProximityLightOuterColors[] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2};
 
     float3 WorldLocation = GetWorldPosition(Parameters);
-    float3 WorldNormal = Parameters.WorldNormal;
 
     Half3 Result = 0;
 
-    [unroll] 
-	for (int i = 0; i < GT_MAX_PROXIMITY_LIGHTS; ++i)
+    [unroll] for (int i = 0; i < GT_MAX_PROXIMITY_LIGHTS; ++i)
     {
         Result += GTContributionProximityLight(WorldLocation,
-                                               WorldNormal,
+                                               Normal,
                                                ProximityLightLocations[i],
                                                ProximityLightSettings[i],
                                                ProximityLightPulseSettings[i],

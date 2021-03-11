@@ -58,8 +58,8 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                        Parameters.ReflectionVector * Parameters.TwoSidedSign) *
               IndirectLightIntensity;
 #else
-    // Ensure fully rough materials aren't fully black.
-    Result += BaseColor * Half(0.025);
+    // Allows artist control so that fully rough materials can boost amibient.
+    Result += BaseColor * Half(1 - IndirectLightIntensity);
 #endif // GT_FULLY_ROUGH
 
     // Direct (directional light).
