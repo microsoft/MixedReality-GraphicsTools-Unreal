@@ -11,9 +11,11 @@
     href: ProximityLights.md
   - name: Effects
     href: Effects.md
- - name: Clipping Primitives
+  - name: Clipping Primitives
     href: ClippingPrimitives.md
-- name: Profiling
+  - name: Profiling
     href: Profiling.md
+  - name: Spatial Perception
+    href: SpatialPerception.md
 - name: Contributing
   href: CONTRIBUTING.md
