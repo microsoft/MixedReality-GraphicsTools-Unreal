@@ -54,6 +54,51 @@ To create a rim lit material use Unreal's built in `Fresnel` material node (1) a
 
 ![Rim Lit Material](Images/Effects/EffectsRimLitMaterial.png)
 
+# Procedural Normal
+
+Surface normals are used extensively in computer graphics to determine which way a surface is facing how light bounces off a surface. Normally surface normals are calculated for a mesh at creation or import time, but with procedural meshes this calculation may not occur. Fortunately, there is a way to automatically generate surface normals in a pixel shader.
+
+> [!NOTE] 
+> Procedural normals do not account for [smoothing groups](https://en.wikipedia.org/wiki/Smoothing_group) and may make a model appear faceted. 
+
+### Example material
+
+Example usage of the `MF_GTProceduralNormal` material function can be found within the `GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\SpatialPerception\Materials\M_SpatialNormals.uasset` material.
+
+### Implementation details
+
+To use procedural normals on any material use the `MF_GTProceduralNormal` material function. The `MF_GTProceduralNormal` material function takes a position that is interpolated across a triangle face, defaulting to a pixel's world space position, and returns a surface normal. The surface normal is calculated by taking the cross product of the the [partial derivatives](https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-ddx) of the pixel position with respect to the screen-space horizontal and vertical coordinates. In other words, the cross product between two vectors representing the horizontal and vertical delta position between neighboring pixels.
+
+An example material graph of procedural normal calculation turned into a color can be seen below:
+
+![Procedural Normal](Images/Effects/EffectsProceduralNormal.png)
+
+# Biplanar Mapping
+
+Biplanar mapping is a technique that projects a texture map onto a 3D surface based on vertex positions and normals. Textures are normally mapped onto a 3D surface using texture coordinates (or UVs) but occasionally a mesh does not contain texture coordinates or it is desirable to procedurally generate texture coordinates based on a the position of a mesh. This effect is commonly used for terrain or a [spatial mesh](SpatialPerception.md). 
+
+Biplanar mapping is a procedural texturing technique, like [triplanar mapping](https://bgolus.medium.com/normal-mapping-for-a-triplanar-shader-10bf39dca05a), but uses only two texture samples rather than three for improved performance on Mixed Reality devices. Please see [Inigo Quilez's article](https://www.iquilezles.org/www/articles/biplanar/biplanar.htm) to learn more.
+
+### Example material
+
+Example usage of the `MF_GTBiplanarMapping` material function can be found within the `GraphicsToolsProject\Plugins\GraphicsToolsExamples\Content\MaterialGallery\Materials\M_ShaderBallBiplanarMapping.uasset` material.
+
+### Implementation details
+
+To use biplanar mapping on any material use the `MF_GTBiplanarMapping` material function. The `MF_GTBiplanarMapping` material function takes a handful of inputs and returns a pixel color sampled from the input texture:
+
+* `Position` a position that is interpolated across a triangle face. Normally a world or local space position. When using world space positions a texture will tile seamlessly across actors. Defaults to a pixel's world space position.
+* `Normal` a surface normal that is interpolated across a triangle face. Normally a world or local space normal. Defaults to a pixel's world space normal.
+* `Tiling` how often to tile a texture per Unreal unit. For example 10 will tile a texture 10 times per unit.
+* `Sharpness` controls the blend sharpness where two projection planes meet.
+* `Texture` The texture to sample during biplanar mapping. Textures which tile normally look best.
+* `Explicit Gradients` when set to false the bilinear mapper will produce one-pixel wide line artifacts, setting this to true fixes the issue at the expense of extra instructions. It is recommended to normally set this to true, and false in performance critical situations.
+
+An example material graph of local space biplanar mapping can be seen below:
+
+![Biplanar Mapping](Images/Effects/EffectsBiplanarMapping.png)
+
 ## See also
 
 - [Lighting](Lighting.md)
+- [Spatial Perception](SpatialPerception.md)
