@@ -103,8 +103,7 @@ Half3 GTContributionDirectionalLight(Half3 baseColor,
     Half3 diffuseLobe = GTDiffuseLobe(baseColor) * max(dielectric, roughness);
 #endif // GT_FULLY_ROUGH
 
-    Half energyCompensation = Half(1) + (Half(1) - (metallic * Half(1.5)));
-    return ((diffuseLobe + specularLobe) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL * energyCompensation;
+    return ((diffuseLobe + specularLobe) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL;
 }
 
 Half3 GTContributionSH(Half3 baseColor,

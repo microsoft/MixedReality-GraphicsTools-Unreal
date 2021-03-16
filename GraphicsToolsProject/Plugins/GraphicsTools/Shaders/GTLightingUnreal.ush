@@ -75,7 +75,8 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
               DirectLightIntensity *
               DirectionalLightDirectionEnabled.w;
 
-    return Result * AmbientOcclusion;
+    Half EnergyCompensation = Half(1) + (Half(1) - (Metallic * Half(1.5 * Roughness)));
+    return Result * EnergyCompensation * AmbientOcclusion;
 }
 
 #endif // GT_LIGHTING_UNREAL
