@@ -10,7 +10,7 @@ keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, devel
 
 # Spatial Perception
 
-Mixed Reality devices can generate meshes of the real world via a unique blend of hardware and software. Unlike traditional geometry these meshes only contain vertex positions and not other vertex attributes like normals and texture coordinates. Without vertex normals and texture coordinates it can be difficult to create visually compelling materials. Below we demonstrates a few techniques to help solve this issue.
+Mixed Reality devices can generate meshes of the real world via a unique blend of hardware and software. Unlike traditional geometry these meshes only contain vertex positions and not other vertex attributes like normals and texture coordinates. Without vertex normals and texture coordinates it can be difficult to create visually compelling materials. Below we demonstrate a few techniques to help solve this issue.
 
 ![Effects](Images/FeatureCards/SpatialPerception.png)
 
