@@ -56,7 +56,7 @@ To create a rim lit material use Unreal's built in `Fresnel` material node (1) a
 
 # Procedural Normal
 
-Surface normals are used extensively in computer graphics to determine which way a surface is facing how light bounces off a surface. Normally surface normals are calculated for a mesh at creation or import time, but with procedural meshes this calculation may not occur. Fortunately, there is a way to automatically generate surface normals in a pixel shader.
+Surface normals are used extensively in computer graphics to determine which way a surface is facing and how light bounces off a surface. Normally surface normals are calculated for a mesh at creation or import time, but with procedural meshes this calculation may not occur. Fortunately, there is a way to automatically generate surface normals in a pixel shader.
 
 > [!NOTE] 
 > Procedural normals do not account for [smoothing groups](https://en.wikipedia.org/wiki/Smoothing_group) and may make a model appear faceted. 

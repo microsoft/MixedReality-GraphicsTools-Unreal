@@ -71,7 +71,7 @@ In the following steps we will create a new material that when applied to a mesh
 
     ![Material Setup](Images/ClippingPrimitives/ClippingPrimitivesMaterialSetup.png)
 
-3. Next let's give our material a base color. Very few materials exist in the real world are completely black (and completely black materials render transparently on additive displays like the one found on HoloLens 2). 
+3. Next let's give our material a base color. Very few materials exist in the real world that are completely black (and completely black materials render transparently on additive displays like the one found on HoloLens 2). 
     * Right click on the material graph and add a `ConstantVector3` node. 
     * Set the node's RGB channels to 0.2, 0.2, and 0.5 respectively, a muted purple color.
     * Connect this node to the `BaseColor` input of the `MF_GTDefaultLit` material function. (1) Or "Emissive Color" if you opted not to use the `MF_GTDefaultLit` function in step 2.
@@ -138,7 +138,7 @@ In the following steps we will create a new material that when applied to a mesh
 In the above example you may have noticed that the `MF_GTClippingSphere`, `MF_GTClippingBox`, etc. material functions had inputs that we never connected to anything. This is because Graphics Tools automatically manages the transfer of data from a clipping primitive to a material for one instance of a clipping primitive (`GTClippingSphere`, `GTClippingBox`, etc.). If you were to add a second primitive to a level it would be ignored by the clipping functions by default. Some apps require more than one type of clipping primitive in use at a time. We will demonstrate how to achieve this below. 
 
 > [!NOTE]
-> Having many clipping primitives effect a material will increase pixel shader instructions and will impact performance. Please profile these changes within your project.
+> Having many clipping primitives affect a material will increase pixel shader instructions and will impact performance. Please profile these changes within your project.
 
 *How to add a second clipping sphere to a level. Note, the same technique can be used on any primitive and for any permutation of primitives.*
 

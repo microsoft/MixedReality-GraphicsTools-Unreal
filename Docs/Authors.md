@@ -6,3 +6,4 @@ Graphics Tools is a collaborative project containing contributions from individu
 - Cameron Micka (Cameron-Micka)
 - Daryl Obert
 - Luis Valverde (luis-valverde-ms)
+- Summer Wu (sw5813)

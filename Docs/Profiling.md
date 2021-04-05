@@ -27,7 +27,7 @@ The visual profiler provides four metrics around frame performance and two metri
 |------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Frame      | Frame time represents the total amount of time spent generating one frame of the app. Since both the Game and Draw threads sync up before finishing a frame, frame time is often close to the time being shown in one of these threads. |
 | Game       | If Frame time is close to Game time, the app's performance is likely being bottlenecked (negatively impacted) by the game thread. The game thread is resposible for most app logic, especially Blueprint logic.                             |
-| Draw       | If Frame time is close to Draw time, the game's performance is likely being bottlenecked by the rendering thread. The rendering thread is responsible for decideding what to render and submitting work to the GPU.                         |
+| Draw       | If Frame time is close to Draw time, the game's performance is likely being bottlenecked by the rendering thread. The rendering thread is responsible for deciding what to render and submitting work to the GPU.                         |
 | GPU        | GPU time measures how long the video card took to render the scene. Since GPU time is synced to the frame, it will likely be similar to Frame time.                                                                                        |
 | Draw Calls | Draw calls can be thought of as the number on times a graphics API (such as [DirectX](https://en.wikipedia.org/wiki/DirectX)) is told to render an object.                                                                                  |
 | Polys      | Represents the number of polygons which are currently being submitted to the graphics API for rendering. This number may vary slightly to actual number being rendered due to frustum clipping or geometry generation on the GPU.                    |
@@ -43,20 +43,20 @@ To better understand the `GTVisualProfiler` look at the `\GraphicsToolsProject\P
 
 Performance can be an ambiguous and constantly changing challenge for mixed reality developers and the spectrum of knowledge to rationalize performance is vast. There are some general recommendations for understanding how to approach performance for an application though.
 
-It is useful to simplify the execution of an application into the pieces that run on the *CPU* or the *GPU* and thus identify whether an app is bounded by either component. There can be bottlenecks that span both processing units and some unique scenarios that have to be carefully investigated. However, for getting started, it is good to grasp where an application is executing for the most amount of time.
+It is useful to simplify the execution of an application into the pieces that run on the *CPU* or the *GPU* and thus identify whether an app is bound by either component. There can be bottlenecks that span both processing units and some unique scenarios that have to be carefully investigated. However, for getting started, it is good to grasp where an application is executing for the most amount of time.
 
-### GPU bounded
+### GPU bound
 
 If the longest bar on the profiler is the "GPU" time then your app is likely GPU bound.
 
 > [!NOTE]
-> The visual profiler screenshot at the top of this document would be considered GPU-bounded.
+> The visual profiler screenshot at the top of this document would be considered GPU-bound.
 
-Since most platforms for mixed reality applications are utilizing [stereoscopic rendering](https://en.wikipedia.org/wiki/Stereoscopy), it is very common to be GPU-bounded due to the nature of rendering a "double-wide" screen. Futhermore, mobile mixed reality platforms such as HoloLens or Oculus Quest will be limited by mobile-class CPU & GPU processing power.
+Since most platforms for mixed reality applications are utilizing [stereoscopic rendering](https://en.wikipedia.org/wiki/Stereoscopy), it is very common to be GPU-bound due to the nature of rendering a "double-wide" screen. Futhermore, mobile mixed reality platforms such as HoloLens or Oculus Quest will be limited by mobile-class CPU & GPU processing power.
 
 When an app is GPU bound try moving towards holograms until they fill your view. If the GPU time increases as holograms fill your view you are likely [fill rate](https://en.wikipedia.org/wiki/Fillrate) bound and should focus on reducing material complexity and ensuring no full screen effects (such as post processing or MSAA) are enabled. If your GPU time decreases as holograms fill your view and increases as your whole level comes into view you are likely vertex processing bound and need to simplify your meshes.
 
-### CPU bounded
+### CPU bound
 
 If the longest bar on the profiler is the "Game" or "Draw" time, then your app is likely CPU bound.
 
