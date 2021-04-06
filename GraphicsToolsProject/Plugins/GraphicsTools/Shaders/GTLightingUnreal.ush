@@ -52,6 +52,7 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
 
     // Indirect (reflection cube).
     Result += GTContributionReflection(BaseColor,
+                                       Metallic,
                                        RoughnessSq,
                                        ReflectionCube,
                                        ReflectionCubeSampler,
@@ -65,7 +66,6 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
     // Direct (directional light).
     Result += GTContributionDirectionalLight(BaseColor,
                                              Metallic,
-                                             Roughness,
                                              RoughnessSq,
                                              Specular,
                                              Normal,
