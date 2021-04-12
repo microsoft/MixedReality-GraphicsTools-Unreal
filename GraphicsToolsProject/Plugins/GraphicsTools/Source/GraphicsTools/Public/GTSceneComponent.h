@@ -47,7 +47,7 @@ protected:
 	//
 	// USceneComponent interface
 
-	/** Notifies systems of the DirectionalLight's new direction. */
+	/** Updates the parameter collection when the transform changes. */
 	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
 
 #if WITH_EDITOR
@@ -87,7 +87,8 @@ protected:
 #endif // WITH_EDITORONLY_DATA
 
 private:
-	/** An override that removes the component from the WorldParameterCollection and allows the user to control what MaterialParameterCollection gets written to. */
+	/** An override that removes the component from the WorldParameterCollection and allows the user to control what
+	 * MaterialParameterCollection gets written to. */
 	UPROPERTY(EditAnywhere, Category = "GT Scene Component", BlueprintSetter = "SetParameterCollectionOverride", AdvancedDisplay)
 	UMaterialParameterCollection* ParameterCollectionOverride = nullptr;
 
