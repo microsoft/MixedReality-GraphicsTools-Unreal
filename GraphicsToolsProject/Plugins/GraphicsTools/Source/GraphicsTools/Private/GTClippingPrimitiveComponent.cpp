@@ -60,6 +60,22 @@ void UGTClippingPrimitiveComponent::SetTransformColumnParameterNames(const TArra
 }
 
 #if WITH_EDITOR
+bool UGTClippingPrimitiveComponent::CanEditChange(const FProperty* Property) const
+{
+	bool IsEditable = Super::CanEditChange(Property);
+
+	if (IsEditable && Property != nullptr)
+	{
+		if (Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTClippingPrimitiveComponent, SettingsParameterName) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTClippingPrimitiveComponent, TransformColumnParameterNames))
+		{
+			IsEditable = HasParameterCollectionOverride();
+		}
+	}
+
+	return IsEditable;
+}
+
 void UGTClippingPrimitiveComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTClippingPrimitiveComponent, TransformColumnParameterNames))
@@ -96,7 +112,7 @@ void UGTClippingPrimitiveComponent::UpdateParameterCollection(bool IsDisabled)
 
 void UGTClippingPrimitiveComponent::UpdateParameterCollectionTransform()
 {
-	 FTransform Tranform = GetComponentTransform();
+	FTransform Tranform = GetComponentTransform();
 	Tranform.SetScale3D(Tranform.GetScale3D() * 2); // Double the scale to ensure sizing is consistent with other Unreal primitives.
 	FMatrix InverseMatrixTranspose = Tranform.ToInverseMatrixWithScale().GetTransposed();
 	const TArray<FName>& ParameterNames = GetTransformColumnParameterNames();

@@ -251,6 +251,28 @@ float UGTProximityLightComponent::GetPulseFadeTime() const
 	return 0;
 }
 
+#if WITH_EDITOR
+bool UGTProximityLightComponent::CanEditChange(const FProperty* Property) const
+{
+	bool IsEditable = Super::CanEditChange(Property);
+
+	if (IsEditable && Property != nullptr)
+	{
+		if (Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, LocationParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, SettingsParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, PulseSettingsParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, CenterColorParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, MiddleColorParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, OuterColorParameterNames))
+		{
+			IsEditable = HasParameterCollectionOverride();
+		}
+	}
+
+	return IsEditable;
+}
+#endif // WITH_EDITOR
+
 void UGTProximityLightComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

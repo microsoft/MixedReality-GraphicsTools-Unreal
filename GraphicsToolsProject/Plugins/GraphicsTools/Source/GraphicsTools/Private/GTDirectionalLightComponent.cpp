@@ -90,6 +90,24 @@ void UGTDirectionalLightComponent::SetColorIntensityParameterName(const FName& N
 	}
 }
 
+#if WITH_EDITOR
+bool UGTDirectionalLightComponent::CanEditChange(const FProperty* Property) const
+{
+	bool IsEditable = Super::CanEditChange(Property);
+
+	if (IsEditable && Property != nullptr)
+	{
+		if (Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTDirectionalLightComponent, DirectionEnabledParameterName) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTDirectionalLightComponent, ColorIntensityParameterName))
+		{
+			IsEditable = HasParameterCollectionOverride();
+		}
+	}
+
+	return IsEditable;
+}
+#endif // WITH_EDITOR
+
 void UGTDirectionalLightComponent::OnRegister()
 {
 	Super::OnRegister();

@@ -28,11 +28,11 @@ void UGTClippingConeComponent::UpdateParameterCollectionTransform()
 {
 	const FTransform& Transform = GetComponentTransform();
 
-	FVector HalfAxis = Transform.GetScaledAxis(EAxis::X) * 0.5f;
-	FVector Start = Transform.GetLocation() + HalfAxis;
-	FVector End = Transform.GetLocation() - HalfAxis;
-	FVector Scale = Transform.GetScale3D() * 0.5f;
+	FVector HalfHeight = Transform.GetScaledAxis(EAxis::X) * 0.5f;
+	FVector Top = Transform.GetLocation() + HalfHeight;
+	FVector Bottom = Transform.GetLocation() - HalfHeight;
+	FVector ScaleBottomTop = Transform.GetScale3D() * 0.5f;
 
-	SetVectorParameterValue(GetTransformColumnParameterNames()[0], FLinearColor(Start.X, Start.Y, Start.Z, Scale.Z));
-	SetVectorParameterValue(GetTransformColumnParameterNames()[1], FLinearColor(End.X, End.Y, End.Z, Scale.Y));
+	SetVectorParameterValue(GetTransformColumnParameterNames()[0], FLinearColor(Top.X, Top.Y, Top.Z, ScaleBottomTop.Z));
+	SetVectorParameterValue(GetTransformColumnParameterNames()[1], FLinearColor(Bottom.X, Bottom.Y, Bottom.Z, ScaleBottomTop.Y));
 }

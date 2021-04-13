@@ -147,6 +147,14 @@ public:
 
 protected:
 	//
+	// UObject interface
+
+#if WITH_EDITOR
+	/** Disables the material parameter name properties when a ParameterCollectionOverride isn't present. */
+	virtual bool CanEditChange(const FProperty* Property) const override;
+#endif // WITH_EDITOR
+
+	//
 	// UActorComponent interface
 
 	/** Conditional tick method which occurs when a light needs to animate. */
