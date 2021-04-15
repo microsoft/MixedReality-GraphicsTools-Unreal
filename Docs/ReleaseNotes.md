@@ -20,6 +20,10 @@ Unreal 4.26.x required.
 
 ## What's new
 
+### OpenXR Support
+
+Graphics Tools is now compatible with the OpenXR and Windows MR plugins! See the [OpenXR plugin](https://github.com/microsoft/Microsoft-OpenXR-Unreal) to learn more.
+
 ### Clipping Primitives
 
 Tools to dynamically slice away a mesh and peer inside the geometry
