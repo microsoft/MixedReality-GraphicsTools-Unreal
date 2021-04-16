@@ -3,6 +3,10 @@
 
 #include "GraphicsToolsEditor.h"
 
+#include "GTClippingBoxComponentVisualizer.h"
+#include "GTClippingConeComponentVisualizer.h"
+#include "GTClippingPlaneComponentVisualizer.h"
+#include "GTClippingSphereComponentVisualizer.h"
 #include "GTProximityLightComponentVisualizer.h"
 #include "UnrealEdGlobals.h"
 
@@ -19,12 +23,50 @@ void FGraphicsToolsEditorModule::StartupModule()
 	if (GUnrealEd)
 	{
 		// Register visualizers
-		TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FGTProximityLightComponentVisualizer());
-
-		if (Visualizer.IsValid())
 		{
-			GUnrealEd->RegisterComponentVisualizer(UGTProximityLightComponent::StaticClass()->GetFName(), Visualizer);
-			Visualizer->OnRegister();
+			TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FGTProximityLightComponentVisualizer());
+
+			if (Visualizer.IsValid())
+			{
+				GUnrealEd->RegisterComponentVisualizer(UGTProximityLightComponent::StaticClass()->GetFName(), Visualizer);
+				Visualizer->OnRegister();
+			}
+		}
+		{
+			TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FGTClippingPlaneComponentVisualizer());
+
+			if (Visualizer.IsValid())
+			{
+				GUnrealEd->RegisterComponentVisualizer(UGTClippingPlaneComponent::StaticClass()->GetFName(), Visualizer);
+				Visualizer->OnRegister();
+			}
+		}
+		{
+			TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FGTClippingSphereComponentVisualizer());
+
+			if (Visualizer.IsValid())
+			{
+				GUnrealEd->RegisterComponentVisualizer(UGTClippingSphereComponent::StaticClass()->GetFName(), Visualizer);
+				Visualizer->OnRegister();
+			}
+		}
+		{
+			TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FGTClippingBoxComponentVisualizer());
+
+			if (Visualizer.IsValid())
+			{
+				GUnrealEd->RegisterComponentVisualizer(UGTClippingBoxComponent::StaticClass()->GetFName(), Visualizer);
+				Visualizer->OnRegister();
+			}
+		}
+		{
+			TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FGTClippingConeComponentVisualizer());
+
+			if (Visualizer.IsValid())
+			{
+				GUnrealEd->RegisterComponentVisualizer(UGTClippingConeComponent::StaticClass()->GetFName(), Visualizer);
+				Visualizer->OnRegister();
+			}
 		}
 	}
 }
@@ -34,6 +76,10 @@ void FGraphicsToolsEditorModule::ShutdownModule()
 	if (GUnrealEd)
 	{
 		// Unregister visualizers
+		GUnrealEd->UnregisterComponentVisualizer(UGTClippingConeComponent::StaticClass()->GetFName());
+		GUnrealEd->UnregisterComponentVisualizer(UGTClippingBoxComponent::StaticClass()->GetFName());
+		GUnrealEd->UnregisterComponentVisualizer(UGTClippingSphereComponent::StaticClass()->GetFName());
+		GUnrealEd->UnregisterComponentVisualizer(UGTClippingPlaneComponent::StaticClass()->GetFName());
 		GUnrealEd->UnregisterComponentVisualizer(UGTProximityLightComponent::StaticClass()->GetFName());
 	}
 }

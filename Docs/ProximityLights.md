@@ -15,7 +15,7 @@ A proximity light is a [Fluent Design System](https://www.microsoft.com/design/f
 ![ProximityLights](Images/FeatureCards/ProximityLights.png)
 
 > [!NOTE] 
-> Up to three proximity lights can effect a material at once. Additional proximity lights will not be included in light calculations.
+> Up to three proximity lights can effect a material at once. Additional proximity lights will not be included in light calculations by default. To add additional proximity lights please see the [advanced usage](#Advanced-usage) section.
 
 Another unique feature of proximity lights is that they can pulse to draw attention. To pulse a proximity light call the `Pulse` member function via Blueprint or C++. 
 
@@ -34,21 +34,20 @@ In the following steps we will create a new material that is illuminated by a pr
 
 2. It's good practice to keep your materials simple (in other words keep the number of shader instructions low) when authoring materials for Mixed Reality. 
     * To ensure this, mark `M_ProximityLit` as "Unlit" (1) in the material's "Shading Model" property. 
-    * (Optional) If you would like your material to still look as though it is lit, then right click on the material graph and add the `MF_GTDefaultLit` material function. 
-    * Connect the result of the `MF_GTDefaultLit` to the material's "Emissive Color." (2)
+    * (Optional) If you would like your material to still look as though it is lit, then right click on the material graph and add the `MF_GTDefaultLit` material function. Connect the result of the `MF_GTDefaultLit` to the material's "Emissive Color." (2)
 
     ![Material Setup](Images/ProximityLight/ProximityLightMaterialSetup.png)
 
 3. Our material now needs to add proximity light calculations. 
     * To do this right click on the material graph and add the `MF_GTProximityLights` material function (1). 
-    * Connect the result of `MF_GTProximityLights` to the material's "Emissive Color." If your material is also using the `MF_GTDefaultLit` material function (from step 3) then add the result from both functions before connecting the result to the material's "Emissive Color." (2)
+    * Connect the result of `MF_GTProximityLights` to the material's "Emissive Color." If your material is also using the `MF_GTDefaultLit` material function (from step 2) then add the result from both functions before connecting the result to the material's "Emissive Color." (2) Don't worry about the inputs to `MF_GTProximityLights` because they are auto-populated. To learn more see the [advanced usage](#Advanced-usage) section.
 
     ![Material Light](Images/ProximityLight/ProximityLightMaterialLight.png)
 
 4. Next let's give our material a base color. Very few materials exist in the real world are completely black (and completely black materials render transparently on additive displays like the one found on HoloLens 2). 
     * Right click on the material graph and add a `ConstantVector3` node. 
     * Set the node's RGB channels to 0.5, a neutral gray color. 
-    * Connect this node to the `BaseColor` input of the `MF_GTDefaultLit` material function. (1)
+    * Connect this node to the `BaseColor` input of the `MF_GTDefaultLit` material function. (1) Or, add to the `MF_GTProximityLights` output if you opted not to use the `MF_GTDefaultLit` function in step 2.
 
     ![Material Light](Images/ProximityLight/ProximityLightMaterialColor.png)
 
@@ -74,42 +73,38 @@ In the following steps we will create a new material that is illuminated by a pr
 
 ## Advanced usage
 
-By default only three proximity lights can illuminate a material at a time. If your project requires an additional proximity light to influence a material the sample code below demonstrates how to achieve this.
+By default only three proximity lights can illuminate a material at a time. If your project requires additional proximity lights to influence a material the steps below demonstrates how to achieve this.
 
 > [!NOTE]
 > Having many proximity lights illuminate a material will increase pixel shader instructions and will impact performance. Please profile these changes within your project.
 
-*How to increase the number of available proximity lights from three to four.*
+*How to increase the number of proximity lights which effect a surface from three to six.*
 
-```C++
-// 1) Within GraphicsToolsProject\Plugins\GraphicsTools\Source\GraphicsTools\Private\GTProximityLightComponent.cpp change:
+By default Graphics Tools will automatically send the proximity lighting state to materials via a material parameter collection up to the three light limit. As a developer you can pipe this data into materials yourself with a material parameter collection override.
 
-#define GT_MAX_PROXIMITY_LIGHTS 3
+1) Create a material that accepts proximity lighting as outlined in the [advanced usage](#Example-usage) section above. 
+    * Place six proximity lights in a level that are near a surface that uses the material you just created.
+    * Note that only three lights illuminate the surface.
 
-// to:
+2) Our material needs a mechanism to know about the 3 extra proximity lights. We will use a material parameter collection to do this.
+    * Right click within the "Content Browser" and select "Material Parameter Collection" under the "Create Advanced Asset/Materials and Textures" menu listings.
+    * Let's name our material parameter collection `MPC_ExtraProximityLights`.
+    * Double click on `MPC_ExtraProximityLights` to open the material parameter collection editor.
+    * Add 18 vector parameters (1), six for each proximity light, that have a default value of black (0, 0, 0, 0). 
+    * Name the parameters to match the parameter names found under the advanced tab of the proximity light. (2) You are free to change these names to whatever you want if they are unique and match between the proximity light and material parameter collection.
+    * Finally, assign `MPC_ExtraProximityLights` to the "Parameter Collection Override" property of the three additional proximity lights. (3)
 
-#define GT_MAX_PROXIMITY_LIGHTS 4
+    ![Material Parameter Collection](Images/ProximityLight/ProximityLightMaterialParameterCollection.png)
 
-// 2) Open GraphicsToolsProject\Plugins\GraphicsTools\Content\Materials\MF_GTProximityLights.uasset within the Unreal Editor. 
-// With the `Contribution proximity lights` custom expression selected change the "Additional Defines" property from:
+3) Next we will augment our material to calculate the three new proximity lights.
+    * To do this right click on the material graph and add a second `MF_GTProximityLights` material function (1).
+    * This time we will manually specify the inputs from from the `MPC_ExtraProximityLights` material parameter collection. Connect each input of the `MF_GTProximityLights`function with the corresponding `MPC_ExtraProximityLights` parameter. (2) Do this for all 18 inputs.
+    * Lastly, add the result of the two `MF_GTProximityLights` functions before adding to the `MF_GTDefaultLit` function. (3)
 
-GT_MAX_PROXIMITY_LIGHTS 3
+    ![Material Parameter Collection Connect](Images/ProximityLight/ProximityLightMaterialParameterCollectionConnect.png)
 
-// to:
-
-GT_MAX_PROXIMITY_LIGHTS 4
-```
-
-To add support for more than 4 lights the above changes must be made as well as the below changes.
-
-1) Within the UpdateParameterCollection method in GTProximityLightComponent.cpp change each instance of ParameterNames (6 in total) to include a new entry. 
-
-2) In the `MPC_GTSettings` [material parameter collection](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/ParameterCollections/index.html) add 6 new entries for all parameter names which were added above. 
-
-3) In `GraphicsToolsProject\Plugins\GraphicsTools\Shaders\GTProximityLightingUnreal.ush` add additional function parameters to the `GTContributionProximityLights` function. 
-
-4) Open `GraphicsToolsProject\Plugins\GraphicsTools\Content\Materials\MF_GTProximityLights.uasset` within the Unreal Editor and include the additional inputs in the `Contribution Proximity Lights` [custom expression](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/ExpressionReference/Custom/index.html). Finally, connect those inputs to the corresponding `MPC_GTSettings` parameters outputs.
-
+Out material will now perform lighting calculations for the three default proximity lights as well as our three extra proximity lights. 
+    
 ## See also
 
 - [Lighting](Lighting.md)

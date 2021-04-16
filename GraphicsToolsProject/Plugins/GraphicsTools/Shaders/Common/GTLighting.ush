@@ -34,7 +34,7 @@ Half GTDistribution(Half roughness,
     Half k = roughness / (oneMinusNoHSquared + a * a);
     Half d = k * k * GT_ONE_OVER_PI;
 
-    return min(d, GT_MEDIUMP_FLT_MAX);
+    return min(d, GT_MEDIUMP_FLOAT_MAX);
 }
 
 // Calculated at full precision to avoid artifacts.
@@ -71,12 +71,11 @@ Half3 GTSpecularLobe(Half roughness,
 
 Half3 GTDiffuseLobe(Half3 baseColor)
 {
-    return baseColor * GT_ONE_OVER_PI;
+    return baseColor * GT_ONE_OVER_TWO_PI;
 }
 
 Half3 GTContributionDirectionalLight(Half3 baseColor,
                                      Half metallic,
-                                     Half roughness,
                                      Half roughnessSq,
                                      Half specular,
                                      Half3 worldNormal,
@@ -100,11 +99,10 @@ Half3 GTContributionDirectionalLight(Half3 baseColor,
     Half3 fresnel = Half(0.16) * specular * specular * dielectric + baseColor * metallic;
 
     Half3 specularLobe = GTSpecularLobe(roughnessSq, NoV, NoL, NoH, LoH, NxH, fresnel);
-    Half3 diffuseLobe = GTDiffuseLobe(baseColor) * max(dielectric, roughness);
+    Half3 diffuseLobe = GTDiffuseLobe(baseColor) * dielectric;
 #endif // GT_FULLY_ROUGH
 
-    Half energyCompensation = Half(1) + (Half(1) - (metallic * Half(1.5)));
-    return ((diffuseLobe + specularLobe) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL * energyCompensation;
+    return ((diffuseLobe + specularLobe) * lightColorIntensity.rgb) * lightColorIntensity.a * NoL;
 }
 
 Half3 GTContributionSH(Half3 baseColor,
@@ -119,13 +117,14 @@ Half3 GTContributionSH(Half3 baseColor,
 #define GT_REFLECTION_CUBE_MAX_MIP 10
 
 Half3 GTContributionReflection(Half3 baseColor,
+                               Half metallic,
                                Half roughnessSq,
                                TextureCube reflectionCube,
                                SamplerState reflectionCubeSampler,
                                Half3 reflectionVector)
 {
     Half lod = (GT_REFLECTION_CUBE_MAX_MIP - Half(1)) - (Half(1) - log2(roughnessSq));
-	return reflectionCube.SampleLevel(reflectionCubeSampler, reflectionVector, lod).rgb * baseColor;
+    return reflectionCube.SampleLevel(reflectionCubeSampler, reflectionVector, lod).rgb * baseColor * max(metallic, Half(0.5));
 }
 
 Half3 GTProximityLightColor(Half4 centerColor,

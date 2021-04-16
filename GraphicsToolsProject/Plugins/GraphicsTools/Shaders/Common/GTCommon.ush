@@ -11,10 +11,20 @@
 #define Half3x3 min16float3x3
 #define Half3x4 min16float3x4
 
-#define GT_PI 3.14159265359
-#define GT_ONE_OVER_PI 1.0 / 3.14159265359
-#define GT_MEDIUMP_FLT_MAX 65504.0
+#define GT_PI Half(3.14159265359)
+#define GT_ONE_OVER_PI Half(1.0) / GT_PI
+#define GT_ONE_OVER_TWO_PI Half(1.0) / (Half(2.0) * GT_PI)
+#define GT_FLOAT_MAX 3.402823466e+38
+#define GT_MEDIUMP_FLOAT_MAX 65504.0
 #define GT_MIN_N_DOT_V 1e-4
+
+float4x4 CreateMatrixFromColumns(float4 c0, float4 c1, float4 c2, float4 c3)
+{
+    return float4x4(c0.x, c1.x, c2.x, c3.x,
+                    c0.y, c1.y, c2.y, c3.y,
+                    c0.z, c1.z, c2.z, c3.z,
+                    c0.w, c1.w, c2.w, c3.w);
+}
 
 Half GTLuminance(Half3 linearColor)
 {

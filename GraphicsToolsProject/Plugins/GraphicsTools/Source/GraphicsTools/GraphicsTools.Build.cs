@@ -40,7 +40,8 @@ public class GraphicsTools : ModuleRules
 				"Slate",
 				"SlateCore",
 				"Projects",
-				"RenderCore"
+				"RenderCore",
+				"RHI"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -6,154 +6,7 @@
 #include "GTWorldSubsystem.h"
 #include "GraphicsTools.h"
 
-#include "Materials/MaterialParameterCollection.h"
-#include "Materials/MaterialParameterCollectionInstance.h"
-
-#define GT_MAX_PROXIMITY_LIGHTS 4
-
-namespace ProximityLights
-{
-	enum class EParameterCollectionFlags : uint8
-	{
-		NoneDirty = 0,
-		LocationDirty = 1 << 2,
-		SettingsDirty = 1 << 3,
-		PulseSettingsDirty = 1 << 4,
-		CenterColorDirty = 1 << 5,
-		MiddleColorDirty = 1 << 6,
-		OuterColorDirty = 1 << 7,
-
-		AllDirty = static_cast<uint8>(~0)
-	};
-	ENUM_CLASS_FLAGS(ProximityLights::EParameterCollectionFlags);
-
-	typedef TArray<UGTProximityLightComponent*> LightList;
-
-	LightList& GetLightList(const UWorld* World) { return World->GetSubsystem<UGTWorldSubsystem>()->ProximityLights; }
-
-	void SetVectorParameterValue(
-		UMaterialParameterCollectionInstance* ParameterCollectionInstance, FName ParameterName, const FLinearColor& ParameterValue)
-	{
-		const bool bFoundParameter = ParameterCollectionInstance->SetVectorParameterValue(ParameterName, ParameterValue);
-
-		if (!bFoundParameter)
-		{
-			UE_LOG(
-				GraphicsTools, Warning, TEXT("Unable to find %s parameter in material parameter collection %s."), *ParameterName.ToString(),
-				*ParameterCollectionInstance->GetCollection()->GetPathName());
-		}
-	}
-
-	void UpdateParameterCollection(UGTProximityLightComponent* Light, ProximityLights::EParameterCollectionFlags DirtyFlags)
-	{
-		if (!Light->IsValid())
-		{
-			return;
-		}
-
-		const LightList& Lights = GetLightList(Light->GetWorld());
-		const int32 LightIndex = Lights.Find(Light);
-
-		if (LightIndex != INDEX_NONE && LightIndex < GT_MAX_PROXIMITY_LIGHTS)
-		{
-			UMaterialParameterCollectionInstance* ParameterCollectionInstance =
-				Light->GetWorld()->GetParameterCollectionInstance(Light->GetParameterCollection());
-
-			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::LocationDirty) ||
-				DirtyFlags == ProximityLights::EParameterCollectionFlags::NoneDirty)
-			{
-				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-					"ProximityLightLocation0", "ProximityLightLocation1", "ProximityLightLocation2", "ProximityLightLocation3"};
-				FLinearColor Location(Light->GetComponentLocation());
-				Location.A = DirtyFlags == ProximityLights::EParameterCollectionFlags::NoneDirty ? 0.0f : 1.0f;
-				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Location);
-			}
-
-			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::SettingsDirty))
-			{
-				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-					"ProximityLightSettings0", "ProximityLightSettings1", "ProximityLightSettings2", "ProximityLightSettings3"};
-				const float PulseScaler = 1.0f + Light->GetPulseTime();
-				SetVectorParameterValue(
-					ParameterCollectionInstance, ParameterNames[LightIndex],
-					FLinearColor(
-						Light->GetProjectedRadius() * PulseScaler, 1.0f / Light->GetAttenuationRadius() * PulseScaler,
-						1.0f / Light->GetShrinkDistance() * PulseScaler, Light->GetShrinkPercentage()));
-			}
-
-			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::PulseSettingsDirty))
-			{
-				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-					"ProximityLightPulseSettings0", "ProximityLightPulseSettings1", "ProximityLightPulseSettings2",
-					"ProximityLightPulseSettings3"};
-				SetVectorParameterValue(
-					ParameterCollectionInstance, ParameterNames[LightIndex],
-					FLinearColor(Light->GetProjectedRadius() * Light->GetPulseTime(), 1.0f - Light->GetPulseFadeTime(), 0.0f, 0.0f));
-			}
-
-			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::CenterColorDirty))
-			{
-				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-					"ProximityLightCenterColor0", "ProximityLightCenterColor1", "ProximityLightCenterColor2", "ProximityLightCenterColor3"};
-				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetCenterColor());
-			}
-
-			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::MiddleColorDirty))
-			{
-				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-					"ProximityLightMiddleColor0", "ProximityLightMiddleColor1", "ProximityLightMiddleColor2", "ProximityLightMiddleColor3"};
-				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetMiddleColor());
-			}
-
-			if (EnumHasAnyFlags(DirtyFlags, ProximityLights::EParameterCollectionFlags::OuterColorDirty))
-			{
-				static FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
-					"ProximityLightOuterColor0", "ProximityLightOuterColor1", "ProximityLightOuterColor2", "ProximityLightOuterColor3"};
-				SetVectorParameterValue(ParameterCollectionInstance, ParameterNames[LightIndex], Light->GetOuterColor());
-			}
-		}
-	}
-} // namespace ProximityLights
-
-void AddLight(UGTProximityLightComponent* Light)
-{
-	if (!Light->IsValid())
-	{
-		return;
-	}
-
-	ProximityLights::LightList& Lights = ProximityLights::GetLightList(Light->GetWorld());
-
-	if (Lights.Find(Light) == INDEX_NONE)
-	{
-		Lights.Add(Light);
-		ProximityLights::UpdateParameterCollection(Light, ProximityLights::EParameterCollectionFlags::AllDirty);
-	}
-}
-
-void RemoveLight(UGTProximityLightComponent* Light)
-{
-	if (!Light->IsValid())
-	{
-		return;
-	}
-
-	ProximityLights::LightList& Lights = ProximityLights::GetLightList(Light->GetWorld());
-	const int32 Index = Lights.Find(Light);
-
-	if (Index != INDEX_NONE)
-	{
-		// Disable the last active light.
-		ProximityLights::UpdateParameterCollection(Lights[Lights.Num() - 1], ProximityLights::EParameterCollectionFlags::NoneDirty);
-
-		Lights.RemoveAt(Index);
-
-		for (auto CurrentLight : Lights)
-		{
-			ProximityLights::UpdateParameterCollection(CurrentLight, ProximityLights::EParameterCollectionFlags::AllDirty);
-		}
-	}
-}
+#define GT_MAX_PROXIMITY_LIGHTS 3
 
 UGTProximityLightComponent::UGTProximityLightComponent()
 {
@@ -161,7 +14,36 @@ UGTProximityLightComponent::UGTProximityLightComponent()
 	// Don't start ticking until the light needs to be animated.
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 
-	bWantsOnUpdateTransform = true;
+	{
+		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
+			"ProximityLightLocation0", "ProximityLightLocation1", "ProximityLightLocation2"};
+		LocationParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
+	}
+	{
+		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
+			"ProximityLightSettings0", "ProximityLightSettings1", "ProximityLightSettings2"};
+		SettingsParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
+	}
+	{
+		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
+			"ProximityLightPulseSettings0", "ProximityLightPulseSettings1", "ProximityLightPulseSettings2"};
+		PulseSettingsParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
+	}
+	{
+		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
+			"ProximityLightCenterColor0", "ProximityLightCenterColor1", "ProximityLightCenterColor2"};
+		CenterColorParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
+	}
+	{
+		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
+			"ProximityLightMiddleColor0", "ProximityLightMiddleColor1", "ProximityLightMiddleColor2"};
+		MiddleColorParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
+	}
+	{
+		static const FName ParameterNames[GT_MAX_PROXIMITY_LIGHTS] = {
+			"ProximityLightOuterColor0", "ProximityLightOuterColor1", "ProximityLightOuterColor2"};
+		OuterColorParameterNames.Append(ParameterNames, UE_ARRAY_COUNT(ParameterNames));
+	}
 }
 
 void UGTProximityLightComponent::SetProjectedRadius(float Radius)
@@ -175,7 +57,7 @@ void UGTProximityLightComponent::SetProjectedRadius(float Radius)
 			AttenuationRadius = ProjectedRadius;
 		}
 
-		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection();
 	}
 }
 
@@ -190,7 +72,7 @@ void UGTProximityLightComponent::SetAttenuationRadius(float Radius)
 			ProjectedRadius = AttenuationRadius;
 		}
 
-		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection();
 	}
 }
 
@@ -200,7 +82,7 @@ void UGTProximityLightComponent::SetShrinkDistance(float Distance)
 	{
 		ShrinkDistance = FMath::Clamp(Distance, 1.0f, 500.0f);
 
-		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection();
 	}
 }
 
@@ -210,7 +92,7 @@ void UGTProximityLightComponent::SetShrinkPercentage(float Percentage)
 	{
 		ShrinkPercentage = FMath::Clamp(Percentage, 0.0f, 1.0f);
 
-		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::SettingsDirty);
+		UpdateParameterCollection();
 	}
 }
 
@@ -220,7 +102,7 @@ void UGTProximityLightComponent::SetCenterColor(FColor Color)
 	{
 		CenterColor = Color;
 
-		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::CenterColorDirty);
+		UpdateParameterCollection();
 	}
 }
 
@@ -230,7 +112,7 @@ void UGTProximityLightComponent::SetMiddleColor(FColor Color)
 	{
 		MiddleColor = Color;
 
-		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::MiddleColorDirty);
+		UpdateParameterCollection();
 	}
 }
 
@@ -240,7 +122,97 @@ void UGTProximityLightComponent::SetOuterColor(FColor Color)
 	{
 		OuterColor = Color;
 
-		ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::OuterColorDirty);
+		UpdateParameterCollection();
+	}
+}
+
+void UGTProximityLightComponent::SetLocationParameterNames(const TArray<FName>& Names)
+{
+	if (Names.Num() >= GT_MAX_PROXIMITY_LIGHTS)
+	{
+		LocationParameterNames = Names;
+		UpdateParameterCollection();
+	}
+	else
+	{
+		UE_LOG(
+			GraphicsTools, Warning, TEXT("Unable to SetLocationParameterNames because the input does not contain at least %i names."),
+			GT_MAX_PROXIMITY_LIGHTS);
+	}
+}
+
+void UGTProximityLightComponent::SetSettingsParameterNames(const TArray<FName>& Names)
+{
+	if (Names.Num() >= GT_MAX_PROXIMITY_LIGHTS)
+	{
+		SettingsParameterNames = Names;
+		UpdateParameterCollection();
+	}
+	else
+	{
+		UE_LOG(
+			GraphicsTools, Warning, TEXT("Unable to SetSettingsParameterNames because the input does not contain at least %i names."),
+			GT_MAX_PROXIMITY_LIGHTS);
+	}
+}
+
+void UGTProximityLightComponent::SetPulseSettingsParameterNames(const TArray<FName>& Names)
+{
+	if (Names.Num() >= GT_MAX_PROXIMITY_LIGHTS)
+	{
+		PulseSettingsParameterNames = Names;
+		UpdateParameterCollection();
+	}
+	else
+	{
+		UE_LOG(
+			GraphicsTools, Warning, TEXT("Unable to SetPulseSettingsParameterNames because the input does not contain at least %i names."),
+			GT_MAX_PROXIMITY_LIGHTS);
+	}
+}
+
+void UGTProximityLightComponent::SetCenterColorParameterNames(const TArray<FName>& Names)
+{
+	if (Names.Num() >= GT_MAX_PROXIMITY_LIGHTS)
+	{
+		CenterColorParameterNames = Names;
+		UpdateParameterCollection();
+	}
+	else
+	{
+		UE_LOG(
+			GraphicsTools, Warning, TEXT("Unable to SetCenterColorParameterNames because the input does not contain at least %i names."),
+			GT_MAX_PROXIMITY_LIGHTS);
+	}
+}
+
+void UGTProximityLightComponent::SetMiddleColorParameterNames(const TArray<FName>& Names)
+{
+	if (Names.Num() >= GT_MAX_PROXIMITY_LIGHTS)
+	{
+		MiddleColorParameterNames = Names;
+		UpdateParameterCollection();
+	}
+	else
+	{
+		UE_LOG(
+			GraphicsTools, Warning, TEXT("Unable to SetMiddleColorParameterNames because the input does not contain at least %i names."),
+			GT_MAX_PROXIMITY_LIGHTS);
+	}
+}
+
+void UGTProximityLightComponent::SetOuterColorParameterNames(const TArray<FName>& Names)
+{
+	if (Names.Num() >= GT_MAX_PROXIMITY_LIGHTS)
+	{
+		OuterColorParameterNames = Names;
+		UpdateParameterCollection();
+	}
+	else
+	{
+		UE_LOG(
+			GraphicsTools, Warning, TEXT("Unable to SetOuterColorParameterNames because the input does not contain at least %i names."),
+			GT_MAX_PROXIMITY_LIGHTS);
 	}
 }
 
@@ -279,56 +251,39 @@ float UGTProximityLightComponent::GetPulseFadeTime() const
 	return 0;
 }
 
+#if WITH_EDITOR
+bool UGTProximityLightComponent::CanEditChange(const FProperty* Property) const
+{
+	bool IsEditable = Super::CanEditChange(Property);
+
+	if (IsEditable && Property != nullptr)
+	{
+		if (Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, LocationParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, SettingsParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, PulseSettingsParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, CenterColorParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, MiddleColorParameterNames) ||
+			Property->GetFName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, OuterColorParameterNames))
+		{
+			IsEditable = HasParameterCollectionOverride();
+		}
+	}
+
+	return IsEditable;
+}
+#endif // WITH_EDITOR
+
 void UGTProximityLightComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	PulseState = PulseTick(DeltaTime);
-	ProximityLights::UpdateParameterCollection(
-		this, ProximityLights::EParameterCollectionFlags::SettingsDirty | ProximityLights::EParameterCollectionFlags::PulseSettingsDirty);
+	UpdateParameterCollection();
 
 	if (PulseState == EPulseState::Idle)
 	{
 		SetComponentTickEnabled(false);
 	}
-}
-
-void UGTProximityLightComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	if (IsVisible())
-	{
-		AddLight(this);
-	}
-}
-
-void UGTProximityLightComponent::OnUnregister()
-{
-	Super::OnUnregister();
-
-	RemoveLight(this);
-}
-
-void UGTProximityLightComponent::OnVisibilityChanged()
-{
-	Super::OnVisibilityChanged();
-
-	if (IsVisible())
-	{
-		AddLight(this);
-	}
-	else
-	{
-		RemoveLight(this);
-	}
-}
-
-void UGTProximityLightComponent::OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport)
-{
-	Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
-
-	ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::LocationDirty);
 }
 
 #if WITH_EDITOR
@@ -348,12 +303,105 @@ void UGTProximityLightComponent::PostEditChangeProperty(FPropertyChangedEvent& P
 			ProjectedRadius = AttenuationRadius;
 		}
 	}
-
-	ProximityLights::UpdateParameterCollection(this, ProximityLights::EParameterCollectionFlags::AllDirty);
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, LocationParameterNames))
+	{
+		// Ensure we always have GT_MAX_PROXIMITY_LIGHTS names.
+		while (LocationParameterNames.Num() < GT_MAX_PROXIMITY_LIGHTS)
+		{
+			LocationParameterNames.Add(FName());
+		}
+	}
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, SettingsParameterNames))
+	{
+		// Ensure we always have GT_MAX_PROXIMITY_LIGHTS names.
+		while (SettingsParameterNames.Num() < GT_MAX_PROXIMITY_LIGHTS)
+		{
+			SettingsParameterNames.Add(FName());
+		}
+	}
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, PulseSettingsParameterNames))
+	{
+		// Ensure we always have GT_MAX_PROXIMITY_LIGHTS names.
+		while (PulseSettingsParameterNames.Num() < GT_MAX_PROXIMITY_LIGHTS)
+		{
+			PulseSettingsParameterNames.Add(FName());
+		}
+	}
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, CenterColorParameterNames))
+	{
+		// Ensure we always have GT_MAX_PROXIMITY_LIGHTS names.
+		while (CenterColorParameterNames.Num() < GT_MAX_PROXIMITY_LIGHTS)
+		{
+			CenterColorParameterNames.Add(FName());
+		}
+	}
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, MiddleColorParameterNames))
+	{
+		// Ensure we always have GT_MAX_PROXIMITY_LIGHTS names.
+		while (MiddleColorParameterNames.Num() < GT_MAX_PROXIMITY_LIGHTS)
+		{
+			MiddleColorParameterNames.Add(FName());
+		}
+	}
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTProximityLightComponent, OuterColorParameterNames))
+	{
+		// Ensure we always have GT_MAX_PROXIMITY_LIGHTS names.
+		while (OuterColorParameterNames.Num() < GT_MAX_PROXIMITY_LIGHTS)
+		{
+			OuterColorParameterNames.Add(FName());
+		}
+	}
 
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
 #endif // WITH_EDITOR
+
+TArray<UGTSceneComponent*>& UGTProximityLightComponent::GetWorldComponents()
+{
+	return GetWorld()->GetSubsystem<UGTWorldSubsystem>()->ProximityLights;
+}
+
+void UGTProximityLightComponent::UpdateParameterCollection(bool IsDisabled)
+{
+	if (IsValid())
+	{
+		// When the proximity light has a material parameter collection override, assume the light is index zero.
+		int32 ComponentIndex = 0;
+
+		if (!HasParameterCollectionOverride())
+		{
+			const TArray<UGTSceneComponent*>& Components = GetWorldComponents();
+			ComponentIndex = Components.Find(this);
+		}
+
+		if (ComponentIndex != INDEX_NONE && ComponentIndex < GT_MAX_PROXIMITY_LIGHTS)
+		{
+			{
+				FLinearColor Location(GetComponentLocation());
+				Location.A = !IsDisabled;
+				SetVectorParameterValue(GetLocationParameterNames()[ComponentIndex], Location);
+			}
+			{
+				const float PulseScaler = 1.0f + GetPulseTime();
+				SetVectorParameterValue(
+					GetSettingsParameterNames()[ComponentIndex],
+					FLinearColor(
+						GetProjectedRadius() * PulseScaler, 1.0f / GetAttenuationRadius() * PulseScaler,
+						1.0f / GetShrinkDistance() * PulseScaler, GetShrinkPercentage()));
+			}
+			{
+				SetVectorParameterValue(
+					GetPulseSettingsParameterNames()[ComponentIndex],
+					FLinearColor(GetProjectedRadius() * GetPulseTime(), 1.0f - GetPulseFadeTime(), 0.0f, 0.0f));
+			}
+			{
+				SetVectorParameterValue(GetCenterColorParameterNames()[ComponentIndex], GetCenterColor());
+				SetVectorParameterValue(GetMiddleColorParameterNames()[ComponentIndex], GetMiddleColor());
+				SetVectorParameterValue(GetOuterColorParameterNames()[ComponentIndex], GetOuterColor());
+			}
+		}
+	}
+}
 
 EPulseState UGTProximityLightComponent::PulseTick(float DeltaTime)
 {

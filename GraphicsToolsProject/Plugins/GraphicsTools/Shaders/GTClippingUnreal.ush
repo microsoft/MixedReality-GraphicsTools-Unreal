@@ -1,0 +1,52 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_CLIPPING_UNREAL
+#define GT_CLIPPING_UNREAL
+
+#include "Common/GTClipping.ush"
+
+float GTClippingPlane(FMaterialPixelParameters Parameters,
+                      float4 Settings,
+                      float4 Plane)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return (Settings.x > 0) ? GTPointVsPlane(WorldLocation, Plane, Settings.y) : GT_FLOAT_MAX;
+}
+
+float GTClippingSphere(FMaterialPixelParameters Parameters,
+                       float4 Settings,
+                       float4 TransformColumn0,
+                       float4 TransformColumn1,
+                       float4 TransformColumn2,
+                       float4 TransformColumn3)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return (Settings.x > 0) ? GTPointVsSphere(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3), Settings.y) : GT_FLOAT_MAX;
+}
+
+float GTClippingBox(FMaterialPixelParameters Parameters,
+                    float4 Settings,
+                    float4 TransformColumn0,
+                    float4 TransformColumn1,
+                    float4 TransformColumn2,
+                    float4 TransformColumn3)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return (Settings.x > 0) ? GTPointVsBox(WorldLocation, CreateMatrixFromColumns(TransformColumn0, TransformColumn1, TransformColumn2, TransformColumn3), Settings.y) : GT_FLOAT_MAX;
+}
+
+float GTClippingCone(FMaterialPixelParameters Parameters,
+                     float4 Settings,
+                     float4 ConeStart,
+                     float4 ConeEnd)
+{
+    float3 WorldLocation = GetWorldPosition(Parameters);
+
+    return (Settings.x > 0) ? GTPointVsCone(WorldLocation, ConeStart, ConeEnd, Settings.y) : GT_FLOAT_MAX;
+}
+
+#endif // GT_CLIPPING_UNREAL

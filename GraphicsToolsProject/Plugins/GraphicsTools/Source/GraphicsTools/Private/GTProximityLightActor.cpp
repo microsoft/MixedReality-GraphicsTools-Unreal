@@ -7,7 +7,7 @@
 
 AGTProximityLightActor::AGTProximityLightActor()
 {
-	// Make the light component the root component.
+	// Make the ProximityLight component the root component.
 	LightComponent = CreateDefaultSubobject<UGTProximityLightComponent>(TEXT("ProximityLightComponent"));
 	RootComponent = LightComponent;
 }

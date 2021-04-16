@@ -25,6 +25,10 @@
 				"Win64",
 				"HoloLens"
 			]
+		},
+		{
+			"Name": "RenderDocPlugin",
+			"Enabled": true
 		}
 	]
 }

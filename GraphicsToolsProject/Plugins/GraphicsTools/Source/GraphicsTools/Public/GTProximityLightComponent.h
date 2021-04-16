@@ -85,6 +85,54 @@ public:
 	UFUNCTION(BlueprintSetter, Category = "Light")
 	void SetOuterColor(FColor Color);
 
+	/** Gets the material parameter name array used to represent each location of a ProximityLight. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const TArray<FName>& GetLocationParameterNames() const { return LocationParameterNames; }
+
+	/** Sets the material parameter name array used to represent each location of a ProximityLight. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetLocationParameterNames(const TArray<FName>& Names);
+
+	/** Gets the material parameter name array used to represent each setting of a ProximityLight. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const TArray<FName>& GetSettingsParameterNames() const { return SettingsParameterNames; }
+
+	/** Sets the material parameter name array used to represent each setting of a ProximityLight. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetSettingsParameterNames(const TArray<FName>& Names);
+
+	/** Gets the material parameter name array used to represent each pulse setting of a ProximityLight. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const TArray<FName>& GetPulseSettingsParameterNames() const { return PulseSettingsParameterNames; }
+
+	/** Sets the material parameter name array used to represent each pulse setting of a ProximityLight. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetPulseSettingsParameterNames(const TArray<FName>& Names);
+
+	/** Gets the material parameter name array used to represent each center color of a ProximityLight. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const TArray<FName>& GetCenterColorParameterNames() const { return CenterColorParameterNames; }
+
+	/** Sets the material parameter name array used to represent each center color of a ProximityLight. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetCenterColorParameterNames(const TArray<FName>& Names);
+
+	/** Gets the material parameter name array used to represent each middle color of a ProximityLight. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const TArray<FName>& GetMiddleColorParameterNames() const { return MiddleColorParameterNames; }
+
+	/** Sets the material parameter name array used to represent each middle color of a ProximityLight. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetMiddleColorParameterNames(const TArray<FName>& Names);
+
+	/** Gets the material parameter name array used to represent each outer color of a ProximityLight. */
+	UFUNCTION(BlueprintPure, Category = "Light")
+	const TArray<FName>& GetOuterColorParameterNames() const { return OuterColorParameterNames; }
+
+	/** Sets the material parameter name array used to represent each outer color of a ProximityLight. */
+	UFUNCTION(BlueprintSetter, Category = "Light")
+	void SetOuterColorParameterNames(const TArray<FName>& Names);
+
 	/** Initiates a pulse, if one is not already occurring, which simulates a user touching a surface. */
 	UFUNCTION(BlueprintCallable, Category = "Light")
 	void Pulse(float Duration = 0.2f, float FadeOffset = 0.1f, float FadeDuration = 0.1f);
@@ -99,30 +147,35 @@ public:
 
 protected:
 	//
+	// UObject interface
+
+#if WITH_EDITOR
+	/** Disables the material parameter name properties when a ParameterCollectionOverride isn't present. */
+	virtual bool CanEditChange(const FProperty* Property) const override;
+#endif // WITH_EDITOR
+
+	//
 	// UActorComponent interface
 
 	/** Conditional tick method which occurs when a light needs to animate. */
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	/** Adds the ProximityLight to the global light list. */
-	virtual void OnRegister() override;
-
-	/** Removes the ProximityLight from the global light list. */
-	virtual void OnUnregister() override;
-
-	/** Adds or removes the ProximityLight to the global light list based on visibility. */
-	virtual void OnVisibilityChanged() override;
-
 	//
 	// USceneComponent interface
-
-	/** Notifies systems of the ProximityLight's new location. */
-	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
 
 #if WITH_EDITOR
 	/** Ensures projected and attenuation radii remain less than or greater than each other. */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif // WITH_EDITOR
+
+	//
+	// UGTSceneComponent interface
+
+	/** Accessor to all UGTProximityLightComponent components within a world writing to the WorldParameterCollection. */
+	virtual TArray<UGTSceneComponent*>& GetWorldComponents() override;
+
+	/** Updates the current parameter collection based on the current UGTProximityLightComponent. */
+	virtual void UpdateParameterCollection(bool IsDisabled = false) override;
 
 private:
 	EPulseState PulseTick(float DeltaTime);
@@ -164,6 +217,42 @@ private:
 	/** The color of the ProximityLight gradient at the outer edge (RGB) and (A) is gradient extent. */
 	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOuterColor", BlueprintSetter = "SetOuterColor", Category = "Light")
 	FColor OuterColor = FColor(114, 55, 191, 255);
+
+	/** Parameter name array used to represent each location of a ProximityLight to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetLocationParameterNames", BlueprintSetter = "SetLocationParameterNames",
+		AdvancedDisplay)
+	TArray<FName> LocationParameterNames;
+
+	/** Parameter name array used to represent each setting of a ProximityLight to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetSettingsParameterNames", BlueprintSetter = "SetSettingsParameterNames",
+		AdvancedDisplay)
+	TArray<FName> SettingsParameterNames;
+
+	/** Parameter name array used to represent each pulse setting of a ProximityLight to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetPulseSettingsParameterNames",
+		BlueprintSetter = "SetPulseSettingsParameterNames", AdvancedDisplay)
+	TArray<FName> PulseSettingsParameterNames;
+
+	/** Parameter name array used to represent each center color of a ProximityLight to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetCenterColorParameterNames",
+		BlueprintSetter = "SetCenterColorParameterNames", AdvancedDisplay)
+	TArray<FName> CenterColorParameterNames;
+
+	/** Parameter name array used to represent each middle color of a ProximityLight to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetMiddleColorParameterNames",
+		BlueprintSetter = "SetMiddleColorParameterNames", AdvancedDisplay)
+	TArray<FName> MiddleColorParameterNames;
+
+	/** Parameter name array used to represent each outer color of a ProximityLight to pass to a material. */
+	UPROPERTY(
+		EditAnywhere, Category = "Light", BlueprintGetter = "GetOuterColorParameterNames", BlueprintSetter = "SetOuterColorParameterNames",
+		AdvancedDisplay)
+	TArray<FName> OuterColorParameterNames;
 
 	EPulseState PulseState = EPulseState::Idle;
 	float PulseTimer = 0;

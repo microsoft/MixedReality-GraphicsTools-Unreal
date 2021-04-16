@@ -1,0 +1,57 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#ifndef GT_CLIPPING
+#define GT_CLIPPING
+
+#include "GTCommon.ush"
+
+// Derived from distance functions provided from: https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
+float GTPointVsPlane(float3 worldPosition, float4 plane, float clippingSide)
+{
+    float3 planePosition = plane.xyz * plane.w;
+    return dot(worldPosition - planePosition, plane.xyz) * clippingSide;
+}
+
+float GTPointVsSphere(float3 worldPosition, float4x4 sphereInverseTransform, float clippingSide)
+{
+    return (length(mul(sphereInverseTransform, float4(worldPosition, 1.0)).xyz) - 0.5) * clippingSide;
+}
+
+float GTPointVsBox(float3 worldPosition, float4x4 boxInverseTransform, float clippingSide)
+{
+    float3 distance = abs(mul(boxInverseTransform, float4(worldPosition, 1.0))) - 0.5;
+    return (length(max(distance, 0.0)) + min(max(distance.x, max(distance.y, distance.z)), 0.0)) * clippingSide;
+}
+
+float GTPointVsCone(float3 worldPosition, float4 coneStart, float4 coneEnd, float clippingSide)
+{
+    float3 p = worldPosition;
+    float3 a = coneStart.xyz;
+    float3 b = coneEnd.xyz;
+    float ra = coneStart.w;
+    float rb = coneEnd.w;
+
+    float rba = rb - ra;
+    float baba = dot(b - a, b - a);
+    float papa = dot(p - a, p - a);
+    float paba = dot(p - a, b - a) / baba;
+
+    float x = sqrt(papa - paba * paba * baba);
+
+    float cax = max(0.0, x - ((paba < 0.5) ? ra : rb));
+    float cay = abs(paba - 0.5) - 0.5;
+
+    float k = rba * rba + baba;
+    float f = clamp((rba * (x - ra) + paba * baba) / k, 0.0, 1.0);
+
+    float cbx = x - ra - f * rba;
+    float cby = paba - f;
+
+    float s = (cbx < 0.0 && cay < 0.0) ? -1.0 : 1.0;
+
+    return s * sqrt(min(cax * cax + cay * cay * baba, cbx * cbx + cby * cby * baba)) * clippingSide;
+}
+
+#endif // GT_CLIPPING

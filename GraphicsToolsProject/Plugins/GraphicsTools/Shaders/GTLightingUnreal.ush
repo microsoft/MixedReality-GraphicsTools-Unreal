@@ -12,12 +12,12 @@ Half3 GTGetSkySHDiffuse(Half3 Normal)
     Half4 NormalVector = Half4(Normal, Half(1));
 
     Half3 Result;
-	Result.x = dot(View.SkyIrradianceEnvironmentMap[0], NormalVector);
-	Result.y = dot(View.SkyIrradianceEnvironmentMap[1], NormalVector);
-	Result.z = dot(View.SkyIrradianceEnvironmentMap[2], NormalVector);
+    Result.x = dot(View.SkyIrradianceEnvironmentMap[0], NormalVector);
+    Result.y = dot(View.SkyIrradianceEnvironmentMap[1], NormalVector);
+    Result.z = dot(View.SkyIrradianceEnvironmentMap[2], NormalVector);
 
     // Max to avoid negative colors.
-	return max(Half3(0, 0, 0), Result);
+    return max(Half3(0, 0, 0), Result);
 }
 
 Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
@@ -31,7 +31,8 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                SamplerState ReflectionCubeSampler,
                                float DirectLightIntensity,
                                float4 DirectionalLightDirectionEnabled,
-                               float4 DirectionalLightColorIntensity)
+                               float4 DirectionalLightColorIntensity,
+                               float IndirectLightIntensity)
 {
     Half RoughnessSq = clamp(Roughness * Roughness, GT_MIN_N_DOT_V, Half(1));
 
@@ -45,34 +46,37 @@ Half3 GTContributionDefaultLit(FMaterialPixelParameters Parameters,
                                Metallic,
                                Roughness,
                                SkySHDiffuse,
-                               ResolvedView.SkyLightColor.rgb);
+                               ResolvedView.SkyLightColor.rgb) *
+              IndirectLightIntensity;
 #endif // GT_ENABLE_SH
 
     // Indirect (reflection cube).
     Result += GTContributionReflection(BaseColor,
+                                       Metallic,
                                        RoughnessSq,
                                        ReflectionCube,
                                        ReflectionCubeSampler,
-                                       Parameters.ReflectionVector * Parameters.TwoSidedSign);
+                                       Parameters.ReflectionVector * Parameters.TwoSidedSign) *
+              IndirectLightIntensity;
 #else
-	// Ensure fully rough materials aren't fully black.
-    Result += BaseColor * Half(0.025);
+    // Allows artist control so that fully rough materials can boost amibient.
+    Result += BaseColor * Half(1 - IndirectLightIntensity);
 #endif // GT_FULLY_ROUGH
 
     // Direct (directional light).
     Result += GTContributionDirectionalLight(BaseColor,
                                              Metallic,
-                                             Roughness,
                                              RoughnessSq,
                                              Specular,
                                              Normal,
                                              Parameters.CameraVector,
                                              DirectionalLightDirectionEnabled.xyz,
                                              DirectionalLightColorIntensity) *
-                                             DirectLightIntensity *
-                                             DirectionalLightDirectionEnabled.w;
+              DirectLightIntensity *
+              DirectionalLightDirectionEnabled.w;
 
-    return Result * AmbientOcclusion;
+    Half EnergyCompensation = Half(1) + (Half(1) - (Metallic * Half(1.5 * Roughness)));
+    return Result * EnergyCompensation * AmbientOcclusion;
 }
 
 #endif // GT_LIGHTING_UNREAL
