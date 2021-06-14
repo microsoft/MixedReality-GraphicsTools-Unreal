@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-    UXToolsExamples NuGet package metadata.
+    GraphicsToolsExamples NuGet package metadata.
 
     Ensure to set the `BasePath` parameter to the built plugin directory. (e.g. BuildPlugin.ps1's 'PackageOutDir' parameter)
 -->

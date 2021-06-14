@@ -125,10 +125,10 @@ function Get-UnrealBuildLogPath
 }
 
 # Example match:
-# ProcessResult.StdOut:   R:/MixedReali.../UXTools/file.cpp(33): warning C4996: Warning message.
+# ProcessResult.StdOut:   R:/MixedReali.../GraphicsTools/file.cpp(33): warning C4996: Warning message.
 # Groups: 1 = file path; 2 = line [,column]; 3 = error/warning; 4 = code; 5 = message
 $BUILD_EVENT_REGEX_MSBUILD = "([\w\d:/\\_\-\.]+)\(([\d,]+)\)\s*: (warning|error) ([A-Z\d]+){0,1}: (.+)"
-# R:\MixedReali...\UXToolsGame\file.cpp(1): error: Expected file.h to be first header included.
+# R:\MixedReali...\GraphicsToolsProject\file.cpp(1): error: Expected file.h to be first header included.
 # Groups: 1 = file path; 2 = line [,column]; 3 = error/warning; 4 = message
 $BUILD_EVENT_REGEX_UNREAL = "([\w\d:/\\_\-\.]+)\(([\d,]+)\): (warning|error): (.+)"
 $BUILD_EVENT_REGEX_GENERAL = "(WARNING|ERROR): (.+)"
@@ -157,7 +157,7 @@ function Format-BuildError {
         $IssueType = "warning"
         if ($Line -cmatch $BUILD_EVENT_REGEX_MSBUILD)
         {
-            $SourcePath = $Matches[1] 
+            $SourcePath = $Matches[1]
             $LineNumber = $Matches[2]
             $IssueType = $Matches[3]
             if ($WarningsAsErrors)
@@ -176,8 +176,8 @@ function Format-BuildError {
         }
         elseif ($Line -cmatch $BUILD_EVENT_REGEX_UNREAL)
         {
-            $SourcePath = $Matches[1] 
-            $LineNumber = $Matches[2] 
+            $SourcePath = $Matches[1]
+            $LineNumber = $Matches[2]
             $IssueType = $Matches[3]
             if ($WarningsAsErrors)
             {

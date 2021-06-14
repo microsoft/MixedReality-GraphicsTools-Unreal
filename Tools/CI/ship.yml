@@ -156,7 +156,7 @@ jobs:
   - task: PowerShell@2
     displayName: 'Verify code signing'
     inputs:
-      filePath: $(UXTSourceDir)\Tools\scripts\SignCheck.ps1
+      filePath: $(SourceDir)\Tools\scripts\SignCheck.ps1
       arguments: -packageDir $(NuGetStagingDir)
 
   - task: PublishBuildArtifacts@1
