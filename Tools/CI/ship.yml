@@ -29,6 +29,18 @@ jobs:
     parameters:
       Configuration: 'Shipping'
 
+  - task: ComponentGovernanceComponentDetection@0
+    displayName: 'Component Governance'
+    inputs:
+      scanType: 'Register'
+      alertWarningLevel: 'High'
+      failOnAlert: true
+
+  - task: NuGetToolInstaller@1
+    displayName: 'Install NuGet'
+    inputs:
+      versionSpec: 5.9.1
+
   - task: EsrpCodeSigning@1
     displayName: 'Sign GraphicsTools binaries'
     inputs:
