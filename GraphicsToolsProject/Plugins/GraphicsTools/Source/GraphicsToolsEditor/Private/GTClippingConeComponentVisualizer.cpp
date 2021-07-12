@@ -12,10 +12,12 @@ void FGTClippingConeComponentVisualizer::DrawVisualization(
 {
 	if (const UGTClippingConeComponent* ClippingCone = Cast<const UGTClippingConeComponent>(Component))
 	{
-			const FTransform& Transform = ClippingCone->GetComponentTransform();
-			FVector HalfHeight = Transform.GetScaledAxis(EAxis::X);
-			FVector Scale = Transform.GetScale3D() * 0.5f;
+		const FTransform& Transform = ClippingCone->GetComponentTransform();
+		FVector HalfHeight = Transform.GetScaledAxis(EAxis::X);
+		FVector Scale = Transform.GetScale3D() * 0.5f;
 
-			DrawWireChoppedCone(PDI, Transform.GetLocation(), Transform.GetUnitAxis(EAxis::Z), Transform.GetUnitAxis(EAxis::Y), Transform.GetUnitAxis(EAxis::X), FColor::White, Scale.Y, Scale.Z, Scale.X, 16, SDPG_World);
+		DrawWireChoppedCone(
+			PDI, Transform.GetLocation(), Transform.GetUnitAxis(EAxis::Z), Transform.GetUnitAxis(EAxis::Y), Transform.GetUnitAxis(EAxis::X),
+			FColor::White, Scale.Y, Scale.Z, Scale.X, 16, SDPG_World);
 	}
 }

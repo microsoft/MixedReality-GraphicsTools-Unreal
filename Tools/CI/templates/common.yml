@@ -1,0 +1,91 @@
+parameters:
+  Configuration: 'Development'
+
+steps:
+- task: PowerShell@2
+  displayName: "Verify code formatting"
+  inputs:
+    targetType: 'filePath'
+    filePath: $(SourceDir)/Tools/scripts/FormatSource.ps1
+    arguments: -ModifiedOnly $False -UseVS2019 $True -Verify $True
+
+- task: PowerShell@2
+  displayName: 'Install UnrealEngine'
+  inputs:
+    targetType: 'filePath'
+    filePath: $(ToolsDir)/scripts/install_package.ps1
+    arguments: -feedName ue4-internal -versionFile $(SourceDir)/EditorVersion.json -destination $(Agent.ToolsDirectory)/ue4 -artifactTool $(Agent.WorkFolder)/ArtifactTool_win10-x64_0.2.128/artifacttool.exe -pipelineVariableName UnrealEngine -PAT $(UE4FeedPAT) -RemovePackagesOlderThanDays 14 -IgnoreCleanUpErrors $false
+
+- task: PowerShell@2
+  displayName: 'Build GraphicsToolsProject (Win64|${{ parameters.Configuration }})'
+  inputs:
+    filePath: $(SourceDir)/Tools/scripts/BuildProject.ps1
+    arguments: -UnrealEngine $(UnrealEngine) -Platform Win64 -Configuration ${{ parameters.Configuration }} -Clean $True -UnityBuild $False
+
+- task: DownloadSecureFile@1
+  displayName: 'Download signing certificate'
+  name: SigningCertificate
+  inputs:
+    secureFile: 'SigningCertificate.pfx'
+
+- script: |
+    IF NOT EXIST "$(GraphicsToolsProjectDir)/Build" mkdir "$(GraphicsToolsProjectDir)/Build"
+    IF NOT EXIST "$(GraphicsToolsProjectDir)/Build/HoloLens" mkdir "$(GraphicsToolsProjectDir)/Build/HoloLens"
+    copy "$(SigningCertificate.secureFilePath)" "$(GraphicsToolsProjectDir)/Build/HoloLens/SigningCertificate.pfx"
+  displayName: 'Copy self-signing certificate (HoloLens)'
+
+- task: PowerShell@2
+  displayName: 'Build GraphicsToolsProject (HoloLens|${{ parameters.Configuration }})'
+  inputs:
+    filePath: $(SourceDir)/Tools/scripts/BuildProject.ps1
+    arguments: -UnrealEngine $(UnrealEngine) -Platform HoloLens -Configuration ${{ parameters.Configuration }} -Clean $True -UnityBuild $False -ArchivePath $(Build.ArtifactStagingDirectory)/packages
+
+# robocopy returning 0 or 1 indicates success so set the return code to 0, otherwise preserve robocopy's return code.
+- script: |
+    (robocopy "$(GraphicsToolsProjectDir)/Binaries/HoloLens" "$(Build.ArtifactStagingDirectory)/packages/HoloLens" "*.pdb" /s) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+  displayName: 'Copy HoloLens symbols to artifact'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish GraphicsToolsProject (HoloLens) to build artifacts'
+  inputs:
+    ArtifactName: 'GraphicsToolsProject-HoloLens'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/packages/HoloLens'
+  condition: and(succeeded(), not(eq(variables['Build.Reason'], 'PullRequest')))
+
+- task: PowerShell@2
+  displayName: 'Build GraphicsTools'
+  inputs:
+    filePath: $(SourceDir)/Tools/scripts/BuildPlugin.ps1
+    arguments: -UnrealEngine $(UnrealEngine) -PluginDir $(GraphicsToolsPluginDir)/GraphicsTools.uplugin -PackageOutDir $(GraphicsToolsBuildDir)
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish GraphicsTools to build artifacts'
+  inputs:
+    ArtifactName: 'GraphicsTools'
+    PathtoPublish: '$(GraphicsToolsBuildDir)'
+  condition: and(succeeded(), not(eq(variables['Build.Reason'], 'PullRequest')))
+
+- task: PowerShell@2
+  displayName: 'Install GraphicsTools into the engine'
+  inputs:
+    filePath: $(SourceDir)/Tools/scripts/InstallPlugin.ps1
+    arguments: -UnrealEngine $(UnrealEngine) -PluginPath $(GraphicsToolsBuildDir)
+
+- task: PowerShell@2
+  displayName: 'Build GraphicsToolsExamples'
+  inputs:
+    filePath: $(SourceDir)/Tools/scripts/BuildPlugin.ps1
+    arguments: -UnrealEngine $(UnrealEngine) -PluginDir $(GraphicsToolsExamplesPluginDir)/GraphicsToolsExamples.uplugin -PackageOutDir $(GraphicsToolsExamplesBuildDir)
+
+- task: PowerShell@2
+  displayName: 'Uninstall GraphicsTools from the engine'
+  inputs:
+    filePath: $(SourceDir)/Tools/scripts/UninstallPlugin.ps1
+    arguments: -UnrealEngine $(UnrealEngine) -PluginName GraphicsTools
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish GraphicsToolsExamples to build artifacts'
+  inputs:
+    ArtifactName: 'GraphicsToolsExamples'
+    PathtoPublish: '$(GraphicsToolsExamplesBuildDir)'
+  condition: and(succeeded(), not(eq(variables['Build.Reason'], 'PullRequest')))

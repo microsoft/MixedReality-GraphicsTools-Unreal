@@ -1,0 +1,11 @@
+variables:
+  AgentPool: UXT-UE
+  SourceDir: $(Build.SourcesDirectory)/$(Build.Repository.Name)
+  ToolsDir: $(Build.SourcesDirectory)/mixedrealitytoolkit.build
+  ClangFormat.Version: 11.0.0
+  GraphicsToolsProjectDir: $(SourceDir)/GraphicsToolsProject
+  GraphicsToolsPluginDir: $(GraphicsToolsProjectDir)/Plugins/GraphicsTools
+  GraphicsToolsBuildDir: $(Build.ArtifactStagingDirectory)/GraphicsTools
+  GraphicsToolsExamplesPluginDir: $(GraphicsToolsProjectDir)/Plugins/GraphicsToolsExamples
+  GraphicsToolsExamplesBuildDir: $(Build.ArtifactStagingDirectory)/GraphicsToolsExamples
+  NugetStagingDir: $(Build.ArtifactStagingDirectory)/Nuget
