@@ -4,12 +4,33 @@
 #ifndef GT_COMMON
 #define GT_COMMON
 
+// Defines mirrored from https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Shaders/Public/FP16Math.ush
+#ifndef EXPERIMENTAL_FP16
+#define EXPERIMENTAL_FP16 1
+#endif
+
+#ifndef USE_MIN16FLOAT
+#define USE_MIN16FLOAT 0
+#endif
+
+#if EXPERIMENTAL_FP16
+#if USE_MIN16FLOAT
 #define Half min16float
 #define Half2 min16float2
 #define Half3 min16float3
 #define Half4 min16float4
-#define Half3x3 min16float3x3
-#define Half3x4 min16float3x4
+#else
+#define Half half
+#define Half2 half2
+#define Half3 half3
+#define Half4 half4
+#endif
+#else
+#define Half float
+#define Half2 float2
+#define Half3 float3
+#define Half4 float4
+#endif
 
 #define GT_PI Half(3.14159265359)
 #define GT_ONE_OVER_PI Half(1.0) / GT_PI
