@@ -56,7 +56,7 @@ steps:
   displayName: 'Build GraphicsTools'
   inputs:
     filePath: $(SourceDir)/Tools/scripts/BuildPlugin.ps1
-    arguments: -UnrealEngine $(UnrealEngine) -PluginDir $(GraphicsToolsPluginDir)/GraphicsTools.uplugin -PackageOutDir $(GraphicsToolsBuildDir)
+    arguments: -UnrealEngine $(UnrealEngine) -PluginPath $(GraphicsToolsPluginDir)/GraphicsTools.uplugin -PackageOutDir $(GraphicsToolsBuildDir)
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish GraphicsTools to build artifacts'
@@ -75,7 +75,7 @@ steps:
   displayName: 'Build GraphicsToolsExamples'
   inputs:
     filePath: $(SourceDir)/Tools/scripts/BuildPlugin.ps1
-    arguments: -UnrealEngine $(UnrealEngine) -PluginDir $(GraphicsToolsExamplesPluginDir)/GraphicsToolsExamples.uplugin -PackageOutDir $(GraphicsToolsExamplesBuildDir)
+    arguments: -UnrealEngine $(UnrealEngine) -PluginPath $(GraphicsToolsExamplesPluginDir)/GraphicsToolsExamples.uplugin -PackageOutDir $(GraphicsToolsExamplesBuildDir)
 
 - task: PowerShell@2
   displayName: 'Uninstall GraphicsTools from the engine'
