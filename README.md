@@ -6,7 +6,7 @@
 
 Graphics Tools for Unreal Engine is a UE game plugin with code, blueprints and example assets created to help improve the visual fidelity of Mixed Reality applications while staying within performance budgets.
 
-| NOTE: Only HoloLens 2 development is supported at the moment. |
+| NOTE: Only HoloLens 2, Windows, and Android development is tested at the moment. If you encounter issues with other platforms please [file an issue](https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/issues/new). |
 | --- |
 
 ![Features](Docs/Images/Features.png)
