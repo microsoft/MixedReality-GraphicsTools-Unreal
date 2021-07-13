@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Misc/EngineVersionComparison.h"
 #include "UObject/ConstructorHelpers.h"
 
 const float DefaultThresholdFrameTime = (1.0f / 60.0f) * 1000; // Default to 16.6ms.
@@ -161,7 +162,12 @@ void AGTVisualProfiler::Tick(float DeltaTime)
 		// Draw calls.
 		{
 			static const int32 ProfilerDrawCalls = 16; // Removed profiling induced draw calls.
+
+#if UE_VERSION_OLDER_THAN(4, 27, 0)
 			const int32 NumDrawCalls = FMath::Max(GNumDrawCallsRHI - ProfilerDrawCalls, 0);
+#else
+			const int32 NumDrawCalls = FMath::Max(GNumDrawCallsRHI[0] - ProfilerDrawCalls, 0);
+#endif
 
 			if (CheckCountDirty(NumDrawCalls, PrevNumDrawCalls))
 			{
@@ -172,8 +178,12 @@ void AGTVisualProfiler::Tick(float DeltaTime)
 		// Primitives.
 		{
 			static const int32 ProfilerPrimitives = 336; // Removed profiling induced primitives.
-			int32 NumPrimitives = FMath::Max(GNumPrimitivesDrawnRHI - ProfilerPrimitives, 0);
 
+#if UE_VERSION_OLDER_THAN(4, 27, 0)
+			int32 NumPrimitives = FMath::Max(GNumPrimitivesDrawnRHI - ProfilerPrimitives, 0);
+#else
+			int32 NumPrimitives = FMath::Max(GNumPrimitivesDrawnRHI[0] - ProfilerPrimitives, 0);
+#endif
 			if (CheckCountDirty(NumPrimitives, PrevNumPrimitives))
 			{
 				if (NumPrimitives < 10000)
