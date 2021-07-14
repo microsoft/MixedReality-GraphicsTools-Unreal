@@ -9,6 +9,7 @@
 
 #include "GTVisualProfiler.generated.h"
 
+class UMaterial;
 class UStaticMeshComponent;
 class UTextRenderComponent;
 
