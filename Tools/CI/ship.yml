@@ -1,4 +1,5 @@
-# Manually triggered pipeline to generate shipping builds of the CI artifacts
+# Manually triggered pipeline to generate shipping builds of the CI artifacts.
+pr: none
 trigger: none
 
 variables:
