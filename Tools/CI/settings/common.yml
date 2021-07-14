@@ -1,6 +1,6 @@
 variables:
   AgentPool: UXT-UE
-  SourceDir: $(Build.SourcesDirectory)/$(Build.Repository.Name)
+  SourceDir: $(Build.SourcesDirectory)/MixedReality-GraphicsTools-Unreal # $(Build.Repository.Name) for a GitHub repo adds the organization as a prefix, which does not match the folder name on disk.
   ToolsDir: $(Build.SourcesDirectory)/mixedrealitytoolkit.build
   ClangFormat.Version: 11.0.0
   GraphicsToolsProjectDir: $(SourceDir)/GraphicsToolsProject

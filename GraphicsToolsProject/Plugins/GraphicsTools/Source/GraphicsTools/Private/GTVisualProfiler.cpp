@@ -5,8 +5,11 @@
 
 #include "GraphicsTools.h"
 
+#include "Camera/PlayerCameraManager.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Engine/StaticMesh.h"
+#include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/EngineVersionComparison.h"
 #include "UObject/ConstructorHelpers.h"

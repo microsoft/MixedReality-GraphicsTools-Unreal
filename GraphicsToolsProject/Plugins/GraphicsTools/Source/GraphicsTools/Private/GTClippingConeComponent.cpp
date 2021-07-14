@@ -5,6 +5,8 @@
 
 #include "GTWorldSubsystem.h"
 
+#include "Engine/World.h"
+
 UGTClippingConeComponent::UGTClippingConeComponent()
 {
 	{
