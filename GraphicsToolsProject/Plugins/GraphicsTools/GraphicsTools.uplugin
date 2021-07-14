@@ -4,7 +4,7 @@
 	"VersionName": "0.3.0",
 	"FriendlyName": "Mixed Reality Graphics Tools",
 	"Description": "Graphics tools and components for developing Mixed Reality applications.",
-	"Category": "Other",
+	"Category": "Mixed Reality",
 	"CreatedBy": "Microsoft",
 	"CreatedByURL": "http://www.microsoft.com",
 	"DocsURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",

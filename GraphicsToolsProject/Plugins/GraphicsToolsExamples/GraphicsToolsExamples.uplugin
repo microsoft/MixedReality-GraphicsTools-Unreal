@@ -4,7 +4,7 @@
 	"VersionName": "0.3.0",
 	"FriendlyName": "Mixed Reality Graphics Tools Examples",
 	"Description": "Examples for the Mixed Reality Graphics Tools plugin.",
-	"Category": "Other",
+	"Category": "Mixed Reality",
 	"CreatedBy": "Microsoft",
 	"CreatedByURL": "http://www.microsoft.com",
 	"DocsURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
