@@ -4,7 +4,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProceduralMeshComponent.h"
+
+#include "Components/StaticMeshComponent.h"
 
 #include "GTMeshOutlineComponent.generated.h"
 
@@ -12,24 +13,11 @@
  * TODO
  */
 UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
-class GRAPHICSTOOLS_API UGTMeshOutlineComponent : public UProceduralMeshComponent
+class GRAPHICSTOOLS_API UGTMeshOutlineComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
 public:
-	//
-	// UObject interface
-
-	virtual void PostLoad() override;
-
-	/** TODO */
-	UFUNCTION(BlueprintGetter, Category = "Mesh Outline")
-	UStaticMesh* GetStaticMesh() const { return StaticMesh; }
-
-	/** TODO */
-	UFUNCTION(BlueprintSetter, Category = "Mesh Outline")
-	void SetStaticMesh(UStaticMesh* Mesh);
-
 	/** TODO */
 	UFUNCTION(BlueprintGetter, Category = "Mesh Outline")
 	float GetOutlineThickness() const { return OutlineThickness; }
@@ -62,17 +50,7 @@ protected:
 
 private:
 	/** TODO */
-	void UpdateMesh();
-
-	/** TODO */
-	void SmoothNormals(const TArray<FVector>& Vertices, TArray<FVector>& Normals, TArray<FProcMeshTangent>& Tangents);
-
-	/** TODO */
 	void UpdateMaterial();
-
-	/** TODO*/
-	UPROPERTY(EditAnywhere, BlueprintGetter = "GetStaticMesh", BlueprintSetter = "SetStaticMesh", Category = "Mesh Outline")
-	UStaticMesh* StaticMesh = nullptr;
 
 	/** TODO*/
 	UPROPERTY(
@@ -81,7 +59,7 @@ private:
 	float OutlineThickness = 0.5f;
 
 	/** TODO*/
-	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOutlineColor", BlueprintSetter = "SetOutlineColor")
+	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOutlineColor", BlueprintSetter = "SetOutlineColor", Category = "Mesh Outline")
 	FColor OutlineColor = FColor(255, 0, 0, 255);
 
 	/** TODO*/

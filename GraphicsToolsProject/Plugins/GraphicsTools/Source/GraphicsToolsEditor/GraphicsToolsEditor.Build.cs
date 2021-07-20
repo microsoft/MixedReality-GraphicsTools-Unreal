@@ -9,9 +9,30 @@ public class GraphicsToolsEditor : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Engine", "Core", "CoreUObject", "GraphicsTools" });
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core",
+			"CoreUObject",
+			"Slate",
+			"SlateCore",
+			"Engine",
+			"UnrealEd",
+			"PropertyEditor",
+			"RenderCore",
+			"RHI",
+			"ProceduralMeshComponent",
+			"MeshDescription",
+			"StaticMeshDescription",
+			"AssetTools",
+			"AssetRegistry",
+			"GraphicsTools"
+		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"UnrealEd",
+			"ProceduralMeshComponent"
+		});
 	}
 }
 
