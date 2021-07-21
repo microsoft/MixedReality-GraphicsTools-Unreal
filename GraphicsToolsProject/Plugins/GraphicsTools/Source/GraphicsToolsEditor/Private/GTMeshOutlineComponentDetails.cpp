@@ -9,6 +9,7 @@
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
 #include "GTMeshOutlineComponent.h"
+#include "GraphicsToolsEditor.h"
 #include "IAssetTools.h"
 #include "IDetailsView.h"
 #include "ProceduralMeshComponent.h"
@@ -140,11 +141,16 @@ bool BuildOutlineMesh(UProceduralMeshComponent* ProceduralMesh, UGTMeshOutlineCo
 
 	if (RenderData == nullptr)
 	{
+		UE_LOG(GraphicsToolsEditor, Warning, TEXT("Failed to create the outline mesh becasue the source mesh has no render data."));
+
 		return false;
 	}
 
 	if (RenderData->LODResources.Num() == 0)
 	{
+		UE_LOG(
+			GraphicsToolsEditor, Warning, TEXT("Failed to build the outline mesh becasue the source mesh has nothing in the LOD chain."));
+
 		return false;
 	}
 
@@ -304,6 +310,7 @@ FReply FGTMeshOutlineComponentDetails::ClickedOnConvertToStaticMesh()
 					// Materials.
 					TSet<UMaterialInterface*> UniqueMaterials;
 					const int32 NumSections = ProceduralMeshComponent->GetNumSections();
+
 					for (int32 SectionIdx = 0; SectionIdx < NumSections; SectionIdx++)
 					{
 						FProcMeshSection* ProcSection = ProceduralMeshComponent->GetProcMeshSection(SectionIdx);
@@ -332,14 +339,11 @@ FReply FGTMeshOutlineComponentDetails::ClickedOnConvertToStaticMesh()
 				}
 				else
 				{
-					// TODO, log warning.
+					UE_LOG(
+						GraphicsToolsEditor, Warning, TEXT("Failed to create the outline mesh becasue the source mesh has no polygons."));
 				}
 			}
-			else
-			{
-				// TODO, log warning.
-			}
-			
+
 			// Release the procedural mesh component since it is no longer required.
 			ProceduralMeshComponent->DestroyComponent();
 			ProceduralMeshComponent = nullptr;

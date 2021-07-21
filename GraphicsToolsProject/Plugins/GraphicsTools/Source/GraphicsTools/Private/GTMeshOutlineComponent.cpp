@@ -3,17 +3,26 @@
 
 #include "GTMeshOutlineComponent.h"
 
-void UGTMeshOutlineComponent::SetOutlineThickness(float Thickness)
+#include "GraphicsTools.h"
+
+UGTMeshOutlineComponent::UGTMeshOutlineComponent()
 {
-	if (OutlineThickness != Thickness)
-	{
-		UpdateMaterial();
-	}
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> OutlineMaterialFinder(TEXT("/GraphicsTools/Materials/M_GTDefaultOutline"));
+	check(OutlineMaterialFinder.Object);
+	OutlineMaterial = OutlineMaterialFinder.Object;
 }
 
 void UGTMeshOutlineComponent::SetOutlineColor(FColor Color)
 {
 	if (OutlineColor != Color)
+	{
+		UpdateMaterial();
+	}
+}
+
+void UGTMeshOutlineComponent::SetOutlineThickness(float Thickness)
+{
+	if (OutlineThickness != Thickness)
 	{
 		UpdateMaterial();
 	}
@@ -25,8 +34,35 @@ void UGTMeshOutlineComponent::SetComputeSmoothNormals(bool Compute)
 	{
 		bComputeSmoothNormals = Compute;
 
-		// TODO, rebuild the outline mesh.
+		UE_LOG(
+			GraphicsTools, Warning,
+			TEXT("It is recomended that the outline static mesh is re-created after altering the smooth normal's property."));
 	}
+}
+
+void UGTMeshOutlineComponent::OnRegister()
+{
+	Super::OnRegister();
+
+#if WITH_EDITORONLY_DATA
+
+	if (GetStaticMesh() == nullptr)
+	{
+		// If a static mesh isn't specified, try grabbing one from the parent.
+		if (UStaticMeshComponent* Parent = Cast<UStaticMeshComponent>(GetAttachParent()))
+		{
+			SetStaticMesh(Parent->GetStaticMesh());
+			SetMaterial(0, OutlineMaterial);
+			SetRelativeScale3D(FVector::OneVector);
+		}
+	}
+
+	if (GetMaterial(0) == nullptr)
+	{
+		// Use the default outline material if one isn't specified.
+		SetMaterial(0, OutlineMaterial);
+	}
+#endif // WITH_EDITOR
 }
 
 #if WITH_EDITOR
@@ -35,17 +71,19 @@ void UGTMeshOutlineComponent::PostEditChangeProperty(FPropertyChangedEvent& Prop
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTMeshOutlineComponent, OutlineThickness))
+	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTMeshOutlineComponent, OutlineColor))
 	{
 		UpdateMaterial();
 	}
-	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTMeshOutlineComponent, OutlineColor))
+	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTMeshOutlineComponent, OutlineThickness))
 	{
 		UpdateMaterial();
 	}
 	else if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(UGTMeshOutlineComponent, bComputeSmoothNormals))
 	{
-		// TODO, rebuild the outline mesh.
+		UE_LOG(
+			GraphicsTools, Warning,
+			TEXT("It is recomended that the outline static mesh is re-created after altering the smooth normal's property."));
 	}
 }
 #endif // WITH_EDITOR
@@ -59,11 +97,11 @@ void UGTMeshOutlineComponent::UpdateMaterial()
 		return;
 	}
 
-	UMaterialInstanceDynamic* MaterialInstance = CreateDynamicMaterialInstance(0, Material);
+	UMaterialInstanceDynamic* MaterialInstance = CreateDynamicMaterialInstance(0, Material, Material->GetFName());
+
+	static const FName OutlineColorName = "BaseColor";
+	MaterialInstance->SetVectorParameterValue(OutlineColorName, OutlineColor);
 
 	static const FName OutlineThicknessName = "OutlineThickness";
 	MaterialInstance->SetScalarParameterValue(OutlineThicknessName, OutlineThickness);
-
-	static const FName OutlineColorName = "OutlineColor";
-	MaterialInstance->SetVectorParameterValue(OutlineColorName, OutlineColor);
 }

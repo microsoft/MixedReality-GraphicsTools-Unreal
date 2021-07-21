@@ -18,13 +18,7 @@ class GRAPHICSTOOLS_API UGTMeshOutlineComponent : public UStaticMeshComponent
 	GENERATED_BODY()
 
 public:
-	/** TODO */
-	UFUNCTION(BlueprintGetter, Category = "Mesh Outline")
-	float GetOutlineThickness() const { return OutlineThickness; }
-
-	/** TODO */
-	UFUNCTION(BlueprintSetter, Category = "Mesh Outline")
-	void SetOutlineThickness(float Thickness);
+	UGTMeshOutlineComponent();
 
 	/** TODO */
 	UFUNCTION(BlueprintGetter, Category = "Mesh Outline")
@@ -36,11 +30,25 @@ public:
 
 	/** TODO */
 	UFUNCTION(BlueprintGetter, Category = "Mesh Outline")
+	float GetOutlineThickness() const { return OutlineThickness; }
+
+	/** TODO */
+	UFUNCTION(BlueprintSetter, Category = "Mesh Outline")
+	void SetOutlineThickness(float Thickness);
+
+	/** TODO */
+	UFUNCTION(BlueprintGetter, Category = "Mesh Outline")
 	bool GetComputeSmoothNormals() const { return bComputeSmoothNormals; }
 
 	/** TODO */
 	UFUNCTION(BlueprintSetter, Category = "Mesh Outline")
 	void SetComputeSmoothNormals(bool Compute);
+
+	//
+	// UObject interface
+
+	/** TODO */
+	virtual void OnRegister() override;
 
 protected:
 #if WITH_EDITOR
@@ -53,17 +61,21 @@ private:
 	void UpdateMaterial();
 
 	/** TODO*/
+	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOutlineColor", BlueprintSetter = "SetOutlineColor", Category = "Mesh Outline")
+	FColor OutlineColor = FColor(255, 0, 0, 255);
+
+	/** TODO*/
 	UPROPERTY(
 		EditAnywhere, BlueprintGetter = "GetOutlineThickness", BlueprintSetter = "SetOutlineThickness", Category = "Mesh Outline",
 		Category = "Mesh Outline", meta = (UIMin = "0.0", UIMax = "10.0"))
 	float OutlineThickness = 0.5f;
 
 	/** TODO*/
-	UPROPERTY(EditAnywhere, BlueprintGetter = "GetOutlineColor", BlueprintSetter = "SetOutlineColor", Category = "Mesh Outline")
-	FColor OutlineColor = FColor(255, 0, 0, 255);
-
-	/** TODO*/
 	UPROPERTY(
 		EditAnywhere, BlueprintGetter = "GetComputeSmoothNormals", BlueprintSetter = "SetComputeSmoothNormals", Category = "Mesh Outline")
 	bool bComputeSmoothNormals = true;
+
+	/** The default outline material. */
+	UPROPERTY(Transient)
+	UMaterialInterface* OutlineMaterial = nullptr;
 };

@@ -12,7 +12,7 @@ class IDetailLayoutBuilder;
 class UGTMeshOutlineComponent;
 
 /**
- * TODO
+ * Details panel customization that displays a button to serialize a outline mesh to a static mesh asset.
  */
 class FGTMeshOutlineComponentDetails : public IDetailCustomization
 {
