@@ -16,6 +16,8 @@ void UGTMeshOutlineComponent::SetOutlineColor(FColor Color)
 {
 	if (OutlineColor != Color)
 	{
+		OutlineColor = Color;
+
 		UpdateMaterial();
 	}
 }
@@ -24,6 +26,8 @@ void UGTMeshOutlineComponent::SetOutlineThickness(float Thickness)
 {
 	if (OutlineThickness != Thickness)
 	{
+		OutlineThickness = Thickness;
+
 		UpdateMaterial();
 	}
 }
@@ -53,6 +57,7 @@ void UGTMeshOutlineComponent::OnRegister()
 		{
 			SetStaticMesh(Parent->GetStaticMesh());
 			SetMaterial(0, OutlineMaterial);
+			UpdateMaterial();
 			SetRelativeScale3D(FVector::OneVector);
 		}
 	}
@@ -61,6 +66,7 @@ void UGTMeshOutlineComponent::OnRegister()
 	{
 		// Use the default outline material if one isn't specified.
 		SetMaterial(0, OutlineMaterial);
+		UpdateMaterial();
 	}
 #endif // WITH_EDITOR
 }
@@ -97,7 +103,16 @@ void UGTMeshOutlineComponent::UpdateMaterial()
 		return;
 	}
 
-	UMaterialInstanceDynamic* MaterialInstance = CreateDynamicMaterialInstance(0, Material, Material->GetFName());
+	FName OutlineInstanceMaterialName = NAME_None;
+
+#if WITH_EDITOR
+	if (Cast<UMaterialInstanceDynamic>(Material) == nullptr)
+	{
+		OutlineInstanceMaterialName = *Material->GetName().Append("Instance");
+	}
+#endif
+
+	UMaterialInstanceDynamic* MaterialInstance = CreateDynamicMaterialInstance(0, Material, OutlineInstanceMaterialName);
 
 	static const FName OutlineColorName = "BaseColor";
 	MaterialInstance->SetVectorParameterValue(OutlineColorName, OutlineColor);
