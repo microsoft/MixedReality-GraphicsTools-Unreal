@@ -17,5 +17,7 @@
     href: Profiling.md
   - name: Spatial Perception
     href: SpatialPerception.md
+  - name: Mesh Outlines
+    href: MeshOutlines.md
 - name: Contributing
   href: CONTRIBUTING.md

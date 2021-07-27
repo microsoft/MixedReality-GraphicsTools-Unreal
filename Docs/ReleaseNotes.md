@@ -18,11 +18,11 @@ The third release of the Graphics Tools supports Windows, HoloLens 2, and Androi
 
 ## What's new
 
-### Android Support
+### Android support
 
 Graphics Tools can now be used with on Android platforms. Testing is limited, but current tests pass on a Samsung Galaxy S20 5G.
 
-### OpenXR Support
+### OpenXR support
 
 Graphics Tools now defaults to the OpenXR runtime. The Windows MR plugins is still supported. See the [OpenXR plugin](https://github.com/microsoft/Microsoft-OpenXR-Unreal) to learn more.
 

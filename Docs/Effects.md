@@ -54,7 +54,7 @@ To create a rim lit material use Unreal's built in `Fresnel` material node (1) a
 
 ![Rim Lit Material](Images/Effects/EffectsRimLitMaterial.png)
 
-# Procedural Normal
+# Procedural normal
 
 Surface normals are used extensively in computer graphics to determine which way a surface is facing and how light bounces off a surface. Normally surface normals are calculated for a mesh at creation or import time, but with procedural meshes this calculation may not occur. Fortunately, there is a way to automatically generate surface normals in a pixel shader.
 
@@ -73,7 +73,7 @@ An example material graph of procedural normal calculation turned into a color c
 
 ![Procedural Normal](Images/Effects/EffectsProceduralNormal.png)
 
-# Biplanar Mapping
+# Biplanar mapping
 
 Biplanar mapping is a technique that projects a texture map onto a 3D surface based on vertex positions and normals. Textures are normally mapped onto a 3D surface using texture coordinates (or UVs) but occasionally a mesh does not contain texture coordinates or it is desirable to procedurally generate texture coordinates based on a the position of a mesh. This effect is commonly used for terrain or a [spatial mesh](SpatialPerception.md). 
 
