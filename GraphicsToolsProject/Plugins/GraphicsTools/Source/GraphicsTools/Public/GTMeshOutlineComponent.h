@@ -14,13 +14,14 @@
    the object being outlined, but is designed to run performantly on mobile mixed reality devices and does not utilize any post processes.
    Because this effect happens during the default render pass there are a few limitations of this effect which include:
 	   - The outline mesh must be watertight hull (and not double sided) else you may see split edges, holes, or other artifacts.
-	   - Mesh concavities can intersect each other when the outline is thick.
+	   - Mesh concavities can intersect each other when the outline is thick. This could be solved if the sort order of opaque objects could
+		 be controlled so that the outline renders first and depth write disabled.
 	   - Outlines will not render though occluding objects.
 	   - Translucent objects may show the outline mesh in areas you would expect to be occluded.
    Note, this component assumes a material is being used which has a `BaseColor` and `OutlineThickness` parameter to function correctly. The
    `OutlineThickness` should scale the vertex position offset along the vertex normal.
  */
-UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (GraphicsTools), meta = (BlueprintSpawnableComponent), HideCategories = (Physics, Collision))
 class GRAPHICSTOOLS_API UGTMeshOutlineComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()

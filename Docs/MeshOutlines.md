@@ -19,7 +19,7 @@ The inverted hull technique requires that the object being outlined is rendered 
 Note, the inverted hull technique has a few caveats that are worth mentioning before continuing:
 
 * The outline mesh must be watertight hull (and not double sided) else you may see split edges, holes, or other artifacts. (Graphics Tools contains a process to help generate outline meshes.)
-* Mesh concavities can intersect each other when the outline is thick.
+* Mesh concavities can intersect each other when the outline is thick. This is due to a limitation in the renderer for controlling sort order and depth writes of opaque materials.
 * Outlines will not render though occluding objects.
 * Translucent objects may show the outline mesh in areas you would expect to be occluded.
 
@@ -31,24 +31,45 @@ There are some demonstrations of mesh outlines within the `\GraphicsToolsProject
 
 In the following steps we will create place a static mesh in a level and have it outlined.
 
-1. First we will create a material. TODO
-    * Right click within the "Content Browser" and select "Material" under the "Create Basic Asset" menu listings. 
-    * Let's name our material `M_ProximityLit`. 
-    * Double click on `M_ProximityLit` to open the material editor. 
+1. First let's add a cube to an empty level.
+    * Create a new level (File > New Level) and select a "Empty Level."
+    * From the "Place Actors" panel drop a Cube actor into the level.
+    * It's good practice to keep our materials simple (in other words keep the number of shader instructions low) when authoring materials for mixed reality. With the Cube actor selected change the material to the `M_GTDefaultLit` material.
+    * Our Cube may look a little dark. That's because we need a light to illuminate it. From the "Place Actors" panel drop a `GTDirectionalLight` actor into the level. 
+    * Set the `GTDirectionalLight`'s "Intensity" to 2. The default value represents a "sunny day" and may wash out our material.
+    * Lastly scale the Cube down so that it is a acceptable size for mixed reality. A uniform scale of 0.2 is a good scale to try.
 
-2. It's good practice to keep your materials simple (in other words keep the number of shader instructions low) when authoring materials for Mixed Reality. 
-    * To ensure this, mark `M_ProximityLit` as "Unlit" (1) in the material's "Shading Model" property. 
-    * (Optional) If you would like your material to still look as though it is lit, then right click on the material graph and add the `MF_GTDefaultLit` material function. Connect the result of the `MF_GTDefaultLit` to the material's "Emissive Color." (2)
+    ![Create Cube Actor](Images/MeshOutlines/CreateCubeActor.png)
+    
+2. Next we are going to add a `GTMeshOutline` component to our Cube.
+    * Add a `GTMeshOutline` component as a child of the Cube's `StaticMesh` component (1). Note, we are adding the component as a child of the static mesh since we will want the outline component to remain fixed to the static mesh, in other words translate, rotate, and scale whenever the mesh is transformed.
+    * You will noticed immediately that the `GTMeshOutline` component has a `Cube` static mesh and `M_GTDefaultOutline` material, but the outline doesn't look correct. There are obvious discontinuities in the outline (2) and it occludes the Cube. To fix this we need to make a "outline mesh" that represents a cube. We will do this in the next step.
 
-    ![Material Setup](Images/ProximityLight/ProximityLightMaterialSetup.png)
+    ![Add Outline Component](Images/MeshOutlines/AddOutlineComponent.png)
+
+2. Normally you would generate an outline mesh in a digital content creation tool outside of Unreal. This would entail flipping the normals of the mesh and smoothing any vertex normals that would cause discontinuities, or holes, to open in the mesh when it is extruded along the surface normal. Not all of us are skilled artists, so fortunately for us Graphics Tools contains tooling to generate an outline mesh automatically.
+    * Select the `GTMeshOutline` and ensure that the same mesh used by the parent `StaticMesh` component is specified in the `GTMeshOutline` component's static mesh (1). Normally this is populated automatically for you.
+    * Next scroll down to the "Mesh Outline" properties and select "Create Outline Static Mesh" (2).
+    * Choose a project directory to save the outline mesh to, and optionally a name, and click "Okay" (3). If the process is successful a new `CubeOutline` mesh will be generated and automatically applied to  the `GTMeshOutline` component's static mesh.
+
+    ![Create Outline Static Mesh](Images/MeshOutlines/CreateOutlineStaticMesh.png)
+
+4. You cube should now have a red outline around it.
+    * You can modify the color of the outline by adjusting the `Outline Color` property (1).
+    * You may also modify the thickness of the outline, in Unreal units, by adjusting the `Outline Thickness` property (2). Try bumping the thickness us to "1.5
+     as seen in the image below. It is up to the material to decide how to use this value, but in the case of the `M_GTDefaultOutline` material it is used to determine the distance to offset the vertex position along the vertex normal.
+
+    ![Modify Outline](Images/MeshOutlines/ModifyOutline.png)
 
 ## Advanced usage
 
-TODO
+Outlines can be represented by more than a solid unlit color. Because an outline has a unique material it can take advantage of almost any effect available to the material graph. The below image is an example of using the `GTMeshOutline` component with a custom additive material that strobes across the surface. 
 
-1) TODO
-    * TODO
-    * TODO
+![Custom Outline Material](Images/MeshOutlines/CustomOutlineMaterial.png)
+
+When creating custom material outlines make sure to extrude the mesh's vertices with the "World Position Offset." If the outline mesh is not extruded it will be completely occluded by the normal static mesh. Vertex extrusion is done by scaling the world space vertex normal by the `Outline Thickness` parameter and sending that value into the "World Position Offset." An example of this is in the below material graph:
+
+![Vertex Extrusion Material Graph](Images/MeshOutlines/VertexExtrusionMaterialGraph.png)
     
 ## See also
 

@@ -10,6 +10,9 @@ UGTMeshOutlineComponent::UGTMeshOutlineComponent()
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> OutlineMaterialFinder(TEXT("/GraphicsTools/Materials/M_GTDefaultOutline"));
 	check(OutlineMaterialFinder.Object);
 	OutlineMaterial = OutlineMaterialFinder.Object;
+
+	// Disable collision on outline meshes.
+	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void UGTMeshOutlineComponent::SetOutlineColor(FColor Color)
