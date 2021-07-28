@@ -26,6 +26,12 @@ Graphics Tools can now be used with on Android platforms. Testing is limited, bu
 
 Graphics Tools now defaults to the OpenXR runtime. The Windows MR plugins is still supported. See the [OpenXR plugin](https://github.com/microsoft/Microsoft-OpenXR-Unreal) to learn more.
 
+### Mesh outlines
+
+Editor and runtime components to render an outline around a static mesh.
+
+[![MeshOutlines](Images/FeatureCards/MeshOutlines.png)](Docs/MeshOutlines.md)
+
 ## Breaking changes
 
 None
