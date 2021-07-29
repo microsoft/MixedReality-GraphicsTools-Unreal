@@ -7,6 +7,8 @@
 #include "GTClippingConeComponentVisualizer.h"
 #include "GTClippingPlaneComponentVisualizer.h"
 #include "GTClippingSphereComponentVisualizer.h"
+#include "GTMeshOutlineComponent.h"
+#include "GTMeshOutlineComponentDetails.h"
 #include "GTProximityLightComponentVisualizer.h"
 #include "UnrealEdGlobals.h"
 
@@ -68,11 +70,24 @@ void FGraphicsToolsEditorModule::StartupModule()
 				Visualizer->OnRegister();
 			}
 		}
+
+		// Register customizations
+		FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		PropertyModule.RegisterCustomClassLayout(
+			UGTMeshOutlineComponent::StaticClass()->GetFName(),
+			FOnGetDetailCustomizationInstance::CreateStatic(&FGTMeshOutlineComponentDetails::MakeInstance));
 	}
 }
 
 void FGraphicsToolsEditorModule::ShutdownModule()
 {
+	if (UObjectInitialized() && FModuleManager::Get().IsModuleLoaded(TEXT("PropertyEditor")))
+	{
+		// Unregister customizations
+		FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		PropertyModule.UnregisterCustomClassLayout(UGTMeshOutlineComponent::StaticClass()->GetFName());
+	}
+
 	if (GUnrealEd)
 	{
 		// Unregister visualizers

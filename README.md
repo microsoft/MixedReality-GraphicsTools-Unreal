@@ -30,7 +30,8 @@ If you're already familiar with Mixed Reality development in Unreal, you can fin
 | Physically based lighting technique optimized for Mixed Reality | A custom light type used to demonstrate distance to surface | Common graphics effects utilized in Mixed Reality |
 [ ![ClippingPrimitives](Docs/Images/FeatureCards/ClippingPrimitives.png)](Docs/ClippingPrimitives.md) [Clipping Primitives](Docs/ClippingPrimitives.md) | [![Profiling](Docs/Images/FeatureCards/Profiling.png)](Docs/Profiling.md) [Profiling](Docs/Profiling.md) | [![SpatialPerception](Docs/Images/FeatureCards/SpatialPerception.png)](Docs/SpatialPerception.md) [Spatial Perception](Docs/SpatialPerception.md) |
 | Tools to dynamically slice away a mesh and peer inside the geometry | Explore profiling techniques and tools useful for Mixed Reality development | Techniques that create visually compelling materials for real world geometry |
-|   |   |   |
+| [![MeshOutlines](Docs/Images/FeatureCards/MeshOutlines.png)](Docs/MeshOutlines.md) [Mesh Outlines](Docs/MeshOutlines.md) |   |   |
+| Editor and runtime components to render an outline around a static mesh |  |  |
 
 # Example levels
 

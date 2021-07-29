@@ -8,7 +8,7 @@ ms.localizationpriority: high
 keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, development, MRTK, GT, Graphics Tools, graphics, rendering, materials
 ---
 
-# Clipping Primitives
+# Clipping primitives
 
 Clipping primitives can be used to dynamically slice away a mesh and peer inside the geometry. This is useful whenever you need to inspect the inner workings of a complex model. 
 
@@ -24,25 +24,25 @@ Graphics Tools contains a few clipping primitive types for developers to pick fr
 > [!NOTE] 
 > By default, Graphics Tools only transfers the data of one clipping primitive per type per level to materials (i.e., only one `MF_GTClippingSphere`, `MF_GTClippingBox`, etc. has an effect within a level.) To utilize more than one clipping primitive per type per level please see the [advanced usage](#Advanced-usage) section.
 
-### Clipping Plane
+### Clipping plane
 
 The `UGTClippingPlane` component (or actor) represents an infinite plane. The plane's position is controlled by the component's transform location and plane normal is determined by transform's x axis direction. Use the `MF_GTClippingPlane` material function to calculate a point's signed distance from the primitive.
 
 ![ClippingPrimitivesPlane](Images/ClippingPrimitives/ClippingPrimitivesPlane.png)
 
-### Clipping Sphere
+### Clipping sphere
 
 The `UGTClippingSphere` component (or actor) represents a sphere (or [ellipsoid](https://en.wikipedia.org/wiki/Ellipsoid)). The sphere's location, rotation, and scale is controlled by the component's transform. Non-uniform scales will turn the sphere into a ellipsoid. Use the `MF_GTClippingSphere` material function to calculate a point's signed distance from the primitive.
 
 ![ClippingPrimitivesSphere](Images/ClippingPrimitives/ClippingPrimitivesSphere.png)
 
-### Clipping Box
+### Clipping box
 
 The `UGTClippingBox` component (or actor) represents a box (i.e., cube). The box's location, rotation, and scale are controlled by the component's transform. Use the `MF_GTClippingBox` material function to calculate a point's signed distance from the primitive.
 
 ![ClippingPrimitivesCube](Images/ClippingPrimitives/ClippingPrimitivesCube.png)
 
-### Clipping Cone
+### Clipping cone
 
 The `UGTClippingCone` component (or actor) represents a cone or more exactly a resizable capped cylinder. The cone's location and rotation are controlled by the component's transform. The component transform's scale controls the cone's height, bottom cap radius, and top cap radius with the x, y, and z values respectively. Use the `MF_GTClippingCone` material function to calculate a point's signed distance from the primitive.
 
