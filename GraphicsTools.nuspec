@@ -6,7 +6,7 @@
 -->
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>GraphicsTools-UE4.26.0</id>
+        <id>GraphicsTools-UE4.27.0</id>
         <title>Mixed Reality Graphics Tools</title>
         <description>Graphics tools and components for developing Mixed Reality applications.</description>
         <version>0.3.0</version>

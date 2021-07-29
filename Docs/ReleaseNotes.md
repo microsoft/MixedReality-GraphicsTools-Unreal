@@ -32,6 +32,10 @@ Editor and runtime components to render an outline around a static mesh.
 
 [![MeshOutlines](Images/FeatureCards/MeshOutlines.png)](Docs/MeshOutlines.md)
 
+### Visual profiler improvements
+
+The visual profiler will now render on top of all other others to ensure it is never occluded when being used.
+
 ## Breaking changes
 
 None
