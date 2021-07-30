@@ -249,7 +249,7 @@ UStaticMeshComponent* AGTVisualProfiler::CreateQuad(
 	Component->SetRelativeScale3D(RelativeScale);
 	Component->SetStaticMesh(DefaultQuadMesh);
 	UMaterialInstanceDynamic* Material = Component->CreateDynamicMaterialInstance(0, DefaultMaterial);
-	Material->SetVectorParameterValue(TEXT("BaseColor"), Color);
+	Material->SetVectorParameterValue(TEXT("Color"), Color);
 	Component->SetMaterial(0, Material);
 	Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Component->SetTranslucentSortPriority(SortPriority);
