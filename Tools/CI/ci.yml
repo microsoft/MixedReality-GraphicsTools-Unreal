@@ -1,5 +1,4 @@
-# Automatic CI validation. Does not run on PRs.
-pr: none
+# Automatic CI validation.
 trigger:
 - main
 - public/*
