@@ -10,7 +10,7 @@
 	"DocsURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
 	"MarketplaceURL": "",
 	"SupportURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
-	"EngineVersion": "4.26.0",
+	"EngineVersion": "4.27.0",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
@@ -38,6 +38,12 @@
 			"WhitelistPlatforms": [
 				"Win64"
 			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ProceduralMeshComponent",
+			"Enabled": true
 		}
 	]
 }

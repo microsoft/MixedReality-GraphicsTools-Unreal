@@ -42,17 +42,31 @@ AGTVisualProfiler::AGTVisualProfiler()
 	check(DefaultQuadMeshFinder.Object);
 	DefaultQuadMesh = DefaultQuadMeshFinder.Object;
 
-	// TODO, as of Unreal 4.26 translucent materials cannot write depth required for depth based late stage re-projection. Once depth write
-	// is supported it would be best to swap these materials with translucent materials that do not read depth so that the profiler renders
-	// on top of all other objects. Translucent sort priorities are already configured to do this.
-	static ConstructorHelpers::FObjectFinder<UMaterial> DefaultMaterialFinder(
-		TEXT("/Engine/EngineDebugMaterials/LevelColorationUnlitMaterial"));
-	check(DefaultMaterialFinder.Object);
+	// Note, the default visual profiler materials are translucent but write depth on HoloLens 2 to support depth based late stage
+	// re-projection. They are transparent so that we can mark them to ignore depth testing so that the profiler renders on top of
+	// everything else.
+	static ConstructorHelpers::FObjectFinder<UMaterial> DefaultMaterialFinder(TEXT("/GraphicsTools/Materials/M_VisualProfiler"));
 	DefaultMaterial = DefaultMaterialFinder.Object;
 
-	static ConstructorHelpers::FObjectFinder<UMaterial> DefaultTextMaterialFinder(TEXT("/Engine/EngineMaterials/UnlitText"));
-	check(DefaultTextMaterialFinder.Object);
+	if (DefaultMaterial == nullptr)
+	{
+		static ConstructorHelpers::FObjectFinder<UMaterial> BackupMaterialFinder(
+			TEXT("/Engine/EngineDebugMaterials/LevelColorationUnlitMaterial"));
+		DefaultMaterial = BackupMaterialFinder.Object;
+	}
+
+	check(DefaultMaterial);
+
+	static ConstructorHelpers::FObjectFinder<UMaterial> DefaultTextMaterialFinder(TEXT("/GraphicsTools/Materials/M_VisualProfilerText"));
 	DefaultTextMaterial = DefaultTextMaterialFinder.Object;
+
+	if (DefaultTextMaterial == nullptr)
+	{
+		static ConstructorHelpers::FObjectFinder<UMaterial> BackupTextMaterialFinder(TEXT("/Engine/EngineMaterials/UnlitText"));
+		DefaultTextMaterial = BackupTextMaterialFinder.Object;
+	}
+
+	check(DefaultTextMaterial);
 
 	// UI constants.
 	static const float PrefixYOffset = -3.9f;

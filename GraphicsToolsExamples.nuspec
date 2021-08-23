@@ -6,7 +6,7 @@
 -->
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>GraphicsToolsExamples-UE4.26.0</id>
+        <id>GraphicsToolsExamples-UE4.27.0</id>
         <title>Mixed Reality Graphics Tools Examples</title>
         <description>Examples for the Mixed Reality Graphics Tools plugin.</description>
         <version>0.3.0</version>
@@ -18,7 +18,7 @@
         <icon>native/Resources/Icon128.png</icon>
         <tags>HoloLens2 Examples</tags>
         <dependencies>
-            <dependency id="GraphicsTools-UE4.26.0" version="[0.3.0]" />
+            <dependency id="GraphicsTools-UE4.27.0" version="[0.3.0]" />
         </dependencies>
     </metadata>
     <files>
