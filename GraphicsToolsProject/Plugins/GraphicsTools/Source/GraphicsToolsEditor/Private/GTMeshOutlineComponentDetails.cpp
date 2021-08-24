@@ -137,7 +137,7 @@ void SmoothNormals(const TArray<FVector>& Vertices, TArray<FVector>& Normals, TA
 
 bool BuildOutlineMesh(UProceduralMeshComponent* ProceduralMesh, UGTMeshOutlineComponent* OutlineMesh)
 {
-	FStaticMeshRenderData* RenderData = OutlineMesh->GetStaticMesh()->RenderData.Get();
+	FStaticMeshRenderData* RenderData = OutlineMesh->GetStaticMesh()->GetRenderData();
 
 	if (RenderData == nullptr)
 	{
@@ -279,7 +279,7 @@ FReply FGTMeshOutlineComponentDetails::ClickedOnConvertToStaticMesh()
 					UStaticMesh* StaticMesh = NewObject<UStaticMesh>(Package, MeshName, RF_Public | RF_Standalone);
 					StaticMesh->InitResources();
 
-					StaticMesh->LightingGuid = FGuid::NewGuid();
+					StaticMesh->SetLightingGuid(FGuid::NewGuid());
 
 					// Add source to new StaticMesh.
 					FStaticMeshSourceModel& SrcModel = StaticMesh->AddSourceModel();
@@ -298,7 +298,7 @@ FReply FGTMeshOutlineComponentDetails::ClickedOnConvertToStaticMesh()
 					if (!ProceduralMeshComponent->bUseComplexAsSimpleCollision)
 					{
 						StaticMesh->CreateBodySetup();
-						UBodySetup* NewBodySetup = StaticMesh->BodySetup;
+						UBodySetup* NewBodySetup = StaticMesh->GetBodySetup();
 						NewBodySetup->BodySetupGuid = FGuid::NewGuid();
 						NewBodySetup->AggGeom.ConvexElems = ProceduralMeshComponent->ProcMeshBodySetup->AggGeom.ConvexElems;
 						NewBodySetup->bGenerateMirroredCollision = false;
@@ -321,7 +321,7 @@ FReply FGTMeshOutlineComponentDetails::ClickedOnConvertToStaticMesh()
 					// Copy materials to new mesh.
 					for (auto* Material : UniqueMaterials)
 					{
-						StaticMesh->StaticMaterials.Add(FStaticMaterial(Material));
+						StaticMesh->GetStaticMaterials().Add(FStaticMaterial(Material));
 					}
 
 					// Set the imported version before calling the build.

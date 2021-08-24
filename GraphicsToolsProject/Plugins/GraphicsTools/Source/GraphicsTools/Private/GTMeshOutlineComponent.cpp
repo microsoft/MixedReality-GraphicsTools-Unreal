@@ -5,6 +5,8 @@
 
 #include "GraphicsTools.h"
 
+#include "Materials/MaterialInstanceDynamic.h"
+
 UGTMeshOutlineComponent::UGTMeshOutlineComponent()
 {
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> OutlineMaterialFinder(TEXT("/GraphicsTools/Materials/M_GTDefaultOutline"));

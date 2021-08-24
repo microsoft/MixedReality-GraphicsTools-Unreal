@@ -76,7 +76,7 @@ AGTVisualProfiler::AGTVisualProfiler()
 	static const FVector BarPivot(0, 1, 0);
 	static const FVector BarSize(0.004f, 0.02f, 1);
 	static const FRotator QuadRotation(90, 0, 0);
-	static const FString ZeroMs(TEXT("0.00 ms"));
+	static const FString UnavailableLabel(TEXT("Unavailable"));
 	static const FLinearColor BackPlateColor(FColor(80, 80, 80));     // Dark Gray
 	static const FLinearColor FrameTimeColor(FColor(0, 164, 239));    // Vivid Cerulean
 	static const FLinearColor GameThreadColor(FColor(255, 185, 0));   // Selective Yellow
@@ -94,9 +94,10 @@ AGTVisualProfiler::AGTVisualProfiler()
 	Location.Y = PrefixYOffset;
 	CreateText(TEXT("FrameTimeLabelPrefix"), RootComponent, Location, TEXT("Frame: "), SortPriorityMed);
 	Location.Y = LabelYOffset;
-	FrameTimeLabel = CreateText(TEXT("FrameTimeLabel"), RootComponent, Location, ZeroMs, SortPriorityMed);
+	FrameTimeLabel = CreateText(TEXT("FrameTimeLabel"), RootComponent, Location, UnavailableLabel, SortPriorityMed);
 	Location.Y = PivotYOffset;
 	FrameTimePivot = CreateScene<USceneComponent>(TEXT("FrameTimePivot"), RootComponent, Location, QuadRotation);
+	FrameTimePivot->SetRelativeScale3D(FVector(0, 1, 0));
 	CreateQuad(TEXT("FrameTimePivotQuad"), FrameTimePivot, BarPivot, BarSize, SortPriorityMed, FrameTimeColor, FRotator::ZeroRotator);
 
 	Location.Z = Location.Z - HeightZOffset;
@@ -104,9 +105,10 @@ AGTVisualProfiler::AGTVisualProfiler()
 	Location.Y = PrefixYOffset;
 	CreateText(TEXT("GameThreadTimeLabelPrefix"), RootComponent, Location, TEXT("Game: "), SortPriorityMed);
 	Location.Y = LabelYOffset;
-	GameThreadTimeLabel = CreateText(TEXT("GameThreadTimeLabel"), RootComponent, Location, ZeroMs, SortPriorityMed);
+	GameThreadTimeLabel = CreateText(TEXT("GameThreadTimeLabel"), RootComponent, Location, UnavailableLabel, SortPriorityMed);
 	Location.Y = PivotYOffset;
 	GameThreadTimePivot = CreateScene<USceneComponent>(TEXT("GameThreadTimePivot"), RootComponent, Location, QuadRotation);
+	GameThreadTimePivot->SetRelativeScale3D(FVector(0, 1, 0));
 	CreateQuad(TEXT("GameTimePivotQuad"), GameThreadTimePivot, BarPivot, BarSize, SortPriorityMed, GameThreadColor, FRotator::ZeroRotator);
 
 	Location.Z = Location.Z - (HeightZOffset * 0.5f);
@@ -120,9 +122,10 @@ AGTVisualProfiler::AGTVisualProfiler()
 	Location.Y = PrefixYOffset;
 	CreateText(TEXT("RenderThreadTimeLabelPrefix"), RootComponent, Location, TEXT("Draw: "), SortPriorityMed);
 	Location.Y = LabelYOffset;
-	RenderThreadTimeLabel = CreateText(TEXT("RenderThreadTimeLabel"), RootComponent, Location, ZeroMs, SortPriorityMed);
+	RenderThreadTimeLabel = CreateText(TEXT("RenderThreadTimeLabel"), RootComponent, Location, UnavailableLabel, SortPriorityMed);
 	Location.Y = PivotYOffset;
 	RenderThreadTimePivot = CreateScene<USceneComponent>(TEXT("RenderThreadTimePivot"), RootComponent, Location, QuadRotation);
+	RenderThreadTimePivot->SetRelativeScale3D(FVector(0, 1, 0));
 	CreateQuad(
 		TEXT("RenderThreadTimePivotQuad"), RenderThreadTimePivot, BarPivot, BarSize, SortPriorityMed, RenderThreadColor,
 		FRotator::ZeroRotator);
@@ -132,9 +135,10 @@ AGTVisualProfiler::AGTVisualProfiler()
 	Location.Y = PrefixYOffset;
 	CreateText(TEXT("GPUTimeLabelPrefix"), RootComponent, Location, TEXT("GPU: "), SortPriorityMed);
 	Location.Y = LabelYOffset;
-	GPUTimeLabel = CreateText(TEXT("GPUTimeLabel"), RootComponent, Location, ZeroMs, SortPriorityMed);
+	GPUTimeLabel = CreateText(TEXT("GPUTimeLabel"), RootComponent, Location, UnavailableLabel, SortPriorityMed);
 	Location.Y = PivotYOffset;
 	GPUTimePivot = CreateScene<USceneComponent>(TEXT("GPUTimePivot"), RootComponent, Location, QuadRotation);
+	GPUTimePivot->SetRelativeScale3D(FVector(0, 1, 0));
 	CreateQuad(TEXT("GPUTimePivotQuad"), GPUTimePivot, BarPivot, BarSize, SortPriorityMed, GPUTimeColor, FRotator::ZeroRotator);
 
 	Location.Z = Location.Z - HeightZOffset;
