@@ -10,7 +10,7 @@
 	"DocsURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
 	"MarketplaceURL": "",
 	"SupportURL": "https://github.com/microsoft/MixedReality-GraphicsTools-Unreal",
-	"EngineVersion": "4.27.0",
+	"EngineVersion": "5.0.0",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,

@@ -37,7 +37,7 @@ Half3 GTContributionProximityLights(FMaterialPixelParameters Parameters,
     Half4 ProximityLightMiddleColors[] = {ProximityLightMiddleColor0, ProximityLightMiddleColor1, ProximityLightMiddleColor2};
     Half4 ProximityLightOuterColors[] = {ProximityLightOuterColor0, ProximityLightOuterColor1, ProximityLightOuterColor2};
 
-    float3 WorldLocation = GetWorldPosition(Parameters);
+    float3 WorldLocation = LWCToFloat(GetWorldPosition(Parameters));
 
     Half3 Result = 0;
 

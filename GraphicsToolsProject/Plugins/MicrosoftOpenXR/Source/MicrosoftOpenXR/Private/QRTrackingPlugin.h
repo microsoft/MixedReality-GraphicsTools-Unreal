@@ -25,8 +25,6 @@
 #include "Windows/HideWindowsPlatformAtomics.h"
 #include "Windows/HideWindowsPlatformTypes.h"
 
-#include "Misc/EngineVersionComparison.h"
-
 class IOpenXRARTrackedGeometryHolder;
 struct FOpenXRQRCodeData;
 
@@ -46,7 +44,7 @@ namespace MicrosoftOpenXR
 
 		virtual IOpenXRCustomCaptureSupport* GetCustomCaptureSupport(const EARCaptureType CaptureType) override;
 
-		bool OnToggleARCapture(const bool bOnOff);
+		bool OnToggleARCapture(const bool bOnOff) override;
 		bool IsEnabled() const;
 	private:
 
