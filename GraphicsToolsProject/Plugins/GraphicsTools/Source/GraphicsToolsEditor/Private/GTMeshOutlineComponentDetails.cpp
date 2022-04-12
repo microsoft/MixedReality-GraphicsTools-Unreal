@@ -165,7 +165,8 @@ bool BuildOutlineMesh(UProceduralMeshComponent* ProceduralMesh, UGTMeshOutlineCo
 
 		for (int32 Index = 0; Index < Count; ++Index)
 		{
-			Vertices.Add(LOD0.VertexBuffers.PositionVertexBuffer.VertexPosition(Index));
+			FVector3f Vert = LOD0.VertexBuffers.PositionVertexBuffer.VertexPosition(Index);
+			Vertices.Add(FVector(Vert.X, Vert.Y, Vert.Z));
 		}
 	}
 
@@ -200,9 +201,12 @@ bool BuildOutlineMesh(UProceduralMeshComponent* ProceduralMesh, UGTMeshOutlineCo
 
 		for (int32 Index = 0; Index < Count; ++Index)
 		{
-			Normals.Add(LOD0.VertexBuffers.StaticMeshVertexBuffer.VertexTangentZ(Index));
-			UV0.Add(LOD0.VertexBuffers.StaticMeshVertexBuffer.GetVertexUV(Index, 0));
-			Tangents.Add(FProcMeshTangent(LOD0.VertexBuffers.StaticMeshVertexBuffer.VertexTangentX(Index), false));
+			FVector3f Norm = LOD0.VertexBuffers.StaticMeshVertexBuffer.VertexTangentZ(Index);
+			Normals.Add(FVector(Norm.X, Norm.Y, Norm.Z));
+			FVector2f UV = LOD0.VertexBuffers.StaticMeshVertexBuffer.GetVertexUV(Index, 0);
+			UV0.Add(FVector2d(UV.X, UV.Y));
+			FVector4f Tan = LOD0.VertexBuffers.StaticMeshVertexBuffer.VertexTangentX(Index);
+			Tangents.Add(FProcMeshTangent(Tan.X, Tan.Y, Tan.Z));
 		}
 	}
 

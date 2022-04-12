@@ -16,13 +16,13 @@ float3 GTIridescence(FMaterialVertexParameters Parameters,
                      SamplerState SpectrumSampler)
 {
 #if USE_INSTANCING || IS_MESHPARTICLE_FACTORY
-    MaterialFloat3x3 LocalToWorld = (MaterialFloat3x3)Parameters.InstanceLocalToWorld;
+    MaterialFloat3x3 LocalToWorld = LWCToFloat3x3((MaterialFloat3x3)Parameters.InstanceLocalToWorld);
 #else
-    MaterialFloat3x3 LocalToWorld = GetLocalToWorld3x3(Parameters.PrimitiveId);
+    MaterialFloat3x3 LocalToWorld = GetLocalToWorld3x3(Parameters);
 #endif
 
     float3 Tangent = normalize(mul(float3(1, 0, 0), LocalToWorld));
-    float3 Incident = normalize(GetWorldPosition(Parameters) - CameraLocation);
+    float3 Incident = normalize(LWCToFloat(GetWorldPosition(Parameters)) - CameraLocation);
     float ToI = dot(Tangent, Incident);
 
     return GTIridescence(ToI,

@@ -119,6 +119,7 @@ void UGTClippingPrimitiveComponent::UpdateParameterCollectionTransform()
 
 	for (int32 ColumnIndex = 0; ColumnIndex < GetTransformColumnCount(); ++ColumnIndex)
 	{
-		SetVectorParameterValue(ParameterNames[ColumnIndex], InverseMatrixTranspose.GetColumn(ColumnIndex));
+		FVector3d Column = InverseMatrixTranspose.GetColumn(ColumnIndex);
+		SetVectorParameterValue(ParameterNames[ColumnIndex], FLinearColor(Column.X, Column.Y, Column.Z));
 	}
 }

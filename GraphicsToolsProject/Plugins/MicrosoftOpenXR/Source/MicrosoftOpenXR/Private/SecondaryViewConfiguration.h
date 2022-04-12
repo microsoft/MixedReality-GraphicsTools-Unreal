@@ -11,7 +11,7 @@ namespace MicrosoftOpenXR
 		{
 			SingleProjectionLayer(XrViewConfigurationType InViewConfigType, XrEnvironmentBlendMode InEnvBlendMode, XrSpace InSpace,
 				TArray<XrCompositionLayerProjectionView> InViews)
-				: ViewConfigType(InViewConfigType), Space(InSpace), EnvBlendMode(InEnvBlendMode), Views(std::move(InViews))
+				: ViewConfigType(InViewConfigType), EnvBlendMode(InEnvBlendMode), Space(InSpace), Views(std::move(InViews))
 			{
 			}
 
@@ -35,8 +35,8 @@ namespace MicrosoftOpenXR
 
 		private:
 			const XrViewConfigurationType ViewConfigType;
-			const XrSpace Space;
 			const XrEnvironmentBlendMode EnvBlendMode;
+			const XrSpace Space;
 			const TArray<XrCompositionLayerProjectionView> Views;
 
 			// The following are set up at

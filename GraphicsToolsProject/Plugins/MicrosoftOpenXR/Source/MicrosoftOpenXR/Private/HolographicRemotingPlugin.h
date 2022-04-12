@@ -3,8 +3,7 @@
 
 #pragma once
 
-// Currently remoting only supports x64 Windows: Editor and Packaged Exe
-#define SUPPORTS_REMOTING (PLATFORM_WINDOWS && PLATFORM_64BITS)
+#include "MicrosoftOpenXR.h"
 
 #if SUPPORTS_REMOTING
 
@@ -46,6 +45,11 @@ namespace MicrosoftOpenXR
 		void OnEvent(XrSession InSession, const XrEventDataBaseHeader* InHeader) override;
 		void PostGetSystem(XrInstance InInstance, XrSystemId InSystem) override;
 		const void* OnCreateSession(XrInstance InInstance, XrSystemId InSystem, const void* InNext) override;
+
+		bool IsRemoting()
+		{
+			return remotingEnabled;
+		}
 
 	private:
 		void* LoaderHandle;
