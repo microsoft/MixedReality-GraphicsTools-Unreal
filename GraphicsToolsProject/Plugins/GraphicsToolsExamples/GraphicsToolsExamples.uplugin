@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.3.0",
+	"VersionName": "0.4.0",
 	"FriendlyName": "Mixed Reality Graphics Tools Examples",
 	"Description": "Examples for the Mixed Reality Graphics Tools plugin.",
 	"Category": "Mixed Reality",
