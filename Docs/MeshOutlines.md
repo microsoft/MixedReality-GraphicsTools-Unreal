@@ -10,7 +10,7 @@ keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, devel
 
 # Mesh outlines
 
-Outlines, sometimes referred to as stroke or silhouette effect, are a common design pattern to demonstrate when an object is selected or to draw attention to an object. Many modern mesh outline techniques are done using [post processing](https://docs.unrealengine.com/4.26/en-US/RenderingAndGraphics/PostProcessEffects/) effects. Post processing provides flexible and great quality outlines but can be prohibitively expensive on mobile mixed reality devices. To avoid performance issues, we can rely on methods used in video games of the past, such as an "inverted hull" method.
+Outlines, sometimes referred to as stroke or silhouette effect, are a common design pattern to demonstrate when an object is selected or to draw attention to an object. Many modern mesh outline techniques are done using [post processing](https://docs.unrealengine.com/5.0/en-US/post-process-effects-in-unreal-engine/) effects. Post processing provides flexible and great quality outlines but can be prohibitively expensive on mobile mixed reality devices. To avoid performance issues, we can rely on methods used in video games of the past, such as an "inverted hull" method.
 
 ![MeshOutlines](Images/FeatureCards/MeshOutlines.png)
 

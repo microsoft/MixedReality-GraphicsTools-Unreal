@@ -4,6 +4,8 @@ Graphics Tools is a collaborative project containing contributions from individu
 
 - Alban Bergeret (AlbanBERGERET-Epic)
 - Cameron Micka (Cameron-Micka)
+- Carl McCaffrey (camccaf-msft)
 - Daryl Obert
+- Jackson Fields (fieldsJacksonG)
 - Luis Valverde (luis-valverde-ms)
 - Summer Wu (sw5813)

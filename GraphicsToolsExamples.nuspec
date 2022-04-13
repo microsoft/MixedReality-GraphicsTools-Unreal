@@ -6,19 +6,19 @@
 -->
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>GraphicsToolsExamples-UE4.27.0</id>
+        <id>GraphicsToolsExamples-UE5.0.0</id>
         <title>Mixed Reality Graphics Tools Examples</title>
         <description>Examples for the Mixed Reality Graphics Tools plugin.</description>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
         <authors>Microsoft</authors>
         <projectUrl>https://github.com/microsoft/MixedReality-GraphicsTools-Unreal</projectUrl>
-        <releaseNotes>https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/blob/public/0.3.x/Docs/ReleaseNotes.md</releaseNotes>
+        <releaseNotes>https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/blob/public/0.4.x/Docs/ReleaseNotes.md</releaseNotes>
         <license type="expression">MIT</license>
         <copyright>Copyright (c) Microsoft Corporation. All rights reserved.</copyright>
         <icon>native/Resources/Icon128.png</icon>
         <tags>HoloLens2 Examples</tags>
         <dependencies>
-            <dependency id="GraphicsTools-UE4.27.0" version="[0.3.0]" />
+            <dependency id="GraphicsTools-UE5.0.0" version="[0.4.0]" />
         </dependencies>
     </metadata>
     <files>
