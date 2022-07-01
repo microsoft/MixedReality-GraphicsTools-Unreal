@@ -10,19 +10,22 @@ keywords: Unreal, Unreal Engine, UE4, HoloLens, HoloLens 2, Mixed Reality, devel
 
 # Clipping primitives
 
-Clipping primitives can be used to dynamically slice away a mesh and peer inside the geometry. This is useful whenever you need to inspect the inner workings of a complex model. 
+Clipping primitives can be used to dynamically slice away a mesh and peer inside the geometry. This is useful whenever you need to inspect the inner workings of a complex model.
 
 A clipping primitive represents an analytic shape that passes its state and transformation data into a [material parameter collection](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/ParameterCollections/index.html). [Material functions](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/Functions/index.html) can then take this primitive data and perform calculations, such as returning the signed distance from the shape's surface.
 
 ![ClippingPrimitives](Images/FeatureCards/ClippingPrimitives.png)
 
-> [!NOTE] 
+> [!NOTE]
 > The clipping algorithm is optimized for mixed reality but requires the use of [masked or translucent](https://docs.unrealengine.com/en-US/RenderingAndGraphics/Materials/MaterialProperties/BlendModes/index.html) materials. Masked and translucent materials have additional overhead over opaque ones and should be used sparingly.
 
 Graphics Tools contains a few clipping primitive types for developers to pick from. All clipping primitive components derive from the `UGTClippingPrimitiveComponent`.
 
-> [!NOTE] 
+> [!NOTE]
 > By default, Graphics Tools only transfers the data of one clipping primitive per type per level to materials (i.e., only one `MF_GTClippingSphere`, `MF_GTClippingBox`, etc. has an effect within a level.) To utilize more than one clipping primitive per type per level please see the [advanced usage](#Advanced-usage) section.
+
+> [!NOTE]
+> If your project uses MSAA you may see "banding artifacts" near clipped pixels. To fix this pass the alpha output of the clipping material function to the alpha input of the `MF_GTAlphaToCoverage` function. You can then use the output of that function for later calculations.
 
 ### Clipping plane
 
