@@ -22,13 +22,16 @@ The forth release of the Graphics Tools supports Windows, HoloLens 2, and Androi
 
 Graphics Tools can now be used with Unreal Engine 5.
 
+### Alpha to coverage material function
+
+If your project uses MSAA you may see "banding artifacts" near clipping primitive pixels. The `MF_GTAlphaToCoverage` function has been added to help fix this. See the [clipping primitive](ClippingPrimitives.md) documentation for more info.
+
 ## Breaking changes
 
-The plugin now assumes Unreal Engine 5 usage. For Unreal Engine 4 support please use [previous releases](https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/releases) of Graphics Tools. 
+The plugin now assumes Unreal Engine 5 usage. For Unreal Engine 4 support please use [previous releases](https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/releases) of Graphics Tools.
 
 ## Known issues
 
 ### The Visual Profiler's text looks blurry with TAA
 
 Text may not be readable when using temporal anti-aliasing (TAA). TAA is not supported on HoloLens 2 so text should be readable on device. 
-
