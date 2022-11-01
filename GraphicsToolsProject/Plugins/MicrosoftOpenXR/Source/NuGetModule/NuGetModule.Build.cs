@@ -12,6 +12,8 @@ public class NuGetModule : ModuleRules
 {
 	public NuGetModule(ReadOnlyTargetRules Target) : base(Target)
 	{
+		PrecompileForTargets = PrecompileTargetsType.Any;
+		
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -59,10 +61,8 @@ public class NuGetModule : ModuleRules
 
 			// run nuget to update the packages
 			{
-				var StartInfo = new System.Diagnostics.ProcessStartInfo(NugetExe, string.Format("install \"{0}\" -OutputDirectory \"{1}\"", Path.Combine(ModuleDirectory, "packages.config"), NugetFolder));
-				StartInfo.UseShellExecute = false;
-				StartInfo.CreateNoWindow = true;
-				var ExitCode = Utils.RunLocalProcessAndPrintfOutput(StartInfo);
+				int ExitCode = 0;
+				Utils.RunLocalProcessAndReturnStdOut(NugetExe, string.Format("install \"{0}\" -OutputDirectory \"{1}\"", Path.Combine(ModuleDirectory, "packages.config"), NugetFolder), out ExitCode, true);
 				if (ExitCode < 0)
 				{
 					throw new BuildException("Failed to get nuget packages.  See log for details.");
@@ -122,6 +122,38 @@ public class NuGetModule : ModuleRules
 				WinMDFiles.Add(WinMDFile);
 			}
 
+			string AOAPackage = InstalledPackages.FirstOrDefault(x => x.StartsWith("Microsoft.Azure.ObjectAnchors.Runtime.WinRT"));
+			if (!string.IsNullOrEmpty(AOAPackage))
+			{
+				string AOAFolderName = AOAPackage.Replace(" ", ".");
+
+				// Copy dll and winmd binaries to our local binaries folder
+				string WinMDFile = Path.Combine(NugetFolder, AOAFolderName, @"lib\uap10.0\Microsoft.Azure.ObjectAnchors.winmd");
+				SafeCopy(WinMDFile, Path.Combine(BinariesFolder, "Microsoft.Azure.ObjectAnchors.winmd"));
+
+				String[] Binaries = {
+					"Microsoft.Azure.ObjectAnchors.dll",
+					"ObjectTrackerApi.dll",
+					"ObjectTrackerDiagnostics.dll",
+					"ObjectTrackerFusion.dll",
+					"ObjectTrackerRefinement.dll",
+					"VolumeFusionAPI.dll" 
+				};
+
+				foreach (String Binary in Binaries)
+                {
+					SafeCopy(Path.Combine(NugetFolder, AOAFolderName, string.Format(@"runtimes\win10-{0}\native\{1}", Target.WindowsPlatform.Architecture.ToString(), Binary)),
+						Path.Combine(BinariesFolder, Binary));
+
+					RuntimeDependencies.Add(Path.Combine(BinariesFolder, Binary));
+				}
+
+				RuntimeDependencies.Add(Path.Combine(BinariesFolder, "Microsoft.Azure.ObjectAnchors.winmd"));
+
+				// Add winmd file to the list for further processing using cppwinrt.exe
+				WinMDFiles.Add(WinMDFile);
+			}
+
 			if (Target.Platform == UnrealTargetPlatform.Win64)
 			{
 				// Microsoft.VCRTForwarders.140 is needed to run WinRT dlls in Win64 platforms
@@ -145,12 +177,16 @@ public class NuGetModule : ModuleRules
 					SafeCopy(Path.Combine(NugetFolder, RemotingFolderName, @"build\native\bin\x64\Desktop\Microsoft.Holographic.AppRemoting.OpenXr.dll"),
 						Path.Combine(BinariesFolder, "Microsoft.Holographic.AppRemoting.OpenXr.dll"));
 
+					SafeCopy(Path.Combine(NugetFolder, RemotingFolderName, @"build\native\bin\x64\Desktop\Microsoft.Holographic.AppRemoting.OpenXr.SU.dll"),
+						Path.Combine(BinariesFolder, "Microsoft.Holographic.AppRemoting.OpenXr.SU.dll"));
+
 					SafeCopy(Path.Combine(NugetFolder, RemotingFolderName, @"build\native\bin\x64\Desktop\RemotingXR.json"),
 						Path.Combine(BinariesFolder, "RemotingXR.json"));
 
 					PublicIncludePaths.Add(Path.Combine(NugetFolder, RemotingFolderName, @"build\native\include\openxr"));
 
 					RuntimeDependencies.Add(Path.Combine(BinariesFolder, "Microsoft.Holographic.AppRemoting.OpenXr.dll"));
+					RuntimeDependencies.Add(Path.Combine(BinariesFolder, "Microsoft.Holographic.AppRemoting.OpenXr.SU.dll"));
 					RuntimeDependencies.Add(Path.Combine(BinariesFolder, "RemotingXR.json"));
 				}
 			}
@@ -174,10 +210,8 @@ public class NuGetModule : ModuleRules
 				}
 
 				// generate winrt headers and add them into include paths
-				var StartInfo = new System.Diagnostics.ProcessStartInfo(CppWinRTExe, string.Format("{0} -input \"{1}\" -output \"{2}\"", WinMDFilesStringbuilder, Target.WindowsPlatform.WindowsSdkVersion, CppWinRTFolder));
-				StartInfo.UseShellExecute = false;
-				StartInfo.CreateNoWindow = true;
-				var ExitCode = Utils.RunLocalProcessAndPrintfOutput(StartInfo);
+				int ExitCode = 0;
+				Utils.RunLocalProcessAndReturnStdOut(CppWinRTExe, string.Format("{0} -input \"{1}\" -output \"{2}\"", WinMDFilesStringbuilder, Target.WindowsPlatform.WindowsSdkVersion, CppWinRTFolder), out ExitCode, true);   
 				if (ExitCode < 0)
 				{
 					throw new BuildException("Failed to get generate WinRT headers.  See log for details.");
