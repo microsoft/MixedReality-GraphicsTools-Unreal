@@ -5,23 +5,22 @@
 
 namespace MicrosoftOpenXR
 {
-	TrackedGeometryCollision::TrackedGeometryCollision(TArray<FVector> InVertices, TArray<MRMESH_INDEX_TYPE> InIndices)
-		: Vertices(std::move(InVertices)), Indices(std::move(InIndices))
+	TrackedGeometryCollision::TrackedGeometryCollision(TArray<FVector3f> InVertices, TArray<MRMESH_INDEX_TYPE> InIndices)
+		: Indices(std::move(InIndices))
 	{
+		{
+			const int Num = InVertices.Num();
+			Vertices.Reserve(Num);
+			for (int i = 0; i < Num; ++i)
+			{
+				Vertices.Add(FVector(InVertices[i]));
+			}
+		}
 		// Create a bounding box from the input vertices to reduce the number of full meshes that need to be hit-tested.
 		if (Vertices.Num() > 0)
 		{
 			BoundingBox = FBox(&Vertices[0], Vertices.Num());
 		}
-	}
-
-	void TrackedGeometryCollision::UpdateVertices(const TArray<FVector>& InVertices, const TArray<MRMESH_INDEX_TYPE>& InIndices)
-	{
-		Vertices = InVertices;
-		Indices = InIndices;
-
-		// Create a bounding box from the input vertices to reduce the number of full meshes that need to be hit-tested.
-		BoundingBox = Vertices.Num() > 0 ? FBox(&Vertices[0], Vertices.Num()) : FBox();
 	}
 
 	bool TrackedGeometryCollision::Collides(const FVector Start, const FVector End, const FTransform MeshToWorld,
@@ -59,5 +58,79 @@ namespace MicrosoftOpenXR
 		}
 
 		return false;
+	}
+
+	void TrackedGeometryCollision::CreateMeshDataForBoundingBox(FVector3f Center, FVector3f HalfExtents, TArray<FVector3f>& OutVertices, TArray<MRMESH_INDEX_TYPE>& OutIndices)
+	{
+		// Ensure output arrays are empty.  
+		OutVertices.Empty();
+		OutIndices.Empty();
+
+		// Top Vertices (+Z)
+		OutVertices.Add(Center + HalfExtents);
+		OutVertices.Add(Center + FVector3f(-HalfExtents.X, HalfExtents.Y, HalfExtents.Z));
+		OutVertices.Add(Center + FVector3f(HalfExtents.X, -HalfExtents.Y, HalfExtents.Z));
+		OutVertices.Add(Center + FVector3f(-HalfExtents.X, -HalfExtents.Y, HalfExtents.Z));
+
+		// Bottom Vertices (-Z)
+		OutVertices.Add(Center + FVector3f(HalfExtents.X, HalfExtents.Y, -HalfExtents.Z));
+		OutVertices.Add(Center + FVector3f(-HalfExtents.X, HalfExtents.Y, -HalfExtents.Z));
+		OutVertices.Add(Center + FVector3f(HalfExtents.X, -HalfExtents.Y, -HalfExtents.Z));
+		OutVertices.Add(Center - HalfExtents);
+
+		// Clockwise winding
+		//Top
+		OutIndices.Add(0);
+		OutIndices.Add(1);
+		OutIndices.Add(2);
+
+		OutIndices.Add(2);
+		OutIndices.Add(1);
+		OutIndices.Add(3);
+
+		// Front
+		OutIndices.Add(1);
+		OutIndices.Add(5);
+		OutIndices.Add(3);
+
+		OutIndices.Add(3);
+		OutIndices.Add(5);
+		OutIndices.Add(7);
+
+		// Bottom
+		OutIndices.Add(6);
+		OutIndices.Add(5);
+		OutIndices.Add(4);
+
+		OutIndices.Add(5);
+		OutIndices.Add(6);
+		OutIndices.Add(7);
+
+		// Back
+		OutIndices.Add(0);
+		OutIndices.Add(2);
+		OutIndices.Add(4);
+
+		OutIndices.Add(2);
+		OutIndices.Add(6);
+		OutIndices.Add(4);
+
+		// Left
+		OutIndices.Add(2);
+		OutIndices.Add(3);
+		OutIndices.Add(6);
+
+		OutIndices.Add(3);
+		OutIndices.Add(7);
+		OutIndices.Add(6);
+
+		// Right
+		OutIndices.Add(1);
+		OutIndices.Add(0);
+		OutIndices.Add(4);
+
+		OutIndices.Add(1);
+		OutIndices.Add(4);
+		OutIndices.Add(5);
 	}
 }	 // namespace MicrosoftOpenXR

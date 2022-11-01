@@ -35,14 +35,14 @@ namespace MicrosoftOpenXR
 		return transform;
 	}
 
-	TrackedGeometryCollision CreatePlaneGeometryCollision(const FVector& Extent)
+	TrackedGeometryCollision CreatePlaneGeometryCollision(const FVector3f& Extent)
 	{
-		TArray<FVector> Vertices;
+		TArray<FVector3f> Vertices;
 		Vertices.Reset(4);
 		Vertices.Add(Extent);
-		Vertices.Add(FVector(Extent.X, -Extent.Y, Extent.Z));
-		Vertices.Add(FVector(-Extent.X, -Extent.Y, Extent.Z));
-		Vertices.Add(FVector(-Extent.X, Extent.Y, Extent.Z));
+		Vertices.Add(FVector3f(Extent.X, -Extent.Y, Extent.Z));
+		Vertices.Add(FVector3f(-Extent.X, -Extent.Y, Extent.Z));
+		Vertices.Add(FVector3f(-Extent.X, Extent.Y, Extent.Z));
 
 		// Two triangles
 		TArray<MRMESH_INDEX_TYPE> Indices{ 0, 2, 1, 2, 0, 3 };
@@ -130,7 +130,7 @@ namespace MicrosoftOpenXR
 			if (!FindingVisibleMeshes)
 			{
 				// Visual mesh does not include planes
-				PlaneUpdate.Extent = FVector(PlaneExtents.X, PlaneExtents.Y, 0) * WorldToMetersScale * 0.5f;
+				PlaneUpdate.Extent = FVector3f(PlaneExtents.X, PlaneExtents.Y, 0) * WorldToMetersScale * 0.5f;
 				PlaneCollisionInfo.Add(PlaneGuid, CreatePlaneGeometryCollision(PlaneUpdate.Extent));
 			}
 
@@ -142,8 +142,8 @@ namespace MicrosoftOpenXR
 				for (int32 i = 0; i < MeshVertices.Num(); i++)
 				{
 					const XrVector3f& SrcVertex = MeshVertices[i];
-					PlaneUpdate.Vertices[i] = FVector(
-						-SrcVertex.z * WorldToMetersScale, SrcVertex.x * WorldToMetersScale, SrcVertex.y * WorldToMetersScale);
+					PlaneUpdate.Vertices[i] = 
+						FVector3f(-SrcVertex.z * WorldToMetersScale, SrcVertex.x * WorldToMetersScale, SrcVertex.y * WorldToMetersScale);
 				}
 
 				MeshCollisionInfo.Add(MeshGuid, TrackedGeometryCollision(PlaneUpdate.Vertices, PlaneUpdate.Indices));
@@ -173,6 +173,8 @@ namespace MicrosoftOpenXR
 
 	void FSceneUnderstandingBase::Unregister()
 	{
+		IModularFeatures::Get().UnregisterModularFeature(GetModularFeatureName(), this);
+		
 		Stop();
 	}
 
@@ -411,13 +413,24 @@ namespace MicrosoftOpenXR
 			InInstance, "xrGetSceneMeshBuffersMSFT", (PFN_xrVoidFunction*)&Ext.xrGetSceneMeshBuffersMSFT));
 
 		// Check if Scene Understanding supports plane finding.
-		uint32 FeatureCount;
-		TArray<XrSceneComputeFeatureMSFT> SceneComputeFeatures;
-		XR_ENSURE(Ext.xrEnumerateSceneComputeFeaturesMSFT(InInstance, InSystem, 0, &FeatureCount, nullptr));
-		SceneComputeFeatures.AddUninitialized(FeatureCount);
-		XR_ENSURE(Ext.xrEnumerateSceneComputeFeaturesMSFT(InInstance, InSystem, FeatureCount, &FeatureCount, SceneComputeFeatures.GetData()));
+		if (UMicrosoftOpenXRFunctionLibrary::IsRemoting())
+		{
+			// When remoting, xrEnumerateSceneComputeFeaturesMSFT will only contain XR_SCENE_COMPUTE_FEATURE_PLANE_MSFT
+			// If the app remoting player is running when the editor starts.
+			// Otherwise, this will always be false even though the 2.8+ remoting runtime does support planes.
+			// Workaround this by forcing this flag to true when remoting.
+			bCanDetectPlanes = true;
+		}
+		else
+		{
+			uint32 FeatureCount;
+			TArray<XrSceneComputeFeatureMSFT> SceneComputeFeatures;
+			XR_ENSURE(Ext.xrEnumerateSceneComputeFeaturesMSFT(InInstance, InSystem, 0, &FeatureCount, nullptr));
+			SceneComputeFeatures.AddUninitialized(FeatureCount);
+			XR_ENSURE(Ext.xrEnumerateSceneComputeFeaturesMSFT(InInstance, InSystem, FeatureCount, &FeatureCount, SceneComputeFeatures.GetData()));
 
-		bCanDetectPlanes = SceneComputeFeatures.Contains(XR_SCENE_COMPUTE_FEATURE_PLANE_MSFT);
+			bCanDetectPlanes = SceneComputeFeatures.Contains(XR_SCENE_COMPUTE_FEATURE_PLANE_MSFT);
+		}
 
 		return InNext;
 	}
@@ -534,7 +547,7 @@ namespace MicrosoftOpenXR
 
 				FOpenXRPlaneUpdate* PlaneUpdate = TrackedMeshHolder->AllocatePlaneUpdate(PlaneGuid);
 				PlaneUpdate->Type = Plane.Type;
-				PlaneUpdate->Extent = Plane.Extent;
+				PlaneUpdate->Extent = FVector(Plane.Extent);
 				if (IsPoseValid(Location.flags))
 				{
 					PlaneUpdate->LocalToTrackingTransform = GetPlaneTransform(Location.pose, WorldToMetersScale);
