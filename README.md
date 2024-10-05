@@ -4,6 +4,9 @@
 
 # What is Graphics Tools?
 
+> [!IMPORTANT]
+> Microsoft & Unreal have discontinued support for the Unreal Engine for HoloLens 2. Customers can continue using Unreal Engine to develop applications for HoloLens 2, but support has been discontinued (no bug fixes, content updates or technical support). Existing applications will continue to run on the last version of Unreal 5.1. Applications for HoloLens 2 can alternatively be [developed with Unity](https://learn.microsoft.com/windows/mixed-reality/develop/unity/unity-development-overview).
+
 Graphics Tools for Unreal Engine is a UE game plugin with code, blueprints and example assets created to help improve the visual fidelity of Mixed Reality applications while staying within performance budgets.
 
 | NOTE: Only HoloLens 2, Windows, and Android development is tested at the moment. If you encounter issues with other platforms please [file an issue](https://github.com/microsoft/MixedReality-GraphicsTools-Unreal/issues/new). |
